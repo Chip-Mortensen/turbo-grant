@@ -1,5 +1,6 @@
 import { generateEmbeddings } from './openai';
 import { getPineconeClient } from './pinecone';
+import { randomUUID } from 'crypto';
 
 export interface ProcessingResult {
   pineconeIds: string[];
@@ -32,7 +33,7 @@ export abstract class ContentProcessor {
     metadata: ProcessingMetadata
   ): Promise<string> {
     const client = await getPineconeClient();
-    const index = client.Index(process.env.PINECONE_INDEX_NAME!);
+    const index = client.index(process.env.PINECONE_INDEX_NAME!);
     
     // Add common metadata
     const enrichedMetadata = {
@@ -40,19 +41,15 @@ export abstract class ContentProcessor {
       projectId: this.projectId,
     };
 
-    // Generate a unique ID for this vector
-    const id = crypto.randomUUID();
+    // Generate an ID using Node's crypto module
+    const id = randomUUID();
 
     // Upsert the vector
-    await index.upsert({
-      upsertRequest: {
-        vectors: [{
-          id,
-          values: vector,
-          metadata: enrichedMetadata,
-        }],
-      },
-    });
+    await index.upsert([{
+      id,
+      values: vector,
+      metadata: enrichedMetadata,
+    }]);
 
     return id;
   }
