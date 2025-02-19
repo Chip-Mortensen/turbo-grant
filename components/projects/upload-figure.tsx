@@ -20,12 +20,32 @@ export function UploadFigure({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const router = useRouter()
 
+  const validateFile = (file: File): string | null => {
+    const allowedTypes = ['image/png', 'image/jpeg'];
+    if (!allowedTypes.includes(file.type)) {
+      return "Invalid file type. Please upload a PNG or JPG/JPEG file.";
+    }
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB in bytes
+      return "File size exceeds 5MB limit.";
+    }
+
+    return null;
+  };
+
   const onFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
 
     const file = e.target.files[0]
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     const url = URL.createObjectURL(file)
     setPreviewUrl(url)
+    setError(null);
   }, [])
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -37,6 +57,12 @@ export function UploadFigure({
     }
 
     const file = fileInput.files[0]
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setIsUploading(true)
     setError(null)
 
@@ -115,7 +141,7 @@ export function UploadFigure({
                   <span className="font-semibold">Click to upload</span> or drag and drop
                 </p>
                 <p className="text-xs text-gray-500">
-                  PNG, JPG, GIF or WEBP (Max. 5MB)
+                  PNG or JPG/JPEG (Max. 5MB)
                 </p>
               </div>
             )}
@@ -123,7 +149,7 @@ export function UploadFigure({
               id="figure"
               type="file"
               className="hidden"
-              accept="image/jpeg,image/png,image/gif,image/webp"
+              accept="image/jpeg,image/png"
               onChange={onFileSelect}
               disabled={isUploading}
             />

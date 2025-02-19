@@ -12,6 +12,23 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
   const [mediaType, setMediaType] = useState<"video" | "audio">("video")
   const router = useRouter()
 
+  const validateFile = (file: File): string | null => {
+    const allowedTypes = {
+      video: ['video/mp4'],
+      audio: ['audio/mpeg']
+    };
+
+    if (!allowedTypes[mediaType].includes(file.type)) {
+      return `Invalid file type. Please upload ${mediaType === 'video' ? 'an MP4 video' : 'an MP3 audio'} file.`;
+    }
+
+    if (file.size > 100 * 1024 * 1024) { // 100MB in bytes
+      return "File size exceeds 100MB limit.";
+    }
+
+    return null;
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement
@@ -21,6 +38,12 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
     }
 
     const file = fileInput.files[0]
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setIsUploading(true)
     setError(null)
 
@@ -69,11 +92,11 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="video" id="video" />
-            <Label htmlFor="video">Video Recording</Label>
+            <Label htmlFor="video">Video Recording (MP4)</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="audio" id="audio" />
-            <Label htmlFor="audio">Audio Recording</Label>
+            <Label htmlFor="audio">Audio Recording (MP3)</Label>
           </div>
         </RadioGroup>
       </div>
@@ -105,14 +128,14 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
                 <span className="font-semibold">Click to upload</span> or drag and drop
               </p>
               <p className="text-xs text-gray-500">
-                {mediaType === "video" ? "MP4 or WEBM" : "MP3, WAV, or WEBM"} (Max. 100MB)
+                {mediaType === "video" ? "MP4 video" : "MP3 audio"} file (Max. 100MB)
               </p>
             </div>
             <input
               id="media"
               type="file"
               className="hidden"
-              accept={mediaType === "video" ? "video/mp4,video/webm" : "audio/mpeg,audio/wav,audio/webm"}
+              accept={mediaType === "video" ? "video/mp4" : "audio/mpeg"}
               disabled={isUploading}
             />
           </label>
