@@ -1,4 +1,4 @@
-import { PineconeClient } from '@pinecone-database/pinecone';
+import { Pinecone } from '@pinecone-database/pinecone';
 
 if (!process.env.PINECONE_API_KEY) {
   throw new Error('Missing env.PINECONE_API_KEY');
@@ -10,14 +10,12 @@ if (!process.env.PINECONE_INDEX_NAME) {
   throw new Error('Missing env.PINECONE_INDEX_NAME');
 }
 
-let pineconeClient: PineconeClient | null = null;
+let pineconeClient: Pinecone | null = null;
 
 export async function getPineconeClient() {
   if (!pineconeClient) {
-    pineconeClient = new PineconeClient();
-    await pineconeClient.init({
-      environment: process.env.PINECONE_ENVIRONMENT,
-      apiKey: process.env.PINECONE_API_KEY,
+    pineconeClient = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY!,
     });
   }
   return pineconeClient;
@@ -25,15 +23,18 @@ export async function getPineconeClient() {
 
 export async function initializePineconeIndex() {
   const client = await getPineconeClient();
+  const indexName = process.env.PINECONE_INDEX_NAME!;
   
   // List existing indexes
   const indexes = await client.listIndexes();
   
   // Check if our index already exists
-  if (!indexes.includes(process.env.PINECONE_INDEX_NAME!)) {
+  const indexExists = Object.keys(indexes).includes(indexName);
+  
+  if (!indexExists) {
     // Create the index
     await client.createIndex({
-      name: process.env.PINECONE_INDEX_NAME!,
+      name: indexName,
       dimension: 3072, // matches text-embedding-3-large
       metric: 'cosine',
       spec: {
@@ -44,11 +45,11 @@ export async function initializePineconeIndex() {
       }
     });
     
-    console.log(`Created Pinecone index: ${process.env.PINECONE_INDEX_NAME}`);
+    console.log(`Created Pinecone index: ${indexName}`);
   } else {
-    console.log(`Using existing Pinecone index: ${process.env.PINECONE_INDEX_NAME}`);
+    console.log(`Using existing Pinecone index: ${indexName}`);
   }
   
   // Get and return the index
-  return client.Index(process.env.PINECONE_INDEX_NAME);
+  return client.index(indexName);
 } 
