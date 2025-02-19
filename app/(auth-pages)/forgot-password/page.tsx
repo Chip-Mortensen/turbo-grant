@@ -4,7 +4,6 @@ import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { SmtpMessage } from "../smtp-message";
 
 export default async function ForgotPassword(props: {
   searchParams: Promise<Message>;
@@ -12,26 +11,36 @@ export default async function ForgotPassword(props: {
   const searchParams = await props.searchParams;
   return (
     <>
-      <form className="flex-1 flex flex-col w-full gap-2 text-foreground [&>input]:mb-6 min-w-64 max-w-64 mx-auto">
-        <div>
-          <h1 className="text-2xl font-medium">Reset Password</h1>
-          <p className="text-sm text-secondary-foreground">
-            Already have an account?{" "}
-            <Link className="text-primary underline" href="/sign-in">
-              Sign in
-            </Link>
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
-          <Label htmlFor="email">Email</Label>
-          <Input name="email" placeholder="you@example.com" required />
+      <div className="flex flex-col space-y-2 text-center">
+        <h1 className="text-2xl font-semibold tracking-tight">Reset Password</h1>
+        <p className="text-sm text-muted-foreground">
+          Enter your email address and we'll send you a link to reset your password
+        </p>
+      </div>
+      <div className="grid gap-6">
+        <form className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="name@example.com"
+              required
+            />
+          </div>
           <SubmitButton formAction={forgotPasswordAction}>
-            Reset Password
+            Send Reset Link
           </SubmitButton>
           <FormMessage message={searchParams} />
-        </div>
-      </form>
-      <SmtpMessage />
+        </form>
+        <Link
+          href="/sign-in"
+          className="text-sm text-center text-muted-foreground hover:text-brand underline underline-offset-4"
+        >
+          Back to sign in
+        </Link>
+      </div>
     </>
   );
 }
