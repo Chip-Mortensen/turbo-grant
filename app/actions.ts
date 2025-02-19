@@ -195,7 +195,7 @@ export async function deleteDescription(descriptionId: string) {
 
   // Delete the file from storage
   const { error: storageError } = await supabase.storage
-    .from("research_descriptions")
+    .from("written-descriptions")
     .remove([description.file_path])
 
   if (storageError) {
@@ -239,7 +239,7 @@ export async function getDescriptionUrl(descriptionId: string) {
 
   // Get a signed URL for the file
   const { data, error } = await supabase.storage
-    .from("research_descriptions")
+    .from("written-descriptions")
     .createSignedUrl(description.file_path, 60) // URL valid for 60 seconds
 
   if (error) {

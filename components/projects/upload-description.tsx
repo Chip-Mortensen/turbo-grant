@@ -72,7 +72,7 @@ export function UploadDescription({ projectId }: { projectId: string }) {
       // Upload file to storage
       console.log('Attempting to upload file to storage bucket')
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("research_descriptions")
+        .from("written-descriptions")
         .upload(`${projectId}/${file.name}`, file)
 
       if (uploadError) {
