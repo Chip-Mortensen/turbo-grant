@@ -1,3 +1,7 @@
+-- Drop existing policies
+drop policy if exists "Users can view their own profile" on public.users;
+drop policy if exists "Users can update their own profile" on public.users;
+
 -- Create a table for public profiles
 create table if not exists public.users (
   id uuid references auth.users on delete cascade not null primary key,

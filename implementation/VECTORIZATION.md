@@ -21,6 +21,22 @@ const AI_MODELS = {
 };
 ```
 
+### Environment Setup
+
+Required environment variables:
+
+```bash
+# OpenAI API (for embeddings and image description)
+OPENAI_API_KEY=sk-...
+
+# Pinecone Vector Database
+PINECONE_API_KEY=your-api-key
+PINECONE_ENVIRONMENT=your-environment  # e.g., "gcp-starter", "us-west1-gcp"
+PINECONE_INDEX_NAME=turbo-grant       # name of your Pinecone index
+```
+
+Note: The Pinecone index should be created with dimension=3072 to match the OpenAI text-embedding-3-large model.
+
 ### Research Descriptions
 
 - PDF (application/pdf)
@@ -31,7 +47,7 @@ const AI_MODELS = {
   - Extract text based on file type
   - Split into chunks (~1000 tokens)
   - Generate embeddings per chunk
-  - Store with metadata (filename, type, page numbers)
+  - Store in Pinecone with metadata (filename, type, page numbers)
 
 ### Scientific Figures
 
@@ -42,7 +58,7 @@ const AI_MODELS = {
   - Generate description using gpt-4o-mini
   - Combine with user caption
   - Generate single embedding
-  - Store with metadata (caption, description)
+  - Store in Pinecone with metadata (caption, description)
 
 ### Chalk Talks
 
@@ -54,7 +70,7 @@ const AI_MODELS = {
   - Store in `chalk_talk_transcripts` bucket
   - Split transcript into chunks (~1000 tokens)
   - Generate embeddings per chunk
-  - Store with metadata (duration, timestamps)
+  - Store in Pinecone with metadata (duration, timestamps)
 
 ### Researcher Profiles
 
@@ -62,20 +78,19 @@ const AI_MODELS = {
 - Processing:
   - Combine fields into single text
   - Generate single embedding
+  - Store in Pinecone with metadata
   - Process immediately on create/update
 
 ## 2. Database Schema
 
 ```sql
--- Enable pgvector
-CREATE EXTENSION IF NOT EXISTS vector;
-
 -- Content status tracking
 ALTER TABLE public.written_descriptions
 ADD COLUMN vectorization_status TEXT NOT NULL DEFAULT 'pending'
   CHECK (vectorization_status IN ('pending', 'processing', 'completed', 'error')),
 ADD COLUMN vectorization_error TEXT,
-ADD COLUMN last_vectorized_at TIMESTAMP WITH TIME ZONE;
+ADD COLUMN last_vectorized_at TIMESTAMP WITH TIME ZONE,
+ADD COLUMN pinecone_id TEXT;
 
 ALTER TABLE public.scientific_figures
 ADD COLUMN vectorization_status TEXT NOT NULL DEFAULT 'pending'
@@ -83,7 +98,8 @@ ADD COLUMN vectorization_status TEXT NOT NULL DEFAULT 'pending'
 ADD COLUMN vectorization_error TEXT,
 ADD COLUMN last_vectorized_at TIMESTAMP WITH TIME ZONE,
 ADD COLUMN ai_description TEXT,
-ADD COLUMN ai_description_model TEXT;
+ADD COLUMN ai_description_model TEXT,
+ADD COLUMN pinecone_id TEXT;
 
 ALTER TABLE public.chalk_talks
 ADD COLUMN transcription_path TEXT,
@@ -94,31 +110,14 @@ ADD COLUMN vectorization_status TEXT NOT NULL DEFAULT 'pending'
   CHECK (vectorization_status IN ('pending', 'processing', 'completed', 'error')),
 ADD COLUMN vectorization_error TEXT,
 ADD COLUMN last_vectorized_at TIMESTAMP WITH TIME ZONE,
-DROP COLUMN transcription;
+ADD COLUMN pinecone_id TEXT;
 
 ALTER TABLE public.researcher_profiles
 ADD COLUMN vectorization_status TEXT NOT NULL DEFAULT 'pending'
   CHECK (vectorization_status IN ('pending', 'processing', 'completed', 'error')),
 ADD COLUMN vectorization_error TEXT,
-ADD COLUMN last_vectorized_at TIMESTAMP WITH TIME ZONE;
-
--- Embeddings storage
-CREATE TABLE public.content_embeddings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    content_type TEXT NOT NULL CHECK (content_type IN ('description', 'figure', 'chalk_talk', 'researcher')),
-    content_id UUID NOT NULL,
-    project_id UUID NOT NULL REFERENCES research_projects(id) ON DELETE CASCADE,
-    embedding vector(3072) NOT NULL,
-    metadata JSONB NOT NULL,
-    chunk_index INTEGER,
-    chunk_total INTEGER,
-    processed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    status TEXT NOT NULL DEFAULT 'completed' CHECK (status IN ('completed', 'error'))
-);
-
--- Efficient search index
-CREATE INDEX ON content_embeddings USING ivfflat (embedding vector_cosine_ops)
-    WITH (lists = 100);
+ADD COLUMN last_vectorized_at TIMESTAMP WITH TIME ZONE,
+ADD COLUMN pinecone_id TEXT;
 
 -- Processing queue
 CREATE TABLE public.processing_queue (
@@ -136,10 +135,6 @@ CREATE TABLE public.processing_queue (
     chunk_start INTEGER,
     chunk_end INTEGER
 );
-
--- Queue indexes
-CREATE INDEX ON processing_queue (status, priority);
-CREATE INDEX ON processing_queue (content_type, project_id);
 ```
 
 ## 3. Processing Implementation
@@ -151,6 +146,7 @@ abstract class ContentProcessor {
   abstract validate(content: any): Promise<boolean>;
   abstract process(content: any): Promise<ProcessingResult>;
   abstract generateEmbeddings(text: string): Promise<number[]>;
+  abstract storePineconeVector(vector: number[], metadata: any): Promise<string>;
 }
 ```
 
@@ -162,7 +158,17 @@ class DescriptionProcessor extends ContentProcessor {
     const text = await this.extractText(file);
     const chunks = this.splitIntoChunks(text);
     const embeddings = await Promise.all(chunks.map((chunk) => this.generateEmbeddings(chunk)));
-    return { embeddings, chunks, metadata: this.extractMetadata(file) };
+    const pineconeIds = await Promise.all(
+      embeddings.map((embedding, index) =>
+        this.storePineconeVector(embedding, {
+          type: 'description',
+          chunk: index + 1,
+          total_chunks: chunks.length,
+          metadata: this.extractMetadata(file),
+        })
+      )
+    );
+    return { pineconeIds, chunks, metadata: this.extractMetadata(file) };
   }
 
   private async extractText(file: File): Promise<string> {
@@ -188,8 +194,16 @@ class FigureProcessor extends ContentProcessor {
     const description = await this.generateDescription(figure.file);
     const text = this.combineText(description, figure.caption);
     const embedding = await this.generateEmbeddings(text);
+    const pineconeId = await this.storePineconeVector(embedding, {
+      type: 'figure',
+      metadata: {
+        description,
+        caption: figure.caption,
+        model: 'gpt-4o-mini',
+      },
+    });
     return {
-      embeddings: [embedding],
+      pineconeId,
       metadata: {
         description,
         caption: figure.caption,
@@ -211,8 +225,18 @@ class ChalkTalkProcessor extends ContentProcessor {
     const text = transcriptions.join(' ');
     const textChunks = this.splitIntoChunks(text);
     const embeddings = await Promise.all(textChunks.map((chunk) => this.generateEmbeddings(chunk)));
+    const pineconeIds = await Promise.all(
+      embeddings.map((embedding, index) =>
+        this.storePineconeVector(embedding, {
+          type: 'chalk_talk',
+          chunk: index + 1,
+          total_chunks: textChunks.length,
+          metadata: this.getMediaMetadata(media),
+        })
+      )
+    );
 
-    return { embeddings, chunks: textChunks, metadata: this.getMediaMetadata(media) };
+    return { pineconeIds, chunks: textChunks, metadata: this.getMediaMetadata(media) };
   }
 }
 ```
@@ -224,8 +248,16 @@ class ResearcherProcessor extends ContentProcessor {
   async process(data: ResearcherProfile): Promise<ProcessingResult> {
     const text = this.combineProfileData(data);
     const embedding = await this.generateEmbeddings(text);
+    const pineconeId = await this.storePineconeVector(embedding, {
+      type: 'researcher',
+      metadata: {
+        name: data.name,
+        title: data.title,
+        institution: data.institution,
+      },
+    });
     return {
-      embeddings: [embedding],
+      pineconeId,
       metadata: {
         name: data.name,
         title: data.title,
@@ -238,48 +270,56 @@ class ResearcherProcessor extends ContentProcessor {
 
 ## 4. Search Implementation
 
-```sql
-CREATE OR REPLACE FUNCTION search_content(
-    query_embedding vector(3072),
-    project_id UUID,
-    content_type TEXT[] DEFAULT ARRAY['description', 'figure', 'chalk_talk', 'researcher'],
-    similarity_threshold FLOAT DEFAULT 0.7,
-    max_results INTEGER DEFAULT 10
-) RETURNS TABLE (
-    content_id UUID,
-    content_type TEXT,
-    similarity FLOAT,
-    metadata JSONB,
-    chunk_index INTEGER
-) LANGUAGE plpgsql AS $$
-BEGIN
-    RETURN QUERY
-    SELECT
-        ce.content_id,
-        ce.content_type,
-        1 - (ce.embedding <=> query_embedding) as similarity,
-        ce.metadata,
-        ce.chunk_index
-    FROM content_embeddings ce
-    WHERE ce.project_id = project_id
-    AND ce.content_type = ANY(content_type)
-    AND ce.status = 'completed'
-    AND 1 - (ce.embedding <=> query_embedding) > similarity_threshold
-    ORDER BY similarity DESC
-    LIMIT max_results;
-END;
-$$;
+```typescript
+interface SearchOptions {
+  projectId: string;
+  contentTypes?: ('description' | 'figure' | 'chalk_talk' | 'researcher')[];
+  similarityThreshold?: number;
+  maxResults?: number;
+}
+
+async function searchContent(query: string, options: SearchOptions) {
+  // Generate embedding for search query
+  const embedding = await generateEmbeddings(query);
+
+  // Search Pinecone with filters
+  const results = await pineconeClient.query({
+    vector: embedding,
+    filter: {
+      projectId: options.projectId,
+      type: { $in: options.contentTypes || ['description', 'figure', 'chalk_talk', 'researcher'] },
+    },
+    topK: options.maxResults || 10,
+    includeMetadata: true,
+  });
+
+  // Filter by similarity threshold if specified
+  const filteredResults = options.similarityThreshold ? results.matches.filter((match) => match.score >= options.similarityThreshold) : results.matches;
+
+  // Format and return results
+  return filteredResults.map((match) => ({
+    id: match.id,
+    score: match.score,
+    metadata: match.metadata,
+  }));
+}
 ```
 
 ## Implementation Order
 
 1. Database Setup
 
-   - Create tables
-   - Add indexes
-   - Enable pgvector
+   - Add status tracking columns
+   - Create processing queue
+   - Set up RLS policies
 
-2. Content Processors
+2. Pinecone Setup
+
+   - Create index with appropriate dimensions
+   - Configure metadata schema
+   - Set up API access
+
+3. Content Processors
 
    - Base processor implementation
    - Description processor
@@ -287,15 +327,15 @@ $$;
    - Chalk talk processor
    - Researcher processor
 
-3. Processing Queue
+4. Processing Queue
 
    - Queue table
    - Status tracking
    - Error handling
    - Retry logic
 
-4. Search Implementation
-   - Vector search function
+5. Search Implementation
+   - Pinecone query interface
    - Content type filtering
    - Similarity thresholds
 
@@ -316,4 +356,4 @@ $$;
 3. Content Updates
    - Track versions
    - Re-process only modified content
-   - Maintain embedding history
+   - Maintain Pinecone vector history

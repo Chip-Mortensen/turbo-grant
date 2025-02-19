@@ -1,3 +1,35 @@
+-- Drop existing triggers first
+DROP TRIGGER IF EXISTS set_updated_at ON public.research_projects;
+DROP TRIGGER IF EXISTS set_updated_at ON public.project_grants;
+
+-- Drop existing policies first
+DROP POLICY IF EXISTS "Users can view their own projects" ON public.research_projects;
+DROP POLICY IF EXISTS "Users can create their own projects" ON public.research_projects;
+DROP POLICY IF EXISTS "Users can update their own projects" ON public.research_projects;
+DROP POLICY IF EXISTS "Users can delete their own projects" ON public.research_projects;
+DROP POLICY IF EXISTS "Users can view descriptions of their projects" ON public.written_descriptions;
+DROP POLICY IF EXISTS "Users can create descriptions for their projects" ON public.written_descriptions;
+DROP POLICY IF EXISTS "Users can update descriptions of their projects" ON public.written_descriptions;
+DROP POLICY IF EXISTS "Users can delete descriptions of their projects" ON public.written_descriptions;
+DROP POLICY IF EXISTS "Users can view figures of their projects" ON public.scientific_figures;
+DROP POLICY IF EXISTS "Users can create figures for their projects" ON public.scientific_figures;
+DROP POLICY IF EXISTS "Users can update figures of their projects" ON public.scientific_figures;
+DROP POLICY IF EXISTS "Users can delete figures of their projects" ON public.scientific_figures;
+DROP POLICY IF EXISTS "Users can view chalk talks of their projects" ON public.chalk_talks;
+DROP POLICY IF EXISTS "Users can create chalk talks for their projects" ON public.chalk_talks;
+DROP POLICY IF EXISTS "Users can update chalk talks of their projects" ON public.chalk_talks;
+DROP POLICY IF EXISTS "Users can delete chalk talks of their projects" ON public.chalk_talks;
+DROP POLICY IF EXISTS "Users can view researcher profiles of their projects" ON public.researcher_profiles;
+DROP POLICY IF EXISTS "Users can create researcher profiles for their projects" ON public.researcher_profiles;
+DROP POLICY IF EXISTS "Users can update researcher profiles of their projects" ON public.researcher_profiles;
+DROP POLICY IF EXISTS "Users can delete researcher profiles of their projects" ON public.researcher_profiles;
+DROP POLICY IF EXISTS "Everyone can view grant types" ON public.grant_types;
+DROP POLICY IF EXISTS "Users can create custom grant types" ON public.grant_types;
+DROP POLICY IF EXISTS "Users can view grant applications of their projects" ON public.project_grants;
+DROP POLICY IF EXISTS "Users can create grant applications for their projects" ON public.project_grants;
+DROP POLICY IF EXISTS "Users can update grant applications of their projects" ON public.project_grants;
+DROP POLICY IF EXISTS "Users can delete grant applications of their projects" ON public.project_grants;
+
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -330,7 +362,7 @@ CREATE POLICY "Users can delete grant applications of their projects"
     )
   );
 
--- Create updated_at trigger function
+-- Updated At Trigger Function
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -339,7 +371,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Add updated_at triggers
+-- Add Updated At Triggers
 CREATE TRIGGER set_updated_at
   BEFORE UPDATE ON public.research_projects
   FOR EACH ROW
@@ -348,4 +380,4 @@ CREATE TRIGGER set_updated_at
 CREATE TRIGGER set_updated_at
   BEFORE UPDATE ON public.project_grants
   FOR EACH ROW
-  EXECUTE FUNCTION public.handle_updated_at(); 
+  EXECUTE FUNCTION public.handle_updated_at();
