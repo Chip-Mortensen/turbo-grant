@@ -5,6 +5,7 @@ import { generateEmbeddings } from '@/lib/vectorization/openai';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { DescriptionProcessor } from '../processors/description-processor';
+import { ResearcherProcessor } from '../processors/researcher-processor';
 
 interface QueueItem {
   id: string;
@@ -25,77 +26,6 @@ interface ResearcherProfile {
 }
 
 const BATCH_SIZE = 10; // Number of items to process in each batch
-
-class ResearcherProcessor extends ContentProcessor {
-  private content: ResearcherProfile;
-  private supabase: SupabaseClient;
-
-  constructor(content: ResearcherProfile, projectId: string, supabase: SupabaseClient) {
-    super(projectId);
-    this.content = content;
-    this.supabase = supabase;
-  }
-
-  async validate(content: any): Promise<boolean> {
-    return !!(this.content.name && this.content.project_id);
-  }
-
-  async process(content: any): Promise<ProcessingResult> {
-    console.log('Processing researcher profile:', { id: this.content.id, name: this.content.name });
-    
-    // Combine profile data into a single text
-    const profileText = [
-      `Name: ${this.content.name}`,
-      `Title: ${this.content.title}`,
-      `Institution: ${this.content.institution}`,
-      `Biography: ${this.content.bio}`
-    ].join('\n');
-
-    console.log('Combined profile text length:', profileText.length);
-
-    try {
-      // Generate embedding
-      const embedding = await this.generateEmbeddings(profileText);
-      console.log('Generated embedding for researcher profile');
-
-      // Store in Pinecone with metadata
-      const metadata: ProcessingMetadata = {
-        type: 'researcher',
-        projectId: this.projectId,
-        name: this.content.name,
-        title: this.content.title,
-        institution: this.content.institution
-      };
-      
-      const pineconeId = await this.storePineconeVector(embedding, metadata);
-      console.log('Successfully stored researcher vector in Pinecone');
-
-      // Update the researcher profile with vectorization status
-      const { error: updateError } = await this.supabase
-        .from('researcher_profiles')
-        .update({
-          vectorization_status: 'completed',
-          last_vectorized_at: new Date().toISOString(),
-          pinecone_id: pineconeId
-        })
-        .eq('id', this.content.id);
-
-      if (updateError) {
-        console.error('Error updating researcher profile status:', updateError);
-        throw updateError;
-      }
-      console.log('Successfully updated researcher profile status');
-
-      return {
-        pineconeIds: [pineconeId],
-        metadata
-      };
-    } catch (error) {
-      console.error('Error in processResearcher:', error);
-      throw error;
-    }
-  }
-}
 
 async function processContent(
   content: any,

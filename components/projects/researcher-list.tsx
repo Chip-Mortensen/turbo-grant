@@ -20,14 +20,14 @@ export function ResearcherList({ researchers }: { researchers: Researcher[] | nu
     setLoading(id)
     setError(null)
     try {
-      const supabase = createClient()
+      const response = await fetch(`/api/researchers/${id}`, {
+        method: 'DELETE',
+      });
 
-      const { error: dbError } = await supabase
-        .from("researcher_profiles")
-        .delete()
-        .eq("id", id)
-
-      if (dbError) throw dbError
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete researcher');
+      }
 
       router.refresh()
     } catch (err) {
