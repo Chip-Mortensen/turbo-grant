@@ -48,16 +48,16 @@ export class DescriptionProcessor extends ContentProcessor {
         return false;
       }
 
-      const bucketExists = buckets.some(b => b.name === 'written_descriptions');
+      const bucketExists = buckets.some(b => b.name === 'written-descriptions');
       if (!bucketExists) {
-        console.error('Bucket "written_descriptions" does not exist');
+        console.error('Bucket "written-descriptions" does not exist');
         return false;
       }
 
       // List files in bucket to verify path
       const { data: files, error: listError } = await this.supabase
         .storage
-        .from('written_descriptions')
+        .from('written-descriptions')
         .list(this.content.project_id);
 
       if (listError) {
@@ -71,7 +71,7 @@ export class DescriptionProcessor extends ContentProcessor {
       // Get file metadata from storage
       const { data: fileData, error: fileError } = await this.supabase
         .storage
-        .from('written_descriptions')
+        .from('written-descriptions')
         .download(this.content.file_path);
 
       if (fileError) {
@@ -112,7 +112,7 @@ export class DescriptionProcessor extends ContentProcessor {
       // Download file from storage
       const { data: fileData, error: fileError } = await this.supabase
         .storage
-        .from('written_descriptions')
+        .from('written-descriptions')
         .download(this.content.file_path);
 
       if (fileError || !fileData) {
