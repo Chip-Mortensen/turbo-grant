@@ -128,6 +128,14 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     console.log('Supabase client created');
 
+    // First, let's check all queue items regardless of status
+    const { data: allItems, error: allItemsError } = await supabase
+      .from('processing_queue')
+      .select('*');
+    
+    console.log('All queue items:', allItems);
+    console.log('All queue items error:', allItemsError);
+
     // Get the next batch of items to process
     const { data: queueItems, error: fetchError } = await supabase
       .from('processing_queue')
@@ -152,7 +160,8 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('Found queue items:', queueItems?.length || 0);
+    console.log('Found pending queue items:', queueItems);
+    console.log('Found queue items count:', queueItems?.length || 0);
 
     if (!queueItems || queueItems.length === 0) {
       console.log('No items to process');
