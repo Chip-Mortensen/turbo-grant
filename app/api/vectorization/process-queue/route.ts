@@ -37,12 +37,13 @@ const BATCH_SIZE = 10; // Number of items to process in each batch
 
 // Function to generate embeddings using OpenAI
 async function generateEmbeddings(text: string): Promise<number[]> {
+  console.log('Generating embeddings for text:', text.substring(0, 100) + '...');
   const response = await openai.embeddings.create({
     model: "text-embedding-3-large",
     input: text,
     encoding_format: "float",
   });
-  
+  console.log('Generated embedding with dimensions:', response.data[0].embedding.length);
   return response.data[0].embedding;
 }
 
@@ -52,13 +53,16 @@ async function storePineconeVector(
   metadata: any,
   id: string
 ): Promise<void> {
+  console.log('Storing vector in Pinecone:', { id, metadataKeys: Object.keys(metadata) });
   const index = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
+  console.log('Using Pinecone index:', process.env.PINECONE_INDEX_NAME);
   
   await index.upsert([{
     id,
     values: vector,
     metadata
   }]);
+  console.log('Successfully stored vector in Pinecone with ID:', id);
 }
 
 // Process researcher profile
@@ -66,6 +70,8 @@ async function processResearcher(
   content: ResearcherProfile,
   supabase: SupabaseClient
 ): Promise<void> {
+  console.log('Processing researcher profile:', { id: content.id, name: content.name });
+  
   // Combine profile data into a single text
   const profileText = [
     `Name: ${content.name}`,
@@ -74,37 +80,53 @@ async function processResearcher(
     `Biography: ${content.bio}`
   ].join('\n');
 
-  // Generate embedding
-  const embedding = await generateEmbeddings(profileText);
+  console.log('Combined profile text length:', profileText.length);
 
-  // Store in Pinecone with metadata
-  const pineconeId = `researcher_${content.id}`;
-  await storePineconeVector(
-    embedding,
-    {
+  try {
+    // Generate embedding
+    const embedding = await generateEmbeddings(profileText);
+    console.log('Generated embedding for researcher profile');
+
+    // Store in Pinecone with metadata
+    const pineconeId = `researcher_${content.id}`;
+    const metadata = {
       type: 'researcher',
       project_id: content.project_id,
       name: content.name,
       title: content.title,
       institution: content.institution
-    },
-    pineconeId
-  );
+    };
+    console.log('Storing researcher vector with metadata:', metadata);
+    
+    await storePineconeVector(embedding, metadata, pineconeId);
+    console.log('Successfully stored researcher vector in Pinecone');
 
-  // Update the researcher profile with vectorization status
-  await supabase
-    .from('researcher_profiles')
-    .update({
-      vectorization_status: 'completed',
-      last_vectorized_at: new Date().toISOString(),
-      pinecone_id: pineconeId
-    })
-    .eq('id', content.id);
+    // Update the researcher profile with vectorization status
+    const { error: updateError } = await supabase
+      .from('researcher_profiles')
+      .update({
+        vectorization_status: 'completed',
+        last_vectorized_at: new Date().toISOString(),
+        pinecone_id: pineconeId
+      })
+      .eq('id', content.id);
+
+    if (updateError) {
+      console.error('Error updating researcher profile status:', updateError);
+      throw updateError;
+    }
+    console.log('Successfully updated researcher profile status');
+  } catch (error) {
+    console.error('Error in processResearcher:', error);
+    throw error;
+  }
 }
 
 export async function POST(request: Request) {
+  console.log('Received queue processing request');
   try {
     const supabase = await createClient();
+    console.log('Supabase client created');
 
     // Get the next batch of items to process
     const { data: queueItems, error: fetchError } = await supabase
@@ -130,19 +152,29 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log('Found queue items:', queueItems?.length || 0);
+
     if (!queueItems || queueItems.length === 0) {
+      console.log('No items to process');
       return NextResponse.json({ message: 'No items to process' }, { status: 200 });
     }
 
     // Process each item in the batch
     const results = await Promise.all(
       queueItems.map(async (item: QueueItem) => {
+        console.log('Processing queue item:', { id: item.id, type: item.content_type });
         try {
           // Mark item as processing
-          await supabase
+          const { error: updateError } = await supabase
             .from('processing_queue')
             .update({ status: 'processing' })
             .eq('id', item.id);
+
+          if (updateError) {
+            console.error('Error updating queue item to processing:', updateError);
+            throw updateError;
+          }
+          console.log('Marked item as processing');
 
           // Get the content based on type
           const { data: content, error: contentError } = await supabase
@@ -152,17 +184,26 @@ export async function POST(request: Request) {
             .single();
 
           if (contentError || !content) {
+            console.error('Error fetching content:', contentError);
             throw new Error(contentError?.message || 'Content not found');
           }
+          console.log('Retrieved content for processing');
 
           // Process the content based on its type
           await processContent(content, item.content_type, supabase);
+          console.log('Successfully processed content');
 
           // Mark queue item as completed
-          await supabase
+          const { error: completeError } = await supabase
             .from('processing_queue')
             .update({ status: 'completed' })
             .eq('id', item.id);
+
+          if (completeError) {
+            console.error('Error marking queue item as completed:', completeError);
+            throw completeError;
+          }
+          console.log('Marked queue item as completed');
 
           return { id: item.id, status: 'success' };
         } catch (err) {
@@ -173,7 +214,7 @@ export async function POST(request: Request) {
           const newRetryCount = (item.retry_count || 0) + 1;
           const newStatus = newRetryCount >= 3 ? 'error' : 'pending';
 
-          await supabase
+          const { error: retryError } = await supabase
             .from('processing_queue')
             .update({
               status: newStatus,
@@ -182,11 +223,17 @@ export async function POST(request: Request) {
             })
             .eq('id', item.id);
 
+          if (retryError) {
+            console.error('Error updating retry count:', retryError);
+          }
+          console.log('Updated retry count and status:', { newRetryCount, newStatus });
+
           return { id: item.id, status: 'error', error: error.message };
         }
       })
     );
 
+    console.log('Finished processing batch with results:', results);
     return NextResponse.json({ results }, { status: 200 });
   } catch (err) {
     const error = err as Error;

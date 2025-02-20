@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import { Label } from "@/components/ui/label"
@@ -11,6 +11,7 @@ export function ResearcherForm({ projectId }: { projectId: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const formRef = useRef<HTMLFormElement>(null)
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -47,7 +48,7 @@ export function ResearcherForm({ projectId }: { projectId: string }) {
       if (dbError) throw dbError
 
       // Reset form
-      e.currentTarget.reset()
+      formRef.current?.reset()
       router.refresh()
     } catch (err) {
       console.error("Error creating researcher profile:", err)
@@ -58,7 +59,7 @@ export function ResearcherForm({ projectId }: { projectId: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="name">Name *</Label>
         <Input
