@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Database } from "@/types/database"
+import { deleteResearcher } from "@/app/actions"
 
 type Researcher = Database["public"]["Tables"]["researcher_profiles"]["Row"]
 
@@ -20,13 +21,10 @@ export function ResearcherList({ researchers }: { researchers: Researcher[] | nu
     setLoading(id)
     setError(null)
     try {
-      const response = await fetch(`/api/researchers/${id}`, {
-        method: 'DELETE',
-      });
+      const result = await deleteResearcher(id);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to delete researcher');
+      if ('error' in result) {
+        throw new Error(result.error);
       }
 
       router.refresh()
