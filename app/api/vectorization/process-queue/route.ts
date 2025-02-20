@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { SupabaseClient } from '@supabase/supabase-js';
@@ -14,6 +14,18 @@ const openai = new OpenAI({
 const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!
 });
+
+// Initialize Supabase client with service role
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
 
 interface QueueItem {
   id: string;
@@ -67,8 +79,7 @@ async function storePineconeVector(
 
 // Process researcher profile
 async function processResearcher(
-  content: ResearcherProfile,
-  supabase: SupabaseClient
+  content: ResearcherProfile
 ): Promise<void> {
   console.log('Processing researcher profile:', { id: content.id, name: content.name });
   
@@ -125,8 +136,7 @@ async function processResearcher(
 export async function POST(request: Request) {
   console.log('Received queue processing request');
   try {
-    const supabase = await createClient();
-    console.log('Supabase client created');
+    console.log('Using service role client');
 
     // First, let's check all queue items regardless of status
     const { data: allItems, error: allItemsError } = await supabase
@@ -199,7 +209,7 @@ export async function POST(request: Request) {
           console.log('Retrieved content for processing');
 
           // Process the content based on its type
-          await processContent(content, item.content_type, supabase);
+          await processContent(content, item.content_type);
           console.log('Successfully processed content');
 
           // Mark queue item as completed
@@ -271,21 +281,20 @@ function getTableName(contentType: 'description' | 'figure' | 'chalk_talk' | 're
 
 async function processContent(
   content: any,
-  contentType: 'description' | 'figure' | 'chalk_talk' | 'researcher',
-  supabase: SupabaseClient
+  contentType: 'description' | 'figure' | 'chalk_talk' | 'researcher'
 ) {
   switch (contentType) {
     case 'description':
-      // await processDescription(content, supabase);
+      // await processDescription(content);
       break;
     case 'figure':
-      // await processFigure(content, supabase);
+      // await processFigure(content);
       break;
     case 'chalk_talk':
-      // await processChalkTalk(content, supabase);
+      // await processChalkTalk(content);
       break;
     case 'researcher':
-      await processResearcher(content, supabase);
+      await processResearcher(content);
       break;
     default:
       throw new Error(`Unknown content type: ${contentType}`);
