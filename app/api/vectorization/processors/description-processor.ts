@@ -160,7 +160,7 @@ export class DescriptionProcessor extends ContentProcessor {
         .update({
           vectorization_status: 'completed',
           last_vectorized_at: new Date().toISOString(),
-          pinecone_id: pineconeIds.join(',')
+          pinecone_ids: pineconeIds
         })
         .eq('id', this.content.id);
 

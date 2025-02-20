@@ -173,47 +173,82 @@ export async function createProject(formData: FormData) {
 }
 
 export async function deleteDescription(descriptionId: string) {
-  const supabase = await createClient()
+  try {
+    console.log('Starting deletion process for description:', descriptionId);
+    const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
-    return { error: "Not authenticated" }
+    if (!user) {
+      return { error: "Not authenticated" };
+    }
+
+    // Get the description to find the file path and Pinecone IDs
+    const { data: description } = await supabase
+      .from("written_descriptions")
+      .select("*")
+      .eq("id", descriptionId)
+      .single();
+
+    if (!description) {
+      return { error: "Description not found" };
+    }
+
+    // Delete the file from storage first
+    const { error: storageError } = await supabase.storage
+      .from("written-descriptions")
+      .remove([description.file_path]);
+
+    if (storageError) {
+      console.error('Error deleting storage file:', storageError);
+      return { error: storageError.message };
+    }
+
+    // Delete vectors from Pinecone if they exist
+    if (description.pinecone_ids && description.pinecone_ids.length > 0) {
+      try {
+        const pinecone = await getPineconeClient();
+        const index = pinecone.index(process.env.PINECONE_INDEX_NAME!);
+        
+        await index.deleteMany(description.pinecone_ids);
+        console.log('Deleted vectors from Pinecone:', description.pinecone_ids);
+      } catch (pineconeError) {
+        console.error('Error deleting from Pinecone:', pineconeError);
+        // Continue with other deletions even if Pinecone fails
+      }
+    }
+
+    // Delete any associated processing queue items
+    const { error: queueError } = await supabase
+      .from('processing_queue')
+      .delete()
+      .eq('content_type', 'description')
+      .eq('content_id', descriptionId);
+
+    if (queueError) {
+      console.error('Error deleting queue items:', queueError);
+      // Continue with profile deletion even if queue deletion fails
+    }
+
+    // Finally, delete the database record
+    const { error: dbError } = await supabase
+      .from("written_descriptions")
+      .delete()
+      .eq("id", descriptionId);
+
+    if (dbError) {
+      console.error('Error deleting description record:', dbError);
+      return { error: dbError.message };
+    }
+
+    console.log('Successfully deleted description and associated data');
+    return { success: true };
+  } catch (error) {
+    console.error('Unexpected error during deletion:', error);
+    return { error: 'Internal server error' };
   }
-
-  // Get the description to find the file path
-  const { data: description } = await supabase
-    .from("written_descriptions")
-    .select("*")
-    .eq("id", descriptionId)
-    .single()
-
-  if (!description) {
-    return { error: "Description not found" }
-  }
-
-  // Delete the file from storage
-  const { error: storageError } = await supabase.storage
-    .from("written-descriptions")
-    .remove([description.file_path])
-
-  if (storageError) {
-    return { error: storageError.message }
-  }
-
-  // Delete the database record
-  const { error: dbError } = await supabase
-    .from("written_descriptions")
-    .delete()
-    .eq("id", descriptionId)
-
-  if (dbError) {
-    return { error: dbError.message }
-  }
-
-  return { success: true }
 }
 
 export async function getDescriptionUrl(descriptionId: string) {
