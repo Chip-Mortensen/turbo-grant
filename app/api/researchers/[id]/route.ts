@@ -1,13 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
 export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: RouteContext
 ) {
   try {
-    console.log('Starting deletion process for researcher:', context.params.id);
+    console.log('Starting deletion process for researcher:', params.id);
 
     // Initialize Supabase client with service role
     const supabase = createClient(
@@ -26,7 +32,7 @@ export async function DELETE(
     const { data: researcher, error: fetchError } = await supabase
       .from('researcher_profiles')
       .select('pinecone_id, project_id')
-      .eq('id', context.params.id)
+      .eq('id', params.id)
       .single();
 
     if (fetchError) {
@@ -45,7 +51,7 @@ export async function DELETE(
       .select('id')
       .match({ 
         content_type: 'researcher',
-        content_id: context.params.id 
+        content_id: params.id 
       });
 
     if (queueCheckError) {
@@ -61,7 +67,7 @@ export async function DELETE(
       .delete()
       .match({ 
         content_type: 'researcher',
-        content_id: context.params.id 
+        content_id: params.id 
       })
       .select();
 
@@ -107,7 +113,7 @@ export async function DELETE(
     const { data: deletedResearcher, error: deleteError } = await supabase
       .from('researcher_profiles')
       .delete()
-      .eq('id', context.params.id)
+      .eq('id', params.id)
       .select();
 
     if (deleteError) {
