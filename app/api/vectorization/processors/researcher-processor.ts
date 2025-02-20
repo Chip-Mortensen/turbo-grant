@@ -36,68 +36,27 @@ export class ResearcherProcessor extends ContentProcessor {
     console.log('Processing researcher profile:', { id: this.content.id, name: this.content.name });
     
     try {
-      // Combine basic profile data
-      const basicInfo = [
+      // Combine all profile data
+      const fullText = [
         `Name: ${this.content.name}`,
         `Title: ${this.content.title || 'N/A'}`,
-        `Institution: ${this.content.institution || 'N/A'}`
-      ].join('\n');
+        `Institution: ${this.content.institution || 'N/A'}`,
+        this.content.bio || ''
+      ].filter(Boolean).join('\n\n');
 
-      // Process biography separately if it exists
-      const bioChunks = this.content.bio ? 
-        this.splitIntoChunks(this.content.bio) : 
-        [];
-
-      console.log('Split biography into chunks:', bioChunks.length);
-
-      const pineconeIds: string[] = [];
-      const allChunks: string[] = [];
-
-      // First, process the basic info
-      const basicInfoEmbedding = await this.generateEmbeddings(basicInfo);
-      const basicMetadata: ProcessingMetadata = {
+      const embedding = await this.generateEmbeddings(fullText);
+      
+      const metadata: ProcessingMetadata = {
         type: 'researcher',
         projectId: this.projectId,
         name: this.content.name,
         title: this.content.title,
         institution: this.content.institution,
-        chunkType: 'basic_info',
-        text: basicInfo,
-        charCount: basicInfo.length,
-        wordCount: basicInfo.split(/\s+/).length,
-        hasBiography: bioChunks.length > 0,
-        fullBiography: this.content.bio || null
+        text: fullText,
+        bio: this.content.bio || null
       };
 
-      const basicInfoId = await this.storePineconeVector(basicInfoEmbedding, basicMetadata);
-      pineconeIds.push(basicInfoId);
-      allChunks.push(basicInfo);
-
-      // Then process biography chunks if they exist
-      for (let i = 0; i < bioChunks.length; i++) {
-        const chunk = bioChunks[i];
-        const embedding = await this.generateEmbeddings(chunk);
-        
-        const metadata: ProcessingMetadata = {
-          type: 'researcher',
-          projectId: this.projectId,
-          name: this.content.name,
-          title: this.content.title,
-          institution: this.content.institution,
-          chunkType: 'biography',
-          chunkIndex: i + 1,
-          totalBioChunks: bioChunks.length,
-          text: chunk,
-          charCount: chunk.length,
-          wordCount: chunk.split(/\s+/).length,
-          fullBiography: this.content.bio
-        };
-
-        const pineconeId = await this.storePineconeVector(embedding, metadata);
-        pineconeIds.push(pineconeId);
-        allChunks.push(chunk);
-        console.log(`Stored biography chunk ${i + 1}/${bioChunks.length} in Pinecone`);
-      }
+      const pineconeId = await this.storePineconeVector(embedding, metadata);
 
       // Update the researcher profile with vectorization status
       const { error: updateError } = await this.supabase
@@ -105,7 +64,7 @@ export class ResearcherProcessor extends ContentProcessor {
         .update({
           vectorization_status: 'completed',
           last_vectorized_at: new Date().toISOString(),
-          pinecone_id: pineconeIds.join(',')
+          pinecone_id: pineconeId
         })
         .eq('id', this.content.id);
 
@@ -115,15 +74,12 @@ export class ResearcherProcessor extends ContentProcessor {
       }
 
       return {
-        pineconeIds,
-        chunks: allChunks,
+        pineconeIds: [pineconeId],
+        chunks: [fullText],
         metadata: {
           name: this.content.name,
           title: this.content.title,
-          institution: this.content.institution,
-          totalChunks: allChunks.length,
-          hasBiography: bioChunks.length > 0,
-          fullBiography: this.content.bio || null
+          institution: this.content.institution
         }
       };
     } catch (error) {
