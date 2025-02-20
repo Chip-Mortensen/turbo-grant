@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 
 export async function DELETE(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
