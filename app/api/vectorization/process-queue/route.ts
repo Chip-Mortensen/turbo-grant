@@ -15,18 +15,6 @@ const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!
 });
 
-// Initialize Supabase client with service role
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);
-
 interface QueueItem {
   id: string;
   content_type: 'description' | 'figure' | 'chalk_talk' | 'researcher';
@@ -79,7 +67,8 @@ async function storePineconeVector(
 
 // Process researcher profile
 async function processResearcher(
-  content: ResearcherProfile
+  content: ResearcherProfile,
+  supabase: SupabaseClient
 ): Promise<void> {
   console.log('Processing researcher profile:', { id: content.id, name: content.name });
   
@@ -133,9 +122,43 @@ async function processResearcher(
   }
 }
 
+async function processContent(
+  content: any,
+  contentType: 'description' | 'figure' | 'chalk_talk' | 'researcher',
+  supabase: SupabaseClient
+) {
+  switch (contentType) {
+    case 'description':
+      // await processDescription(content, supabase);
+      break;
+    case 'figure':
+      // await processFigure(content, supabase);
+      break;
+    case 'chalk_talk':
+      // await processChalkTalk(content, supabase);
+      break;
+    case 'researcher':
+      await processResearcher(content, supabase);
+      break;
+    default:
+      throw new Error(`Unknown content type: ${contentType}`);
+  }
+}
+
 export async function POST(request: Request) {
   console.log('Received queue processing request');
   try {
+    // Initialize Supabase client with service role
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
     console.log('Using service role client');
 
     // First, let's check all queue items regardless of status
@@ -209,7 +232,7 @@ export async function POST(request: Request) {
           console.log('Retrieved content for processing');
 
           // Process the content based on its type
-          await processContent(content, item.content_type);
+          await processContent(content, item.content_type, supabase);
           console.log('Successfully processed content');
 
           // Mark queue item as completed
@@ -274,28 +297,6 @@ function getTableName(contentType: 'description' | 'figure' | 'chalk_talk' | 're
       return 'chalk_talks';
     case 'researcher':
       return 'researcher_profiles';
-    default:
-      throw new Error(`Unknown content type: ${contentType}`);
-  }
-}
-
-async function processContent(
-  content: any,
-  contentType: 'description' | 'figure' | 'chalk_talk' | 'researcher'
-) {
-  switch (contentType) {
-    case 'description':
-      // await processDescription(content);
-      break;
-    case 'figure':
-      // await processFigure(content);
-      break;
-    case 'chalk_talk':
-      // await processChalkTalk(content);
-      break;
-    case 'researcher':
-      await processResearcher(content);
-      break;
     default:
       throw new Error(`Unknown content type: ${contentType}`);
   }
