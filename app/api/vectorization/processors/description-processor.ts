@@ -143,7 +143,10 @@ export class DescriptionProcessor extends ContentProcessor {
           fileName: this.content.file_name,
           fileType: this.content.file_type,
           chunkIndex: i + 1,
-          totalChunks: chunks.length
+          totalChunks: chunks.length,
+          text: chunk,
+          charCount: chunk.length,
+          wordCount: chunk.split(/\s+/).length
         };
 
         const pineconeId = await this.storePineconeVector(embedding, metadata);
