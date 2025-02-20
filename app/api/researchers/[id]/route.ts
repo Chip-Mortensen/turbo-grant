@@ -3,10 +3,10 @@ import { NextResponse } from 'next/server';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 
 export async function DELETE(
-  _request: Request,
-  context: { params: { id: string } }
-): Promise<NextResponse> {
-  const { id } = context.params;
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
   try {
     console.log('Starting deletion process for researcher:', id);
 
