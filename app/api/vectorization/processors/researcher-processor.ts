@@ -64,7 +64,9 @@ export class ResearcherProcessor extends ContentProcessor {
         chunkType: 'basic_info',
         text: basicInfo,
         charCount: basicInfo.length,
-        wordCount: basicInfo.split(/\s+/).length
+        wordCount: basicInfo.split(/\s+/).length,
+        hasBiography: bioChunks.length > 0,
+        fullBiography: this.content.bio || null
       };
 
       const basicInfoId = await this.storePineconeVector(basicInfoEmbedding, basicMetadata);
@@ -87,7 +89,8 @@ export class ResearcherProcessor extends ContentProcessor {
           totalBioChunks: bioChunks.length,
           text: chunk,
           charCount: chunk.length,
-          wordCount: chunk.split(/\s+/).length
+          wordCount: chunk.split(/\s+/).length,
+          fullBiography: this.content.bio
         };
 
         const pineconeId = await this.storePineconeVector(embedding, metadata);
@@ -119,7 +122,8 @@ export class ResearcherProcessor extends ContentProcessor {
           title: this.content.title,
           institution: this.content.institution,
           totalChunks: allChunks.length,
-          hasBiography: bioChunks.length > 0
+          hasBiography: bioChunks.length > 0,
+          fullBiography: this.content.bio || null
         }
       };
     } catch (error) {
