@@ -23,34 +23,86 @@ export class DescriptionProcessor extends ContentProcessor {
   async validate(): Promise<boolean> {
     // Check required fields
     if (!this.content.file_path || !this.content.file_type) {
+      console.error('Missing required fields:', { 
+        hasFilePath: !!this.content.file_path, 
+        hasFileType: !!this.content.file_type 
+      });
       return false;
     }
 
     // Validate file type
     const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
     if (!validTypes.includes(this.content.file_type)) {
+      console.error('Invalid file type:', this.content.file_type);
       return false;
     }
 
-    // Get file metadata from storage
-    const { data: fileData, error: fileError } = await this.supabase
-      .storage
-      .from('written_descriptions')
-      .download(this.content.file_path);
+    try {
+      // Check if bucket exists
+      const { data: buckets, error: bucketsError } = await this.supabase
+        .storage
+        .listBuckets();
 
-    if (fileError || !fileData) {
-      console.error('Error downloading file:', fileError);
+      if (bucketsError) {
+        console.error('Error listing buckets:', bucketsError);
+        return false;
+      }
+
+      const bucketExists = buckets.some(b => b.name === 'written_descriptions');
+      if (!bucketExists) {
+        console.error('Bucket "written_descriptions" does not exist');
+        return false;
+      }
+
+      // List files in bucket to verify path
+      const { data: files, error: listError } = await this.supabase
+        .storage
+        .from('written_descriptions')
+        .list(this.content.project_id);
+
+      if (listError) {
+        console.error('Error listing files in bucket:', listError);
+        return false;
+      }
+
+      console.log('Files in bucket:', files);
+      console.log('Looking for file:', this.content.file_path);
+
+      // Get file metadata from storage
+      const { data: fileData, error: fileError } = await this.supabase
+        .storage
+        .from('written_descriptions')
+        .download(this.content.file_path);
+
+      if (fileError) {
+        console.error('Error downloading file:', {
+          error: fileError,
+          path: this.content.file_path,
+          message: fileError.message,
+          name: fileError.name,
+          details: JSON.stringify(fileError)
+        });
+        return false;
+      }
+
+      if (!fileData) {
+        console.error('No file data returned');
+        return false;
+      }
+
+      // Check file size (10MB limit)
+      const TEN_MB = 10 * 1024 * 1024;
+      if (fileData.size > TEN_MB) {
+        console.error('File too large:', fileData.size);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      const error = err as Error;
+      console.error('Unexpected error in validate:', error);
       return false;
     }
-
-    // Check file size (10MB limit)
-    const TEN_MB = 10 * 1024 * 1024;
-    if (fileData.size > TEN_MB) {
-      console.error('File too large:', fileData.size);
-      return false;
-    }
-
-    return true;
   }
 
   async process(): Promise<ProcessingResult> {
