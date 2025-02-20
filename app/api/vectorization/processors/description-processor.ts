@@ -1,7 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
-import pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
 
 interface WrittenDescription {
   id: string;
@@ -135,12 +133,14 @@ export class DescriptionProcessor extends ContentProcessor {
     
     switch (this.content.file_type) {
       case 'application/pdf': {
+        const pdfParse = (await import('pdf-parse')).default;
         const pdfData = await pdfParse(Buffer.from(buffer));
         return pdfData.text;
       }
       
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
         try {
+          const mammoth = await import('mammoth');
           const { value, messages } = await mammoth.extractRawText({
             arrayBuffer: buffer
           });
