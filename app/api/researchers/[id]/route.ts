@@ -1,15 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 
-interface RequestContext {
-  params: { id: string }
-}
-
 export async function DELETE(
-  request: Request,
-  context: RequestContext
-) {
+  _request: Request,
+  context: { params: { id: string } }
+): Promise<NextResponse> {
   const { id } = context.params;
   try {
     console.log('Starting deletion process for researcher:', id);
