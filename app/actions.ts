@@ -9,28 +9,54 @@ import { getPineconeClient } from '@/lib/vectorization/pinecone';
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
+  const first_name = formData.get("first_name")?.toString();
+  const last_name = formData.get("last_name")?.toString();
+  const role = formData.get("role")?.toString();
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
-  if (!email || !password) {
+  if (!email || !password || !first_name || !last_name || !role) {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "Email and password are required",
+      "All fields are required",
     );
   }
 
-  const { error } = await supabase.auth.signUp({
+  // Sign up the user
+  const { error, data } = await supabase.auth.signUp({
     email,
     password,
     options: {
       emailRedirectTo: `${origin}/auth/callback?next=verification`,
+      data: {
+        first_name,
+        last_name,
+        role
+      }
     },
   });
 
   if (error) {
     console.error(error.code + " " + error.message);
     return encodedRedirect("error", "/sign-up", error.message);
+  }
+
+  // Update the user profile with the additional fields
+  if (data.user) {
+    const { error: profileError } = await supabase
+      .from('users')
+      .update({
+        first_name,
+        last_name,
+        role
+      })
+      .eq('id', data.user.id);
+
+    if (profileError) {
+      console.error('Error updating user profile:', profileError);
+      // Continue with sign-up even if profile update fails
+    }
   }
 
   return encodedRedirect(
@@ -473,4 +499,88 @@ export async function deleteResearcher(id: string) {
     console.error('Unexpected error during deletion:', error);
     return { error: 'Internal server error' };
   }
+}
+
+export async function updateProfileAction(formData: FormData) {
+  const supabase = await createClient();
+  
+  const id = formData.get("id") as string;
+  const first_name = formData.get("first_name") as string;
+  const last_name = formData.get("last_name") as string;
+  const role = formData.get("role") as string;
+  const institution_id = formData.get("institution_id") as string;
+  const era_commons_id = formData.get("era_commons_id") as string;
+  const orcid = formData.get("orcid") as string;
+  const phone = formData.get("phone") as string;
+
+  // Prepare the update data
+  const updateData: any = {
+    first_name,
+    last_name,
+    phone,
+    era_commons_id,
+    orcid,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Only add optional fields if they have values
+  if (role) updateData.role = role;
+  if (institution_id) updateData.institution_id = institution_id;
+
+  const { error } = await supabase
+    .from('users')
+    .update(updateData)
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating profile:', error);
+    return encodedRedirect("error", "/dashboard/profile", "Failed to update profile: " + error.message);
+  }
+
+  return encodedRedirect("success", "/dashboard/profile", "Profile updated successfully");
+}
+
+export async function createOrganization(formData: FormData) {
+  const supabase = await createClient()
+  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Not authenticated" }
+  }
+
+  const name = formData.get("name")?.toString()
+  const uei = formData.get("uei")?.toString()
+  const sam_status = formData.get("sam_status") === "on"
+  const era_commons_code = formData.get("era_commons_code")?.toString() || null
+  const nsf_id = formData.get("nsf_id")?.toString() || null
+  const organization_type = formData.get("organization_type")?.toString() || null
+
+  if (!name) {
+    return { error: "Organization name is required" }
+  }
+
+  if (!uei || uei.length !== 12) {
+    return { error: "Valid UEI (12 characters) is required" }
+  }
+
+  const { error } = await supabase
+    .from("organizations")
+    .insert([{ 
+      name, 
+      uei, 
+      sam_status, 
+      era_commons_code, 
+      nsf_id, 
+      organization_type,
+      created_by: user.id 
+    }])
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
 }

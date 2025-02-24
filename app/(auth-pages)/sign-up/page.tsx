@@ -4,6 +4,13 @@ import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default async function SignUp(props: {
   searchParams: Promise<Message>;
@@ -14,11 +21,33 @@ export default async function SignUp(props: {
       <div className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Create an Account</h1>
         <p className="text-sm text-muted-foreground">
-          Enter your email below to create your account
+          Enter your information below to create your account
         </p>
       </div>
       <div className="grid gap-6">
         <form className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="first_name">First Name</Label>
+              <Input
+                id="first_name"
+                name="first_name"
+                type="text"
+                placeholder="John"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="last_name">Last Name</Label>
+              <Input
+                id="last_name"
+                name="last_name"
+                type="text"
+                placeholder="Doe"
+                required
+              />
+            </div>
+          </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -28,6 +57,25 @@ export default async function SignUp(props: {
               placeholder="name@example.com"
               required
             />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="role">Role</Label>
+            <Select name="role" required>
+              <SelectTrigger>
+                <SelectValue placeholder="Select your role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Principal Investigator">Principal Investigator (PI)</SelectItem>
+                <SelectItem value="Co-Principal Investigator">Co-Principal Investigator (Co-PI)</SelectItem>
+                <SelectItem value="Co-Investigator">Co-Investigator (Co-I)</SelectItem>
+                <SelectItem value="Senior Personnel">Senior Personnel</SelectItem>
+                <SelectItem value="Postdoctoral Researcher">Postdoctoral Researcher</SelectItem>
+                <SelectItem value="Graduate Student">Graduate Student</SelectItem>
+                <SelectItem value="Undergraduate Student">Undergraduate Student</SelectItem>
+                <SelectItem value="Project Administrator">Project Administrator</SelectItem>
+                <SelectItem value="Authorized Organizational Representative">Authorized Organizational Representative (AOR)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
