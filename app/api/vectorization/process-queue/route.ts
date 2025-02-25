@@ -23,10 +23,14 @@ async function processContent(
   projectId: string,
   supabase: SupabaseClient
 ): Promise<void> {
+  console.log(`Processing content of type: ${contentType}, project ID: ${projectId}`);
+  console.log('Content data:', JSON.stringify(content, null, 2).substring(0, 200) + '...');
+  
   let processor: ContentProcessor;
 
   switch (contentType) {
     case 'research_description':
+      console.log('Creating ResearchDescriptionProcessor');
       processor = new ResearchDescriptionProcessor(content, projectId, supabase);
       break;
     case 'scientific_figure':
@@ -40,13 +44,18 @@ async function processContent(
   }
 
   // Validate content before processing
+  console.log('Validating content');
   const isValid = await processor.validate(content);
   if (!isValid) {
+    console.error('Content validation failed');
     throw new Error(`Invalid content for type: ${contentType}`);
   }
+  console.log('Content validation successful');
 
   // Process the content
-  await processor.process(content);
+  console.log('Starting content processing');
+  const result = await processor.process(content);
+  console.log('Content processing completed successfully', result);
 }
 
 export async function POST(request: Request) {
@@ -64,14 +73,18 @@ export async function POST(request: Request) {
       }
     );
     console.log('Using service role client');
+    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('Service role key available:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
     // First, let's check all queue items regardless of status
     const { data: allItems, error: allItemsError } = await supabase
       .from('processing_queue')
       .select('*');
     
-    console.log('All queue items:', allItems);
-    console.log('All queue items error:', allItemsError);
+    console.log('All queue items count:', allItems?.length || 0);
+    if (allItemsError) {
+      console.error('Error fetching all queue items:', allItemsError);
+    }
 
     // Get the next batch of items to process
     const { data: queueItems, error: fetchError } = await supabase

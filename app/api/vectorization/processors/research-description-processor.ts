@@ -15,6 +15,13 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
   }
 
   async validate(): Promise<boolean> {
+    console.log('Starting validation for research description:', { 
+      id: this.content.id, 
+      fileName: this.content.file_name,
+      filePath: this.content.file_path,
+      fileType: this.content.file_type
+    });
+    
     // Check required fields
     if (!this.content.file_path || !this.content.file_type) {
       console.error('Missing required fields:', { 
@@ -32,6 +39,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
     }
 
     try {
+      console.log('Checking storage buckets');
       // Check if bucket exists
       const { data: buckets, error: bucketsError } = await this.supabase
         .storage
@@ -42,6 +50,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         return false;
       }
 
+      console.log('Available buckets:', buckets.map(b => b.name));
       const bucketExists = buckets.some(b => b.name === 'research-descriptions');
       if (!bucketExists) {
         console.error('Bucket "research-descriptions" does not exist');
@@ -49,6 +58,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
       }
 
       // List files in bucket to verify path
+      console.log('Listing files in bucket for project:', this.content.project_id);
       const { data: files, error: listError } = await this.supabase
         .storage
         .from('research-descriptions')
@@ -60,9 +70,10 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
       }
 
       console.log('Files in bucket:', files);
-      console.log('Looking for file:', this.content.file_path);
+      console.log('Looking for file path:', this.content.file_path);
 
       // Get file metadata from storage
+      console.log('Attempting to download file');
       const { data: fileData, error: fileError } = await this.supabase
         .storage
         .from('research-descriptions')
@@ -84,6 +95,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         return false;
       }
 
+      console.log('File downloaded successfully, size:', fileData.size);
       // Check file size (10MB limit)
       const TEN_MB = 10 * 1024 * 1024;
       if (fileData.size > TEN_MB) {
@@ -91,6 +103,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         return false;
       }
 
+      console.log('Validation successful');
       return true;
     } catch (err) {
       const error = err as Error;
