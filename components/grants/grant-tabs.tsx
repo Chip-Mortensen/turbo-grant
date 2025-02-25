@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import UploadGrant from '@/components/projects/upload-grant';
+import UploadGrant from '@/components/grants/upload-grant';
 import { Sparkles } from 'lucide-react';
 
 interface GrantTabsProps {

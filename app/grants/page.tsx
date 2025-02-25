@@ -2,15 +2,9 @@ import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import UploadGrant from "@/components/projects/upload-grant"
-import GrantTabs from "@/components/projects/grant-tabs"
+import GrantTabs from "@/components/grants/grant-tabs"
 
-interface PageProps {
-  params: Promise<{ projectId: string }>
-}
-
-export default async function GrantsPage({ params }: PageProps) {
-  const { projectId } = await params
+export default async function GrantsPage() {
   const supabase = await createClient()
 
   const {
@@ -19,16 +13,6 @@ export default async function GrantsPage({ params }: PageProps) {
 
   if (!user) {
     return redirect("/sign-in")
-  }
-
-  const { data: project } = await supabase
-    .from("research_projects")
-    .select("*")
-    .eq("id", projectId)
-    .single()
-
-  if (!project) {
-    return redirect("/dashboard")
   }
 
   // Get all grant types
@@ -47,15 +31,15 @@ export default async function GrantsPage({ params }: PageProps) {
           </p>
         </div>
         <Link
-          href={`/dashboard/${projectId}`}
+          href="/dashboard"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          Back to Project
+          Back to Dashboard
         </Link>
       </div>
 
       <GrantTabs 
-        projectId={projectId} 
+        projectId="" 
         grantTypes={grantTypes || []} 
       />
 
@@ -64,7 +48,7 @@ export default async function GrantsPage({ params }: PageProps) {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground py-4">
-              Use the options above to add grant applications to your project.
+              Use the options above to add grant applications.
             </p>
           </CardContent>
         </Card>

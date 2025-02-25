@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { User } from "lucide-react";
+import { User, Sparkles } from "lucide-react";
 
 export default async function AuthButton() {
   const supabase = await createClient();
@@ -90,6 +90,12 @@ export default async function AuthButton() {
           <DropdownMenuItem asChild>
             <Link href="/dashboard/organizations" className="cursor-pointer w-full">
               Organizations
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/grants" className="cursor-pointer w-full flex items-center">
+              <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+              Grants
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />

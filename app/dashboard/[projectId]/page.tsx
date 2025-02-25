@@ -92,24 +92,6 @@ export default async function ProjectPage({ params }: PageProps) {
             </CardHeader>
           </Card>
         </Link>
-
-        <Link href={`/dashboard/${projectId}/grants`}>
-          <Card className="hover:bg-accent transition-colors border-blue-200 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-blue-500 text-white px-2 py-1 text-xs font-medium rounded-bl-md flex items-center">
-              <Sparkles className="h-3 w-3 mr-1" />
-              AI Powered
-            </div>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                Grant Applications
-                <Sparkles className="h-4 w-4 ml-2 text-blue-500" />
-              </CardTitle>
-              <CardDescription>
-                Extract grant information with AI and manage applications
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
       </div>
     </div>
   )

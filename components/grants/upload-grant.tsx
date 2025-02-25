@@ -186,19 +186,27 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
         grantTypeId = newGrantType.id;
       }
       
-      // Create project grant
-      const { data: projectGrant, error: projectGrantError } = await supabase
-        .from('project_grants')
-        .insert({
-          project_id: projectId,
-          grant_type_id: grantTypeId,
-          status: 'draft'
-        })
-        .select()
-        .single();
-      
-      if (projectGrantError) {
-        throw new Error(`Failed to create project grant: ${projectGrantError.message}`);
+      // Only create project grant if projectId is provided
+      if (projectId) {
+        // Create project grant
+        const { data: projectGrant, error: projectGrantError } = await supabase
+          .from('project_grants')
+          .insert({
+            project_id: projectId,
+            grant_type_id: grantTypeId,
+            status: 'draft'
+          })
+          .select()
+          .single();
+        
+        if (projectGrantError) {
+          throw new Error(`Failed to create project grant: ${projectGrantError.message}`);
+        }
+        
+        // Call onSuccess callback if provided
+        if (onSuccess) {
+          onSuccess(projectGrant);
+        }
       }
       
       // Store funding opportunity
@@ -232,7 +240,7 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
         }
       }
       
-      setSuccess('Grant added to your project successfully!');
+      setSuccess(projectId ? 'Grant added to your project successfully!' : 'Grant information saved successfully!');
       setGrantText('');
       setExtractedData(null);
       setShowFullDetails(false);
@@ -241,11 +249,6 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
-      }
-      
-      // Call onSuccess callback if provided
-      if (onSuccess) {
-        onSuccess(projectGrant);
       }
       
       // Refresh the page data
@@ -603,7 +606,7 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
                 </>
               ) : (
                 <>
-                  {saveToDatabase ? 'Save to Project' : 'Done'}
+                  {saveToDatabase ? (projectId ? 'Save to Project' : 'Save Grant Information') : 'Done'}
                 </>
               )}
             </Button>
