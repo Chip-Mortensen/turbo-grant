@@ -24,7 +24,7 @@ export default async function NewOrganization() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <OrganizationForm />
+          <OrganizationForm userId={user.id} />
         </CardContent>
       </Card>
     </div>
