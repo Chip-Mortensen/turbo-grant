@@ -33,7 +33,7 @@ export default async function SelectOrganizationPage() {
   // Fetch organizations for selection with a limit
   const { data: organizations, count } = await supabase
     .from("organizations")
-    .select("id, name, organization_type, uei", { count: 'exact' })
+    .select("*", { count: 'exact' })
     .order("name", { ascending: true })
     .limit(MAX_INITIAL_ORGANIZATIONS);
 

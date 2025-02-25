@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       // Build the database query
       let dbQuery = supabase
         .from("organizations")
-        .select("id, name, organization_type, uei", { count: "exact" });
+        .select("*", { count: "exact" });
 
       // Apply search filter if query is provided
       if (sanitizedQuery) {
