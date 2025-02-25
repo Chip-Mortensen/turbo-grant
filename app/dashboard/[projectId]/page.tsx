@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
+import { Sparkles } from "lucide-react"
 
 interface PageProps {
   params: Promise<{ projectId: string }>
@@ -76,6 +77,35 @@ export default async function ProjectPage({ params }: PageProps) {
               <CardTitle>Chalk Talk</CardTitle>
               <CardDescription>
                 Upload and manage your chalk talk presentations
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+
+        <Link href={`/dashboard/${projectId}/researchers`}>
+          <Card className="hover:bg-accent transition-colors">
+            <CardHeader>
+              <CardTitle>Researcher Profiles</CardTitle>
+              <CardDescription>
+                Manage researcher and institution information
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+
+        <Link href={`/dashboard/${projectId}/grants`}>
+          <Card className="hover:bg-accent transition-colors border-blue-200 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-blue-500 text-white px-2 py-1 text-xs font-medium rounded-bl-md flex items-center">
+              <Sparkles className="h-3 w-3 mr-1" />
+              AI Powered
+            </div>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                Grant Applications
+                <Sparkles className="h-4 w-4 ml-2 text-blue-500" />
+              </CardTitle>
+              <CardDescription>
+                Extract grant information with AI and manage applications
               </CardDescription>
             </CardHeader>
           </Card>
