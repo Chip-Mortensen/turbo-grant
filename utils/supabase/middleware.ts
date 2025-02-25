@@ -2,6 +2,12 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const updateSession = async (request: NextRequest) => {
+  // API routes should bypass middleware completely
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
+  if (isApiRoute) {
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -39,9 +45,6 @@ export const updateSession = async (request: NextRequest) => {
                          request.nextUrl.pathname.startsWith("/auth/") ||
                          request.nextUrl.pathname === "/";
 
-  // API routes should bypass organization checks
-  const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
-
   // Routes that require authentication but not organization selection
   const isOrganizationRoute = request.nextUrl.pathname === "/select-organization" ||
                               request.nextUrl.pathname.startsWith("/dashboard/create/organization");
@@ -57,7 +60,7 @@ export const updateSession = async (request: NextRequest) => {
 
   // If user is authenticated but doesn't have an organization, redirect to organization selection
   // This applies to all protected routes, not just dashboard
-  if (!isOrganizationRoute && !isApiRoute) {
+  if (!isOrganizationRoute) {
     // Check if user has selected an organization
     const { data: profile } = await supabase
       .from("users")
