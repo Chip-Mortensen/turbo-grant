@@ -23,4 +23,4 @@ CREATE POLICY "Authenticated users can update funding opportunities"
 CREATE POLICY "Authenticated users can delete funding opportunities" 
   ON public.foas
   FOR DELETE
-  USING (auth.uid() IS NOT NULL); 
+  USING (auth.uid() IS NOT NULL);

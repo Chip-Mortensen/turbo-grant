@@ -1,8 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { generateEmbeddings } from '@/lib/vectorization/openai';
-import { getPineconeClient } from '@/lib/vectorization/pinecone';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { ResearchDescriptionProcessor } from '../processors/research-description-processor';
 import { Database } from '@/types/supabase';
@@ -10,33 +8,30 @@ import { Database } from '@/types/supabase';
 // Use the Database type but define a simpler type for our processing logic
 type QueueItem = {
   id: string;
-  content_type: 'description' | 'figure' | 'chalk_talk';
+  content_type: 'research_description' | 'scientific_figure' | 'chalk_talk';
   content_id: string;
   project_id: string;
   status: 'pending' | 'processing' | 'completed' | 'error';
   retry_count: number;
 };
 
-// Full database type for reference
-type ProcessingQueueRow = Database['public']['Tables']['processing_queue']['Row'];
-
 const BATCH_SIZE = 10; // Number of items to process in each batch
 
 async function processContent(
   content: any,
-  contentType: 'description' | 'figure' | 'chalk_talk',
+  contentType: 'research_description' | 'scientific_figure' | 'chalk_talk',
   projectId: string,
   supabase: SupabaseClient
 ): Promise<void> {
   let processor: ContentProcessor;
 
   switch (contentType) {
-    case 'description':
+    case 'research_description':
       processor = new ResearchDescriptionProcessor(content, projectId, supabase);
       break;
-    case 'figure':
+    case 'scientific_figure':
       // TODO: Implement FigureProcessor
-      throw new Error('Figure processing not implemented yet');
+      throw new Error('Scientific figure processing not implemented yet');
     case 'chalk_talk':
       // TODO: Implement ChalkTalkProcessor
       throw new Error('Chalk talk processing not implemented yet');
@@ -196,11 +191,11 @@ export async function POST(request: Request) {
   }
 }
 
-function getTableName(contentType: 'description' | 'figure' | 'chalk_talk'): string {
+function getTableName(contentType: 'research_description' | 'scientific_figure' | 'chalk_talk'): string {
   switch (contentType) {
-    case 'description':
+    case 'research_description':
       return 'research_descriptions';
-    case 'figure':
+    case 'scientific_figure':
       return 'scientific_figures';
     case 'chalk_talk':
       return 'chalk_talks';
