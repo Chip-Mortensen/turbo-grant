@@ -3,7 +3,7 @@
  * To update these types, run:
  * supabase gen types typescript --linked > types/supabase.ts
  */
-
+ 
 export type Json =
   | string
   | number
