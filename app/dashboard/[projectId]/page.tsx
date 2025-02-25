@@ -81,17 +81,6 @@ export default async function ProjectPage({ params }: PageProps) {
             </CardHeader>
           </Card>
         </Link>
-
-        <Link href={`/dashboard/${projectId}/researchers`}>
-          <Card className="hover:bg-accent transition-colors">
-            <CardHeader>
-              <CardTitle>Researcher Profiles</CardTitle>
-              <CardDescription>
-                Manage researcher and institution information
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
       </div>
     </div>
   )

@@ -5,31 +5,21 @@ import { generateEmbeddings } from '@/lib/vectorization/openai';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { DescriptionProcessor } from '../processors/description-processor';
-import { ResearcherProcessor } from '../processors/researcher-processor';
 
 interface QueueItem {
   id: string;
-  content_type: 'description' | 'figure' | 'chalk_talk' | 'researcher';
+  content_type: 'description' | 'figure' | 'chalk_talk';
   content_id: string;
   project_id: string;
   status: 'pending' | 'processing' | 'completed' | 'error';
   retry_count: number;
 }
 
-interface ResearcherProfile {
-  id: string;
-  name: string;
-  title: string;
-  institution: string;
-  bio: string;
-  project_id: string;
-}
-
 const BATCH_SIZE = 10; // Number of items to process in each batch
 
 async function processContent(
   content: any,
-  contentType: 'description' | 'figure' | 'chalk_talk' | 'researcher',
+  contentType: 'description' | 'figure' | 'chalk_talk',
   projectId: string,
   supabase: SupabaseClient
 ): Promise<void> {
@@ -45,9 +35,6 @@ async function processContent(
     case 'chalk_talk':
       // TODO: Implement ChalkTalkProcessor
       throw new Error('Chalk talk processing not implemented yet');
-    case 'researcher':
-      processor = new ResearcherProcessor(content, projectId, supabase);
-      break;
     default:
       throw new Error(`Unknown content type: ${contentType}`);
   }
@@ -204,7 +191,7 @@ export async function POST(request: Request) {
   }
 }
 
-function getTableName(contentType: 'description' | 'figure' | 'chalk_talk' | 'researcher'): string {
+function getTableName(contentType: 'description' | 'figure' | 'chalk_talk'): string {
   switch (contentType) {
     case 'description':
       return 'written_descriptions';
@@ -212,8 +199,6 @@ function getTableName(contentType: 'description' | 'figure' | 'chalk_talk' | 're
       return 'scientific_figures';
     case 'chalk_talk':
       return 'chalk_talks';
-    case 'researcher':
-      return 'researcher_profiles';
     default:
       throw new Error(`Unknown content type: ${contentType}`);
   }

@@ -10,7 +10,7 @@ export interface ProcessingResult {
 
 export interface ProcessingMetadata {
   projectId: string;
-  type: 'description' | 'figure' | 'chalk_talk' | 'researcher';
+  type: 'description' | 'figure' | 'chalk_talk';
   [key: string]: any;
 }
 
