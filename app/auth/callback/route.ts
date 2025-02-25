@@ -27,10 +27,26 @@ export async function GET(request: Request) {
     }
 
     // Handle email verification callback
-    if (next) {
+    if (next === "verification") {
       return NextResponse.redirect(
         `${origin}/sign-in?message=Email verified successfully. Please sign in.&type=success`
       );
+    }
+
+    // Check if user has an organization
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('institution_id')
+        .eq('id', user.id)
+        .single();
+      
+      // Always redirect to organization selection if no organization is selected
+      if (!profile?.institution_id) {
+        return NextResponse.redirect(`${origin}/select-organization`);
+      }
     }
 
     // Default redirect

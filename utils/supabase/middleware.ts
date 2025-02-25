@@ -31,10 +31,43 @@ export const updateSession = async (request: NextRequest) => {
     },
   );
 
-  const user = await supabase.auth.getUser();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  
+  // Public routes that don't require authentication or organization selection
+  const isPublicRoute = request.nextUrl.pathname.startsWith("/sign-in") || 
+                         request.nextUrl.pathname.startsWith("/sign-up") ||
+                         request.nextUrl.pathname.startsWith("/auth/") ||
+                         request.nextUrl.pathname === "/";
 
-  if (request.nextUrl.pathname.startsWith("/dashboard") && user.error) {
+  // API routes should bypass organization checks
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
+
+  // Routes that require authentication but not organization selection
+  const isOrganizationRoute = request.nextUrl.pathname === "/select-organization" ||
+                              request.nextUrl.pathname.startsWith("/dashboard/create/organization");
+                          
+  if (isPublicRoute) {
+    return response;
+  }
+
+  // Redirect to sign-in if not authenticated
+  if (userError || !user) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
+  }
+
+  // If user is authenticated but doesn't have an organization, redirect to organization selection
+  // This applies to all protected routes, not just dashboard
+  if (!isOrganizationRoute && !isApiRoute) {
+    // Check if user has selected an organization
+    const { data: profile } = await supabase
+      .from("users")
+      .select("institution_id")
+      .eq("id", user.id)
+      .single();
+    
+    if (!profile?.institution_id) {
+      return NextResponse.redirect(new URL("/select-organization", request.url));
+    }
   }
 
   return response;

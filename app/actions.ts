@@ -90,6 +90,17 @@ export const signInAction = async (formData: FormData) => {
     );
   }
 
+  // Check if user has selected an organization
+  const { data: profile } = await supabase
+    .from('users')
+    .select('institution_id')
+    .eq('id', data.user.id)
+    .single();
+
+  if (!profile?.institution_id) {
+    return redirect("/select-organization");
+  }
+
   return redirect("/dashboard");
 };
 

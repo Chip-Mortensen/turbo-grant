@@ -13,8 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { createClient } from "@/utils/supabase/client"
 
-export function OrganizationForm() {
+export function OrganizationForm({ userId }: { userId: string }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -25,8 +26,38 @@ export function OrganizationForm() {
       const result = await createOrganization(formData)
       
       if (result.success) {
-        router.push("/dashboard")
-        router.refresh()
+        // Get the newly created organization
+        const supabase = createClient();
+        
+        // Find the organization by name (which should be unique)
+        const orgName = formData.get("name")?.toString();
+        const { data: newOrg } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("name", orgName)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (newOrg?.id) {
+          // Set this organization as the user's selected organization
+          const { error: updateError } = await supabase
+            .from('users')
+            .update({ institution_id: newOrg.id })
+            .eq('id', userId);
+          
+          if (updateError) {
+            setError(updateError.message);
+            return;
+          }
+          
+          // Redirect to dashboard
+          router.push("/dashboard");
+          router.refresh();
+        } else {
+          // Just refresh the page if we couldn't find the new organization
+          router.refresh();
+        }
       } else if (result.error) {
         setError(result.error)
       }
