@@ -91,17 +91,6 @@ export default async function ProjectPage({ params }: PageProps) {
             </CardHeader>
           </Card>
         </Link>
-
-        <Link href={`/dashboard/${projectId}/grants`}>
-          <Card className="hover:bg-accent transition-colors">
-            <CardHeader>
-              <CardTitle>Grant Applications</CardTitle>
-              <CardDescription>
-                View and manage your grant applications
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
       </div>
     </div>
   )
