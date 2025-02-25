@@ -5,7 +5,7 @@ import { FundingOpportunityExtractor } from '@/lib/funding-opportunity-extractor
 /**
  * POST /api/extract-grant
  * 
- * Extracts funding opportunity information from text content
+ * Extracts funding opportunity information from text content or URL
  */
 export async function POST(req: NextRequest) {
   try {
@@ -22,21 +22,38 @@ export async function POST(req: NextRequest) {
 
     // Parse the request body
     const body = await req.json();
-    const { text } = body;
+    const { text, url } = body;
 
-    if (!text) {
+    // Check if either text or URL is provided
+    if (!text && !url) {
       return NextResponse.json(
-        { error: 'No text provided' },
+        { error: 'No text or URL provided' },
         { status: 400 }
       );
     }
 
     // Extract funding opportunity information
     const extractor = new FundingOpportunityExtractor();
+    let fundingOpportunity;
     
-    // Create a simple HTML wrapper for the text to use the existing extraction logic
-    const htmlContent = `<html><body>${text}</body></html>`;
-    const fundingOpportunity = await extractor.extractFromHtml(htmlContent);
+    if (url) {
+      // Extract from URL
+      fundingOpportunity = await extractor.extractFromUrl(url);
+      
+      // Set the grant_url field to the provided URL
+      if (fundingOpportunity && !fundingOpportunity.grant_url) {
+        fundingOpportunity.grant_url = url;
+      }
+    } else {
+      // Create a simple HTML wrapper for the text to use the existing extraction logic
+      const htmlContent = `<html><body>${text}</body></html>`;
+      fundingOpportunity = await extractor.extractFromHtml(htmlContent);
+      
+      // If URL was provided alongside text, use it for the grant_url
+      if (url && fundingOpportunity && !fundingOpportunity.grant_url) {
+        fundingOpportunity.grant_url = url;
+      }
+    }
 
     return NextResponse.json({
       message: 'Funding opportunity information extracted successfully',

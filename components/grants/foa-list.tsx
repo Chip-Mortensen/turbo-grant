@@ -1,0 +1,347 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Search, FileText, Calendar, Building, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { FundingOpportunity } from '@/lib/funding-opportunity-extractor';
+
+interface FoaListProps {
+  projectId: string;
+}
+
+// Extend the FundingOpportunity type to include id
+interface FoaWithId extends FundingOpportunity {
+  id: string;
+}
+
+export default function FoaList({ projectId }: FoaListProps) {
+  const [foas, setFoas] = useState<FoaWithId[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFoa, setSelectedFoa] = useState<FoaWithId | null>(null);
+
+  useEffect(() => {
+    const fetchFoas = async () => {
+      setLoading(true);
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('foas')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        setFoas(data || []);
+        
+        // Auto-select the first FOA if available
+        if (data && data.length > 0) {
+          setSelectedFoa(data[0]);
+        }
+      } catch (err) {
+        console.error('Error fetching FOAs:', err);
+        setError('Failed to load funding opportunities');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFoas();
+  }, []);
+
+  const filteredFoas = foas.filter(foa => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      foa.title?.toLowerCase().includes(searchLower) ||
+      foa.agency?.toLowerCase().includes(searchLower) ||
+      foa.foa_code?.toLowerCase().includes(searchLower) ||
+      foa.grant_type?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const formatCurrency = (value: number | undefined | null) => {
+    if (value === undefined || value === null) return 'Not specified';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  };
+
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return 'Not specified';
+    
+    // Try to parse the date string
+    try {
+      const date = new Date(dateString);
+      // Check if the date is valid
+      if (isNaN(date.getTime())) return dateString;
+      
+      return date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (error) {
+      // If parsing fails, return the original string
+      return dateString;
+    }
+  };
+
+  const handleFoaClick = (foa: FundingOpportunity) => {
+    setSelectedFoa(foa as FoaWithId);
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col">
+      <div className="mb-4 relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Input
+          placeholder="Search funding opportunities..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex flex-1 gap-4 overflow-hidden border rounded-md">
+        <div className="w-2/5 overflow-y-auto border-r h-full">
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : filteredFoas.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              {searchTerm ? 'No matching funding opportunities found' : 'No funding opportunities available'}
+            </div>
+          ) : (
+            <div className="space-y-2 p-2">
+              {filteredFoas.map((foa) => (
+                <div
+                  key={foa.id}
+                  className={`p-3 rounded-md cursor-pointer transition-colors ${
+                    selectedFoa?.id === foa.id
+                      ? 'bg-primary/10 border-l-4 border-primary'
+                      : 'hover:bg-gray-100 border-l-4 border-transparent'
+                  }`}
+                  onClick={() => handleFoaClick(foa)}
+                >
+                  <div className="font-medium truncate">{foa.title}</div>
+                  <div className="flex items-center text-sm text-gray-500 mt-1 space-x-3">
+                    <span className="flex items-center">
+                      <Building className="h-3 w-3 mr-1" />
+                      {foa.agency}
+                    </span>
+                    <span className="flex items-center">
+                      <FileText className="h-3 w-3 mr-1" />
+                      {foa.foa_code}
+                    </span>
+                    {foa.deadline && (
+                      <span className="flex items-center">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {formatDate(foa.deadline)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="w-3/5 overflow-y-auto p-4 h-full">
+          {selectedFoa ? (
+            <div className="space-y-4">
+              <h3 className="font-medium text-lg">{selectedFoa.title}</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-blue-100 p-1 rounded">
+                      <Building className="h-4 w-4 text-blue-600" />
+                    </span>
+                    <span className="font-medium">Agency</span>
+                  </div>
+                  <p className="text-sm ml-7">{selectedFoa.agency}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-blue-100 p-1 rounded">
+                      <FileText className="h-4 w-4 text-blue-600" />
+                    </span>
+                    <span className="font-medium">FOA Code</span>
+                  </div>
+                  <p className="text-sm ml-7">{selectedFoa.foa_code}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-blue-100 p-1 rounded">
+                      <Calendar className="h-4 w-4 text-blue-600" />
+                    </span>
+                    <span className="font-medium">Deadline</span>
+                  </div>
+                  <p className="text-sm ml-7">{formatDate(selectedFoa.deadline)}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-blue-100 p-1 rounded">
+                      <FileText className="h-4 w-4 text-blue-600" />
+                    </span>
+                    <span className="font-medium">Grant Type</span>
+                  </div>
+                  <p className="text-sm ml-7">{selectedFoa.grant_type}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium">Description</h4>
+                  <p className="text-sm">{selectedFoa.description}</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Published Date</h4>
+                    <p className="text-sm">
+                      {formatDate(selectedFoa.published_date)}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Expected Awards</h4>
+                    <p className="text-sm">{selectedFoa.num_awards || 'Not specified'}</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Award Ceiling</h4>
+                    <p className="text-sm">{formatCurrency(selectedFoa.award_ceiling)}</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Award Floor</h4>
+                    <p className="text-sm">{formatCurrency(selectedFoa.award_floor)}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Organization Eligibility</h4>
+                    <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
+                      {selectedFoa.organization_eligibility ? (
+                        <div className="space-y-1">
+                          {Object.entries(selectedFoa.organization_eligibility).map(([key, value]) => (
+                            <div key={key} className="flex items-center">
+                              <span className={`w-4 h-4 mr-2 rounded-full ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center justify-center text-xs`}>
+                                {value ? '✓' : '✗'}
+                              </span>
+                              <span>{key}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500">No organization eligibility data available</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium">User Eligibility</h4>
+                    <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
+                      {selectedFoa.user_eligibility ? (
+                        <div className="space-y-1">
+                          {Object.entries(selectedFoa.user_eligibility).map(([key, value]) => (
+                            <div key={key} className="flex items-center">
+                              <span className={`w-4 h-4 mr-2 rounded-full ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center justify-center text-xs`}>
+                                {value ? '✓' : '✗'}
+                              </span>
+                              <span>{key}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500">No user eligibility data available</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="font-medium">Submission Requirements</h4>
+                  <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
+                    {selectedFoa.submission_requirements ? (
+                      <div className="space-y-3">
+                        {selectedFoa.submission_requirements.required_documents && (
+                          <div>
+                            <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Required Documents</h5>
+                            <ul className="list-disc pl-5 space-y-1">
+                              {Array.isArray(selectedFoa.submission_requirements.required_documents) ? 
+                                selectedFoa.submission_requirements.required_documents.map((doc, index) => (
+                                  <li key={index}>{doc}</li>
+                                )) : 
+                                <li>{String(selectedFoa.submission_requirements.required_documents)}</li>
+                              }
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {selectedFoa.submission_requirements.formats && (
+                          <div>
+                            <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Formats</h5>
+                            <ul className="list-disc pl-5 space-y-1">
+                              {Array.isArray(selectedFoa.submission_requirements.formats) ? 
+                                selectedFoa.submission_requirements.formats.map((format, index) => (
+                                  <li key={index}>{format}</li>
+                                )) : 
+                                <li>{String(selectedFoa.submission_requirements.formats)}</li>
+                              }
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {selectedFoa.submission_requirements.additional_instructions && (
+                          <div>
+                            <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Additional Instructions</h5>
+                            <p>{selectedFoa.submission_requirements.additional_instructions}</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">No submission requirements data available</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="font-medium">Grant URL</h4>
+                  <p className="text-sm break-all">
+                    <a href={selectedFoa.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      {selectedFoa.grant_url}
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-gray-500 p-8">
+              <FileText className="h-12 w-12 mb-4 opacity-20" />
+              <p>Select a funding opportunity to view details</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+} 

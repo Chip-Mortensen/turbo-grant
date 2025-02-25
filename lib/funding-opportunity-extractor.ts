@@ -37,6 +37,30 @@ export class FundingOpportunityExtractor {
   }
 
   /**
+   * Fetches HTML content from a URL and extracts funding opportunity information
+   * @param url The URL to fetch HTML content from
+   * @returns A Promise resolving to the extracted funding opportunity information
+   */
+  async extractFromUrl(url: string): Promise<FundingOpportunity> {
+    try {
+      // Fetch HTML content from the URL
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
+      }
+      
+      const htmlContent = await response.text();
+      
+      // Use the existing method to extract information from HTML
+      return this.extractFromHtml(htmlContent);
+    } catch (error) {
+      console.error('Error fetching URL or extracting funding opportunity information:', error);
+      throw new Error('Failed to extract funding opportunity information from URL');
+    }
+  }
+
+  /**
    * Extracts funding opportunity information from HTML content
    * @param htmlContent The HTML content to extract information from
    * @returns A Promise resolving to the extracted funding opportunity information
@@ -89,48 +113,48 @@ export class FundingOpportunityExtractor {
 
         You are provided with a funding opportunity document. Extract the relevant information and return it in JSON format. The JSON that is created much be 100% informed by the document text. Please do not make up any information.
 
-The JSON should include the following fields:
+        The JSON should include the following fields:
 
-The agency, which must be either "NIH" or "NSF" (this field is required).
+        The agency, which must be either "NIH" or "NSF" (this field is required).
 
-The title, which is the full title of the funding opportunity (this field is required).
+        The title, which is the full title of the funding opportunity (this field is required).
 
-The foa_code, which is the Funding Opportunity Announcement code, such as "PA-25-303" or "NSF 25-535" (this field is required and must be unique).
+        The foa_code, which is the Funding Opportunity Announcement code, such as "PA-25-303" or "NSF 25-535" (this field is required and must be unique).
 
-The grant_type, which indicates the type of grant, such as "R01", "R21", or "K99" (this field is required).
+        The grant_type, which indicates the type of grant, such as "R01", "R21", or "K99" (this field is required).
 
-The description, which should provide an in-depth description of the funding opportunity and should include details about every important aspect. This description should be comprehensive (at least 500 words) and cover the purpose, scope, research areas, expected outcomes, and any special considerations of the funding opportunity. Please try to use exerpts from the text where you can. (this field is required).
+        The description, which should provide an in-depth description of the funding opportunity and should include details about every important aspect. This description should be comprehensive (around 100-300 words) and cover the purpose, scope, research areas, expected outcomes, and any special considerations of the funding opportunity. Please try to use exerpts from the text where you can. (this field is required).
 
-The deadline, which should be the submission deadline formatted EXACTLY as "Month Day, Year" (e.g., "May 15, 2024") (this field is required). If there are multiple deadlines, please use the one that is closer to today's date, but also after today's date, which is ${formattedDate}.
+        The deadline, which should be the submission deadline formatted EXACTLY as "Month Day, Year" (e.g., "May 15, 2024") (this field is required). If there are multiple deadlines, please use the one that is closer to today's date, but also after today's date, which is ${formattedDate}.
 
-The num_awards, which is the expected number of awards and should be an integer that is zero or more (this field is required). If the exact number is not specified in the document, use your best estimate based on the document or use 1 as a default.
+        The num_awards, which is the expected number of awards and should be an integer that is zero or more (this field is required). If the exact number is not specified in the document, use your best estimate based on the document or use 1 as a default.
 
-The award_ceiling, which is the maximum funding amount (numeric, optional).
+        The award_ceiling, which is the maximum funding amount (numeric, optional).
 
-The award_floor, which is the minimum funding amount (numeric, optional).
+        The award_floor, which is the minimum funding amount (numeric, optional).
 
-The letters_of_intent field should be true if a Letter of Intent (LOI) is required and false if not (default is false).
+        The letters_of_intent field should be true if a Letter of Intent (LOI) is required and false if not (default is false).
 
-The preliminary_proposal field should be true if a preliminary proposal is required and false if not (default is false).
+        The preliminary_proposal field should be true if a preliminary proposal is required and false if not (default is false).
 
-The animal_trials field should be true if animal trials are involved and false if not (default is false).
+        The animal_trials field should be true if animal trials are involved and false if not (default is false).
 
-The human_trials field should be true if human trials are involved and false if not (default is false).
+        The human_trials field should be true if human trials are involved and false if not (default is false).
 
-The organization_eligibility field should capture eligibility details for organizations and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Higher Education, Non-Profit, For-Profit, Government, Hospital, Foreign, Individual
+        The organization_eligibility field should capture eligibility details for organizations and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Higher Education, Non-Profit, For-Profit, Government, Hospital, Foreign, Individual
 
-The user_eligibility field should capture eligibility details for individual applicants and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Principal Investigator (PI), Co-Principal Investigator(Co-PI), Co-Investigator (Co-I), Senior Personnel, Postdoctoral Researcher, Graduate Student, Undergraduate Student, Project Administrator, Authorized Organizational Representative (AOR)
+        The user_eligibility field should capture eligibility details for individual applicants and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Principal Investigator (PI), Co-Principal Investigator(Co-PI), Co-Investigator (Co-I), Senior Personnel, Postdoctoral Researcher, Graduate Student, Undergraduate Student, Project Administrator, Authorized Organizational Representative (AOR)
 
-The published_date, which is the date the funding opportunity was published, formatted in ISO 8601 format (YYYY-MM-DD) (this field is required).
+        The published_date, which is the date the funding opportunity was published, formatted in ISO 8601 format (YYYY-MM-DD) (this field is required).
 
-The submission_requirements field should be a JSON object listing the required documents, formats, and any additional instructions (this field is required).
+        The submission_requirements field should be a JSON object listing the required documents, formats, and any additional instructions (this field is required).
 
-Return only valid JSON. Do not include extra commentary or formatting.
+        Return only valid JSON. Do not include extra commentary or formatting.
 
-Document text:
-${textContent}
-        
-`;
+        Document text:
+        ${textContent}
+                
+        `;
 
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -141,7 +165,7 @@ ${textContent}
         },
       ],
       response_format: { type: 'json_object' },
-      max_tokens: 4000,
+      max_tokens: 1500,
       temperature: 0.2,
     });
 

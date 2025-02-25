@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import UploadGrant from '@/components/grants/upload-grant';
-import { Sparkles } from 'lucide-react';
+import FoaList from '@/components/grants/foa-list';
+import ProcessCsv from '@/components/grants/process-csv';
+import { Sparkles, List, FileSpreadsheet } from 'lucide-react';
 
 interface GrantTabsProps {
   projectId: string;
@@ -12,22 +14,11 @@ interface GrantTabsProps {
 }
 
 export default function GrantTabs({ projectId, grantTypes }: GrantTabsProps) {
-  const [activeTab, setActiveTab] = useState<'select' | 'extract'>('extract');
+  const [activeTab, setActiveTab] = useState<'extract' | 'list' | 'csv'>('extract');
 
   return (
     <div className="w-full">
       <div className="flex border-b mb-4">
-        <Button
-          variant={activeTab === 'select' ? 'default' : 'ghost'}
-          className={`rounded-none border-b-2 ${
-            activeTab === 'select' 
-              ? 'border-primary' 
-              : 'border-transparent'
-          } px-4 py-2 flex-1`}
-          onClick={() => setActiveTab('select')}
-        >
-          Select Grant Type
-        </Button>
         <Button
           variant={activeTab === 'extract' ? 'default' : 'ghost'}
           className={`rounded-none border-b-2 ${
@@ -40,30 +31,31 @@ export default function GrantTabs({ projectId, grantTypes }: GrantTabsProps) {
           <Sparkles className="h-4 w-4 mr-2" />
           Extract with AI
         </Button>
+        <Button
+          variant={activeTab === 'list' ? 'default' : 'ghost'}
+          className={`rounded-none border-b-2 ${
+            activeTab === 'list' 
+              ? 'border-primary' 
+              : 'border-transparent'
+          } px-4 py-2 flex-1`}
+          onClick={() => setActiveTab('list')}
+        >
+          <List className="h-4 w-4 mr-2" />
+          View FOAs
+        </Button>
+        <Button
+          variant={activeTab === 'csv' ? 'default' : 'ghost'}
+          className={`rounded-none border-b-2 ${
+            activeTab === 'csv' 
+              ? 'border-primary' 
+              : 'border-transparent'
+          } px-4 py-2 flex-1`}
+          onClick={() => setActiveTab('csv')}
+        >
+          <FileSpreadsheet className="h-4 w-4 mr-2" />
+          Process CSV
+        </Button>
       </div>
-
-      {activeTab === 'select' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Start New Application</CardTitle>
-            <CardDescription>
-              Select a grant type to start a new application
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="p-4 text-center">
-              <p className="text-muted-foreground">Grant type selection is coming soon.</p>
-              <Button 
-                className="mt-4"
-                onClick={() => setActiveTab('extract')}
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Try AI Extraction Instead
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {activeTab === 'extract' && (
         <Card>
@@ -78,6 +70,40 @@ export default function GrantTabs({ projectId, grantTypes }: GrantTabsProps) {
           </CardHeader>
           <CardContent>
             <UploadGrant projectId={projectId} />
+          </CardContent>
+        </Card>
+      )}
+
+      {activeTab === 'list' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <List className="h-5 w-5 mr-2 text-blue-500" />
+              Funding Opportunity Announcements
+            </CardTitle>
+            <CardDescription>
+              Browse and search all funding opportunities in the database
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FoaList projectId={projectId} />
+          </CardContent>
+        </Card>
+      )}
+
+      {activeTab === 'csv' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <FileSpreadsheet className="h-5 w-5 mr-2 text-blue-500" />
+              Process CSV
+            </CardTitle>
+            <CardDescription>
+              Upload a CSV file with Title and either URL or Solicitation URL columns to quickly import funding opportunities
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ProcessCsv projectId={projectId} />
           </CardContent>
         </Card>
       )}

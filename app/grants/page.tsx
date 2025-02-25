@@ -42,17 +42,6 @@ export default async function GrantsPage() {
         projectId="" 
         grantTypes={grantTypes || []} 
       />
-
-      <div className="grid gap-4">
-        <h2 className="text-lg font-semibold">Your Applications</h2>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground py-4">
-              Use the options above to add grant applications.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   )
 } 
