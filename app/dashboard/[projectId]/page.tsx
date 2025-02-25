@@ -49,7 +49,7 @@ export default async function ProjectPage({ params }: PageProps) {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Link href={`/dashboard/${projectId}/description`}>
+        <Link href={`/dashboard/${projectId}/research-description`}>
           <Card className="hover:bg-accent transition-colors">
             <CardHeader>
               <CardTitle>Research Description</CardTitle>
@@ -60,7 +60,7 @@ export default async function ProjectPage({ params }: PageProps) {
           </Card>
         </Link>
 
-        <Link href={`/dashboard/${projectId}/figures`}>
+        <Link href={`/dashboard/${projectId}/scientific-figures`}>
           <Card className="hover:bg-accent transition-colors">
             <CardHeader>
               <CardTitle>Scientific Figures</CardTitle>
