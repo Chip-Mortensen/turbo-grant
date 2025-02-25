@@ -194,7 +194,7 @@ export async function POST(request: Request) {
 function getTableName(contentType: 'description' | 'figure' | 'chalk_talk'): string {
   switch (contentType) {
     case 'description':
-      return 'written_descriptions';
+      return 'research_descriptions';
     case 'figure':
       return 'scientific_figures';
     case 'chalk_talk':

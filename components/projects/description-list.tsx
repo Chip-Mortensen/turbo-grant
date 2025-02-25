@@ -4,9 +4,9 @@ import { deleteDescription, getDescriptionUrl } from "@/app/actions"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Database } from "@/types/database"
+import { Database } from "@/types/supabase"
 
-type Description = Database["public"]["Tables"]["written_descriptions"]["Row"]
+type Description = Database["public"]["Tables"]["research_descriptions"]["Row"]
 
 export function DescriptionList({ descriptions }: { descriptions: Description[] | null }) {
   const [isLoading, setIsLoading] = useState<string | null>(null)

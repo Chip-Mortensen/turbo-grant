@@ -72,7 +72,7 @@ export function UploadDescription({ projectId }: { projectId: string }) {
       // Upload file to storage
       console.log('Attempting to upload file to storage bucket')
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("written-descriptions")
+        .from("research-descriptions")
         .upload(`${projectId}/${file.name}`, file)
 
       if (uploadError) {
@@ -85,7 +85,7 @@ export function UploadDescription({ projectId }: { projectId: string }) {
       // Create database record
       console.log('Attempting to create database record')
       const { data: dbData, error: dbError } = await supabase
-        .from("written_descriptions")
+        .from("research_descriptions")
         .insert([
           {
             project_id: projectId,

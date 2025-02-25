@@ -1,7 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 
-interface WrittenDescription {
+interface ResearchDescription {
   id: string;
   project_id: string;
   file_path: string;
@@ -11,10 +11,10 @@ interface WrittenDescription {
 }
 
 export class DescriptionProcessor extends ContentProcessor {
-  private content: WrittenDescription;
+  private content: ResearchDescription;
   private supabase: SupabaseClient;
 
-  constructor(content: WrittenDescription, projectId: string, supabase: SupabaseClient) {
+  constructor(content: ResearchDescription, projectId: string, supabase: SupabaseClient) {
     super(projectId);
     this.content = content;
     this.supabase = supabase;
@@ -48,16 +48,16 @@ export class DescriptionProcessor extends ContentProcessor {
         return false;
       }
 
-      const bucketExists = buckets.some(b => b.name === 'written-descriptions');
+      const bucketExists = buckets.some(b => b.name === 'research-descriptions');
       if (!bucketExists) {
-        console.error('Bucket "written-descriptions" does not exist');
+        console.error('Bucket "research-descriptions" does not exist');
         return false;
       }
 
       // List files in bucket to verify path
       const { data: files, error: listError } = await this.supabase
         .storage
-        .from('written-descriptions')
+        .from('research-descriptions')
         .list(this.content.project_id);
 
       if (listError) {
@@ -71,7 +71,7 @@ export class DescriptionProcessor extends ContentProcessor {
       // Get file metadata from storage
       const { data: fileData, error: fileError } = await this.supabase
         .storage
-        .from('written-descriptions')
+        .from('research-descriptions')
         .download(this.content.file_path);
 
       if (fileError) {
@@ -106,13 +106,13 @@ export class DescriptionProcessor extends ContentProcessor {
   }
 
   async process(): Promise<ProcessingResult> {
-    console.log('Processing written description:', { id: this.content.id, fileName: this.content.file_name });
+    console.log('Processing research description:', { id: this.content.id, fileName: this.content.file_name });
 
     try {
       // Download file from storage
       const { data: fileData, error: fileError } = await this.supabase
         .storage
-        .from('written-descriptions')
+        .from('research-descriptions')
         .download(this.content.file_path);
 
       if (fileError || !fileData) {
@@ -138,7 +138,7 @@ export class DescriptionProcessor extends ContentProcessor {
 
         // Store in Pinecone with metadata
         const metadata: ProcessingMetadata = {
-          type: 'description',
+          type: 'research_description',
           projectId: this.projectId,
           fileName: this.content.file_name,
           fileType: this.content.file_type,
@@ -156,7 +156,7 @@ export class DescriptionProcessor extends ContentProcessor {
 
       // Update the description status
       const { error: updateError } = await this.supabase
-        .from('written_descriptions')
+        .from('research_descriptions')
         .update({
           vectorization_status: 'completed',
           last_vectorized_at: new Date().toISOString(),
@@ -225,5 +225,21 @@ export class DescriptionProcessor extends ContentProcessor {
       default:
         throw new Error(`Unsupported file type: ${this.content.file_type}`);
     }
+  }
+
+  async updateStatus(status: string, error?: string): Promise<void> {
+    const updates: any = {
+      vectorization_status: status,
+      last_vectorized_at: new Date().toISOString()
+    };
+    
+    if (error) {
+      updates.vectorization_error = error;
+    }
+    
+    await this.supabase
+      .from('research_descriptions')
+      .update(updates)
+      .eq('id', this.content.id);
   }
 } 

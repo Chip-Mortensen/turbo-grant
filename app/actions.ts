@@ -224,7 +224,7 @@ export async function deleteDescription(descriptionId: string) {
 
     // Get the description to find the file path and Pinecone IDs
     const { data: description } = await supabase
-      .from("written_descriptions")
+      .from("research_descriptions")
       .select("*")
       .eq("id", descriptionId)
       .single();
@@ -235,7 +235,7 @@ export async function deleteDescription(descriptionId: string) {
 
     // Delete the file from storage first
     const { error: storageError } = await supabase.storage
-      .from("written-descriptions")
+      .from("research-descriptions")
       .remove([description.file_path]);
 
     if (storageError) {
@@ -271,7 +271,7 @@ export async function deleteDescription(descriptionId: string) {
 
     // Finally, delete the database record
     const { error: dbError } = await supabase
-      .from("written_descriptions")
+      .from("research_descriptions")
       .delete()
       .eq("id", descriptionId);
 
@@ -301,7 +301,7 @@ export async function getDescriptionUrl(descriptionId: string) {
 
   // Get the description to find the file path
   const { data: description } = await supabase
-    .from("written_descriptions")
+    .from("research_descriptions")
     .select("*")
     .eq("id", descriptionId)
     .single()
@@ -312,7 +312,7 @@ export async function getDescriptionUrl(descriptionId: string) {
 
   // Get a signed URL for the file
   const { data, error } = await supabase.storage
-    .from("written-descriptions")
+    .from("research-descriptions")
     .createSignedUrl(description.file_path, 60) // URL valid for 60 seconds
 
   if (error) {

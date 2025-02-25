@@ -32,7 +32,7 @@ export default async function ResearchDescriptionPage({ params }: PageProps) {
   }
 
   const { data: descriptions } = await supabase
-    .from("written_descriptions")
+    .from("research_descriptions")
     .select("*")
     .eq("project_id", projectId)
     .order("uploaded_at", { ascending: false })

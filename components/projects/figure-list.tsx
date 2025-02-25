@@ -4,7 +4,7 @@ import { deleteFigure, getFigureUrl, updateFigureOrder } from "@/app/actions"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Database } from "@/types/database"
+import { Database } from "@/types/supabase"
 import { DragDropContext, Draggable, Droppable, DropResult, DroppableProvided, DraggableProvided } from "@hello-pangea/dnd"
 
 type Figure = Database["public"]["Tables"]["scientific_figures"]["Row"]

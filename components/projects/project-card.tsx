@@ -1,4 +1,4 @@
-import { Database } from "@/types/database"
+import { Database } from "@/types/supabase"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
