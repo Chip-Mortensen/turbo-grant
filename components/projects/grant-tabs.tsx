@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { GrantSelector } from '@/components/projects/grant-selector';
 import UploadGrant from '@/components/projects/upload-grant';
 import { Sparkles } from 'lucide-react';
 
@@ -52,10 +51,16 @@ export default function GrantTabs({ projectId, grantTypes }: GrantTabsProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <GrantSelector 
-              projectId={projectId} 
-              grantTypes={grantTypes} 
-            />
+            <div className="p-4 text-center">
+              <p className="text-muted-foreground">Grant type selection is coming soon.</p>
+              <Button 
+                className="mt-4"
+                onClick={() => setActiveTab('extract')}
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Try AI Extraction Instead
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
