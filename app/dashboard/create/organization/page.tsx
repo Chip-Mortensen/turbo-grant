@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { NewOrganizationForm } from "@/components/organizations/new-organization-form"
+import { OrganizationForm } from "@/components/organizations/organization-form"
 
 export default async function NewOrganization() {
   const supabase = await createClient()
@@ -24,7 +24,7 @@ export default async function NewOrganization() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <NewOrganizationForm />
+          <OrganizationForm />
         </CardContent>
       </Card>
     </div>
