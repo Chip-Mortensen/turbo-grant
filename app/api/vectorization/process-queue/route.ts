@@ -4,7 +4,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { generateEmbeddings } from '@/lib/vectorization/openai';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
-import { DescriptionProcessor } from '../processors/description-processor';
+import { ResearchDescriptionProcessor } from '../processors/research-description-processor';
 import { Database } from '@/types/supabase';
 
 // Use the Database type but define a simpler type for our processing logic
@@ -32,7 +32,7 @@ async function processContent(
 
   switch (contentType) {
     case 'description':
-      processor = new DescriptionProcessor(content, projectId, supabase);
+      processor = new ResearchDescriptionProcessor(content, projectId, supabase);
       break;
     case 'figure':
       // TODO: Implement FigureProcessor

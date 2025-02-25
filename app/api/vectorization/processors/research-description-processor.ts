@@ -4,7 +4,7 @@ import { Database } from '@/types/supabase';
 
 type ResearchDescription = Database['public']['Tables']['research_descriptions']['Row'];
 
-export class DescriptionProcessor extends ContentProcessor {
+export class ResearchDescriptionProcessor extends ContentProcessor {
   private content: ResearchDescription;
   private supabase: SupabaseClient;
 
@@ -172,7 +172,7 @@ export class DescriptionProcessor extends ContentProcessor {
         }
       };
     } catch (error) {
-      console.error('Error in processDescription:', error);
+      console.error('Error in processResearchDescription:', error);
       throw error;
     }
   }
