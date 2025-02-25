@@ -6,14 +6,9 @@ import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
+import { Database } from "@/types/supabase"
 
-type ChalkTalk = {
-  id: string
-  project_id: string
-  media_path: string
-  media_type: "video" | "audio"
-  uploaded_at: string
-}
+type ChalkTalk = Database['public']['Tables']['chalk_talks']['Row'];
 
 export function ChalkTalkList({ chalkTalks }: { chalkTalks: ChalkTalk[] | null }) {
   const [loading, setLoading] = useState<string | null>(null)

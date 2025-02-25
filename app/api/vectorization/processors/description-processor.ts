@@ -1,14 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
+import { Database } from '@/types/supabase';
 
-interface ResearchDescription {
-  id: string;
-  project_id: string;
-  file_path: string;
-  file_name: string;
-  file_type: string;
-  uploaded_at: string;
-}
+type ResearchDescription = Database['public']['Tables']['research_descriptions']['Row'];
 
 export class DescriptionProcessor extends ContentProcessor {
   private content: ResearchDescription;
@@ -58,7 +52,7 @@ export class DescriptionProcessor extends ContentProcessor {
       const { data: files, error: listError } = await this.supabase
         .storage
         .from('research-descriptions')
-        .list(this.content.project_id);
+        .list(this.content.project_id || '');
 
       if (listError) {
         console.error('Error listing files in bucket:', listError);

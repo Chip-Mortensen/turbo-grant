@@ -5,15 +5,20 @@ import { generateEmbeddings } from '@/lib/vectorization/openai';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { DescriptionProcessor } from '../processors/description-processor';
+import { Database } from '@/types/supabase';
 
-interface QueueItem {
+// Use the Database type but define a simpler type for our processing logic
+type QueueItem = {
   id: string;
   content_type: 'description' | 'figure' | 'chalk_talk';
   content_id: string;
   project_id: string;
   status: 'pending' | 'processing' | 'completed' | 'error';
   retry_count: number;
-}
+};
+
+// Full database type for reference
+type ProcessingQueueRow = Database['public']['Tables']['processing_queue']['Row'];
 
 const BATCH_SIZE = 10; // Number of items to process in each batch
 

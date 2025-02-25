@@ -10,13 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Search, ChevronLeft, ChevronRight, Loader2, AlertCircle, Plus, ArrowLeft } from "lucide-react";
 import { debounce } from "lodash";
 import { OrganizationForm } from "@/components/organizations/organization-form";
+import { Database } from "@/types/supabase";
 
-type Organization = {
-  id: string;
-  name: string;
-  organization_type: string;
-  uei: string;
-};
+type Organization = Database['public']['Tables']['organizations']['Row'];
 
 type OrganizationSelectorProps = {
   organizations: Organization[];
