@@ -19,7 +19,7 @@ export interface FundingOpportunity {
   human_trials: boolean;
   organization_eligibility: Record<string, any>;
   user_eligibility: Record<string, any>;
-  grant_url: string;
+  grant_url?: string;
   published_date: string;
   submission_requirements: Record<string, any>;
 }
@@ -99,7 +99,7 @@ The foa_code, which is the Funding Opportunity Announcement code, such as "PA-25
 
 The grant_type, which indicates the type of grant, such as "R01", "R21", or "K99" (this field is required).
 
-The description, which should provide a concise summary of the funding opportunity (this field is required).
+The description, which should provide an in-depth description of the funding opportunity and should include details about every important aspect. This description should be comprehensive (at least 500 words) and cover the purpose, scope, research areas, expected outcomes, and any special considerations of the funding opportunity. Please try to use exerpts from the text where you can. (this field is required).
 
 The deadline, which should be the submission deadline formatted EXACTLY as "Month Day, Year" (e.g., "May 15, 2024") (this field is required). If there are multiple deadlines, please use the one that is closer to today's date, but also after today's date, which is ${formattedDate}.
 
@@ -117,11 +117,9 @@ The animal_trials field should be true if animal trials are involved and false i
 
 The human_trials field should be true if human trials are involved and false if not (default is false).
 
-The organization_eligibility field should capture eligibility details for organizations and be structured as JSON (this field is required).
+The organization_eligibility field should capture eligibility details for organizations and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Higher Education, Non-Profit, For-Profit, Government, Hospital, Foreign, Individual
 
-The user_eligibility field should capture eligibility details for individual applicants and be structured as JSON (this field is required).
-
-The grant_url, which is the official link to the Funding Opportunity Announcement (this field is required and must be unique).
+The user_eligibility field should capture eligibility details for individual applicants and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Principal Investigator (PI), Co-Principal Investigator(Co-PI), Co-Investigator (Co-I), Senior Personnel, Postdoctoral Researcher, Graduate Student, Undergraduate Student, Project Administrator, Authorized Organizational Representative (AOR)
 
 The published_date, which is the date the funding opportunity was published, formatted in ISO 8601 format (YYYY-MM-DD) (this field is required).
 
@@ -143,6 +141,8 @@ ${textContent}
         },
       ],
       response_format: { type: 'json_object' },
+      max_tokens: 4000,
+      temperature: 0.2,
     });
 
     const content = response.choices[0].message.content;
@@ -153,6 +153,7 @@ ${textContent}
 
     try {
       const parsedContent = JSON.parse(content) as FundingOpportunity;
+      console.log(parsedContent);
       return this.validateExtractedInfo(parsedContent);
     } catch (error) {
       console.error('Error parsing OpenAI response:', error);
@@ -166,33 +167,31 @@ ${textContent}
    * @returns The validated funding opportunity information
    */
   private validateExtractedInfo(info: any): FundingOpportunity {
-    // Validate required fields
-    const requiredFields = [
-      'agency', 'title', 'foa_code', 'grant_type', 'description',
-      'deadline', 'num_awards', 'organization_eligibility',
-      'user_eligibility', 'grant_url', 'published_date',
-      'submission_requirements'
-    ];
+    // Set default values for missing fields instead of validating required fields
+    info.agency = info.agency || 'NIH';
+    info.title = info.title || '';
+    info.foa_code = info.foa_code || '';
+    info.grant_type = info.grant_type || '';
+    info.description = info.description || '';
+    info.deadline = info.deadline || '';
+    info.num_awards = info.num_awards || 1;
+    info.organization_eligibility = info.organization_eligibility || {};
+    info.user_eligibility = info.user_eligibility || {};
+    info.published_date = info.published_date || new Date().toISOString().split('T')[0];
+    info.submission_requirements = info.submission_requirements || {};
     
-    // Check for missing fields and provide defaults where possible
-    for (const field of requiredFields) {
-      if (!info[field]) {
-        // For num_awards specifically, set a default value of 1 if missing
-        if (field === 'num_awards') {
-          console.warn('Missing num_awards field, defaulting to 1');
-          info.num_awards = 1;
-        } else {
-          throw new Error(`Missing required field: ${field}`);
-        }
-      }
+    // Ensure grant_url is set
+    if (!info.grant_url) {
+      console.warn('Missing grant_url field, defaulting to empty string');
+      info.grant_url = '';
+    }
+
+    // Validate agency only if it's provided
+    if (info.agency && info.agency !== 'NIH' && info.agency !== 'NSF') {
+      info.agency = 'NIH'; // Default to NIH if invalid
     }
     
-    // Validate agency
-    if (info.agency !== 'NIH' && info.agency !== 'NSF') {
-      throw new Error('Agency must be either "NIH" or "NSF"');
-    }
-    
-    // Validate deadline format (should be "Month Day, Year")
+    // Validate deadline format (should be "Month Day, Year") only if it's provided
     if (info.deadline) {
       // Check if the deadline is in the expected format
       const deadlineRegex = /^[A-Z][a-z]+ \d{1,2}, \d{4}$/;
@@ -216,7 +215,7 @@ ${textContent}
       }
     }
     
-    // Validate published_date format (should be ISO 8601: YYYY-MM-DD)
+    // Validate published_date format (should be ISO 8601: YYYY-MM-DD) only if it's provided
     if (info.published_date) {
       const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
       if (!isoDateRegex.test(info.published_date)) {

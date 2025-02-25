@@ -45,30 +45,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error extracting funding opportunity information:', error);
     
-    // Provide more detailed error messages
-    let errorMessage = 'Failed to extract funding opportunity information';
-    let statusCode = 500;
-    
-    if (error instanceof Error) {
-      // Check for specific error types
-      if (error.message.includes('Missing required field')) {
-        errorMessage = `${error.message}. Please provide more complete grant text.`;
-        statusCode = 422; // Unprocessable Entity
-      } else if (error.message.includes('No content returned from OpenAI')) {
-        errorMessage = 'The AI service could not process this text. Please try with different content.';
-        statusCode = 502; // Bad Gateway
-      } else if (error.message.includes('Failed to parse')) {
-        errorMessage = 'Could not parse the extracted information. Please try with clearer grant text.';
-        statusCode = 422; // Unprocessable Entity
-      } else {
-        // Include the original error message for other cases
-        errorMessage = `Extraction failed: ${error.message}`;
-      }
-    }
-    
+    // Simplified error handling - just return a generic error message
     return NextResponse.json(
-      { error: errorMessage },
-      { status: statusCode }
+      { error: 'Failed to extract funding opportunity information. Please try again.' },
+      { status: 500 }
     );
   }
 } 

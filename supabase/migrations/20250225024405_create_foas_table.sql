@@ -21,3 +21,23 @@ CREATE TABLE foas (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Enable RLS
+ALTER TABLE public.foas ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies
+CREATE POLICY "Everyone can view funding opportunities" 
+  ON public.foas
+  FOR SELECT 
+  USING (true);
+
+CREATE POLICY "Authenticated users can create funding opportunities" 
+  ON public.foas
+  FOR INSERT 
+  WITH CHECK (auth.uid() IS NOT NULL);
+
+-- Add updated_at trigger
+CREATE TRIGGER set_updated_at
+  BEFORE UPDATE ON public.foas
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_updated_at();

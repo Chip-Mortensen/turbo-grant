@@ -117,14 +117,7 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
         throw new Error('No data returned from extraction');
       }
       
-      // Check for critical fields
-      const criticalFields = ['agency', 'title', 'foa_code', 'deadline'];
-      const missingFields = criticalFields.filter(field => !result.data[field]);
-      
-      if (missingFields.length > 0) {
-        throw new Error(`Missing critical information: ${missingFields.join(', ')}. Please try with more complete grant text.`);
-      }
-      
+      // Remove validation for critical fields
       setExtractedData(result.data);
       setSuccess('Grant information extracted successfully!');
     } catch (err) {
@@ -152,66 +145,9 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
     try {
       const supabase = createClient();
       
-      // First, check if a grant type exists for this FOA
-      let grantTypeId;
-      
-      // Check if grant type already exists
-      const { data: existingGrantTypes } = await supabase
-        .from('grant_types')
-        .select('id')
-        .eq('name', extractedData.grant_type)
-        .eq('organization', extractedData.agency)
-        .single();
-      
-      if (existingGrantTypes) {
-        grantTypeId = existingGrantTypes.id;
-      } else {
-        // Create a new grant type
-        const { data: newGrantType, error: grantTypeError } = await supabase
-          .from('grant_types')
-          .insert({
-            name: extractedData.grant_type,
-            organization: extractedData.agency,
-            description: extractedData.description,
-            instructions: JSON.stringify(extractedData.submission_requirements),
-            is_custom: false
-          })
-          .select()
-          .single();
-        
-        if (grantTypeError) {
-          throw new Error(`Failed to create grant type: ${grantTypeError.message}`);
-        }
-        
-        grantTypeId = newGrantType.id;
-      }
-      
-      // Only create project grant if projectId is provided
-      if (projectId) {
-        // Create project grant
-        const { data: projectGrant, error: projectGrantError } = await supabase
-          .from('project_grants')
-          .insert({
-            project_id: projectId,
-            grant_type_id: grantTypeId,
-            status: 'draft'
-          })
-          .select()
-          .single();
-        
-        if (projectGrantError) {
-          throw new Error(`Failed to create project grant: ${projectGrantError.message}`);
-        }
-        
-        // Call onSuccess callback if provided
-        if (onSuccess) {
-          onSuccess(projectGrant);
-        }
-      }
-      
       // Store funding opportunity
       const { error: fundingOpportunityError } = await supabase
-        .from('funding_opportunities')
+        .from('foas')
         .insert({
           agency: extractedData.agency,
           title: extractedData.title,
@@ -228,19 +164,25 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
           human_trials: extractedData.human_trials,
           organization_eligibility: extractedData.organization_eligibility,
           user_eligibility: extractedData.user_eligibility,
-          grant_url: extractedData.grant_url,
+          grant_url: extractedData.grant_url || '',
           published_date: extractedData.published_date,
           submission_requirements: extractedData.submission_requirements
         });
       
       if (fundingOpportunityError) {
+        console.error('Error storing funding opportunity:', fundingOpportunityError);
         // If it's a duplicate, we can ignore it as the funding opportunity already exists
         if (fundingOpportunityError.code !== '23505') {
           throw new Error(`Failed to store funding opportunity: ${fundingOpportunityError.message}`);
         }
       }
       
-      setSuccess(projectId ? 'Grant added to your project successfully!' : 'Grant information saved successfully!');
+      // Call onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess(extractedData);
+      }
+      
+      setSuccess('Funding opportunity information saved successfully!');
       setGrantText('');
       setExtractedData(null);
       setShowFullDetails(false);
@@ -254,6 +196,7 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
       // Refresh the page data
       router.refresh();
     } catch (err) {
+      console.error('Error saving grant:', err);
       setError((err as Error).message || 'An error occurred while saving the grant');
     } finally {
       setIsProcessing(false);
@@ -606,7 +549,7 @@ export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) 
                 </>
               ) : (
                 <>
-                  {saveToDatabase ? (projectId ? 'Save to Project' : 'Save Grant Information') : 'Done'}
+                  {saveToDatabase ? 'Save Funding Opportunity' : 'Done'}
                 </>
               )}
             </Button>

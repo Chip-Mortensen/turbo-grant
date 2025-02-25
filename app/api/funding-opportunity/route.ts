@@ -47,9 +47,17 @@ export async function POST(req: NextRequest) {
     const extractor = new FundingOpportunityExtractor();
     const fundingOpportunity = await extractor.extractFromHtml(htmlContent);
 
+    // Ensure grant_url is set (it might be missing in the extracted data)
+    if (!fundingOpportunity.grant_url) {
+      fundingOpportunity.grant_url = ''; // Set a default empty string if missing
+    }
+
+    // Log the extracted data for debugging
+    console.log('Extracted funding opportunity:', JSON.stringify(fundingOpportunity, null, 2));
+
     // Store in database
     const { data: insertData, error: insertError } = await supabase
-      .from('funding_opportunities')
+      .from('foas')
       .insert({
         agency: fundingOpportunity.agency,
         title: fundingOpportunity.title,
@@ -132,7 +140,7 @@ export async function GET(req: NextRequest) {
 
     // Build query
     let query = supabase
-      .from('funding_opportunities')
+      .from('foas')
       .select('*')
       .order('deadline', { ascending: true })
       .limit(limit)
