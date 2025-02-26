@@ -68,7 +68,10 @@ export class FOAProcessor extends ContentProcessor {
       let extractedData: FundingOpportunity;
       try {
         console.log('Extracting data using FundingOpportunityExtractor');
+        
+        // The extractFromUrl method now automatically preserves the URL
         extractedData = await this.extractor.extractFromUrl(this.foa.grant_url);
+        
         console.log('Successfully extracted data from URL');
         
         // Log the extracted data for debugging
@@ -84,9 +87,6 @@ export class FOAProcessor extends ContentProcessor {
         await this.updateStatus('error');
         throw new Error(`Failed to extract funding opportunity information: ${(error as Error).message}`);
       }
-      
-      // Preserve the original grant_url
-      extractedData.grant_url = this.foa.grant_url;
       
       // Update FOA record with extracted information
       const { error: updateError } = await this.supabase

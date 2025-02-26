@@ -53,7 +53,8 @@ export class FundingOpportunityExtractor {
       const htmlContent = await response.text();
       
       // Use the existing method to extract information from HTML
-      return this.extractFromHtml(htmlContent);
+      // Pass the URL as part of the base data
+      return this.extractFromHtml(htmlContent, { grant_url: url });
     } catch (error) {
       console.error('Error fetching URL or extracting funding opportunity information:', error);
       throw new Error('Failed to extract funding opportunity information from URL');
@@ -63,15 +64,24 @@ export class FundingOpportunityExtractor {
   /**
    * Extracts funding opportunity information from HTML content
    * @param htmlContent The HTML content to extract information from
+   * @param baseData Optional base data to include in the extracted information
    * @returns A Promise resolving to the extracted funding opportunity information
    */
-  async extractFromHtml(htmlContent: string): Promise<FundingOpportunity> {
+  async extractFromHtml(htmlContent: string, baseData?: Partial<FundingOpportunity>): Promise<FundingOpportunity> {
     try {
       // Extract text content from HTML
       const textContent = this.stripHtml(htmlContent);
       
       // Use OpenAI to extract structured information
       const extractedInfo = await this.extractWithOpenAI(textContent);
+      
+      // Merge with base data if provided
+      if (baseData) {
+        return {
+          ...extractedInfo,
+          ...baseData
+        };
+      }
       
       return extractedInfo;
     } catch (error) {
