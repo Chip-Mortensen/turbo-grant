@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -42,15 +42,55 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
   const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<string[][]>([]);
   const [processedData, setProcessedData] = useState<ProcessedFoa[]>([]);
+  const [newRecords, setNewRecords] = useState<ProcessedFoa[]>([]);
+  const [existingFoaCodes, setExistingFoaCodes] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadType, setUploadType] = useState<UploadType>('NSF');
   const [missingColumns, setMissingColumns] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
+
+  // Fetch existing FOA codes when component mounts
+  useEffect(() => {
+    fetchExistingFoaCodes();
+  }, []);
+
+  // Fetch existing FOA codes from the database
+  const fetchExistingFoaCodes = async () => {
+    setIsLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('foas')
+        .select('foa_code');
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (data) {
+        const codes = data.map(item => item.foa_code);
+        setExistingFoaCodes(codes);
+      }
+    } catch (err) {
+      console.error('Error fetching existing FOA codes:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Filter processed data to find new records
+  const filterNewRecords = (processed: ProcessedFoa[]) => {
+    const newItems = processed.filter(item => 
+      item.foa_code && !existingFoaCodes.includes(item.foa_code)
+    );
+    setNewRecords(newItems);
+  };
 
   const processFile = async (file: File) => {
     // Check if it's a CSV file
@@ -64,6 +104,7 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
     setError(null);
     setMissingColumns([]);
     setProcessedData([]);
+    setNewRecords([]);
     
     try {
       const text = await file.text();
@@ -236,6 +277,8 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
       }
       
       setProcessedData(processed);
+      // Filter for new records
+      filterNewRecords(processed);
     } catch (err) {
       console.error('Error processing rows:', err);
       setError(`Failed to process the CSV data: ${(err as Error).message}`);
@@ -283,8 +326,8 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
   };
 
   const saveToDatabase = async () => {
-    if (processedData.length === 0) {
-      setError("No data to save. Please process a CSV file first.");
+    if (newRecords.length === 0) {
+      setError("No new records to save. All records already exist in the database.");
       return;
     }
 
@@ -294,7 +337,7 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
     
     try {
       // Prepare the data for insertion
-      const foasToInsert = processedData.map(item => ({
+      const foasToInsert = newRecords.map(item => ({
         agency: item.agency,
         title: item.title,
         foa_code: item.foa_code,
@@ -318,6 +361,9 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
       
       setSaveSuccess(true);
       
+      // Update existing FOA codes
+      await fetchExistingFoaCodes();
+      
       // Call the onSuccess callback if provided
       if (onSuccess) {
         onSuccess(data);
@@ -336,6 +382,7 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
     setHeaders([]);
     setRows([]);
     setProcessedData([]);
+    setNewRecords([]);
     setError(null);
     setMissingColumns([]);
     setSaveSuccess(false);
@@ -461,7 +508,7 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
           <Alert className="bg-green-50 text-green-800 border-green-200">
             <AlertTitle>CSV Processed Successfully</AlertTitle>
             <AlertDescription>
-              {processedData.length} records have been processed and are ready to be saved.
+              {processedData.length} records have been processed. {newRecords.length} are new records not in the database.
             </AlertDescription>
           </Alert>
         </div>
@@ -479,9 +526,9 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
             </div>
           </div>
           
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" style={{ maxHeight: '300px' }}>
             <table className="w-full">
-              <thead>
+              <thead className="sticky top-0 bg-white">
                 <tr className="bg-gray-100">
                   <th className="p-2 text-left text-sm font-medium">#</th>
                   {headers.map((header, index) => (
@@ -491,7 +538,7 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
                   ))}
                 </tr>
               </thead>
-              <tbody className="overflow-y-auto max-h-[400px]">
+              <tbody>
                 {rows.map((row, rowIndex) => (
                   <tr key={rowIndex} className="border-b hover:bg-gray-50">
                     <td className="p-2 text-sm">{rowIndex + 1}</td>
@@ -514,7 +561,7 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
             <Check className="h-4 w-4" />
             <AlertTitle>Success!</AlertTitle>
             <AlertDescription>
-              {processedData.length} records have been saved to the database.
+              {newRecords.length} new records have been saved to the database.
             </AlertDescription>
           </Alert>
         </div>
@@ -534,13 +581,50 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
         <div className="mt-4 flex-1 overflow-hidden border rounded-md">
           <div className="flex justify-between items-center p-3 bg-gray-50 border-b">
             <h3 className="font-medium">Processed Data ({processedData.length} records)</h3>
+          </div>
+          
+          <div className="overflow-x-auto" style={{ maxHeight: '300px' }}>
+            <table className="w-full">
+              <thead className="sticky top-0 bg-white">
+                <tr className="bg-gray-100">
+                  <th className="p-2 text-left text-sm font-medium">#</th>
+                  <th className="p-2 text-left text-sm font-medium">Agency</th>
+                  <th className="p-2 text-left text-sm font-medium">Title</th>
+                  <th className="p-2 text-left text-sm font-medium">FOA Code</th>
+                  <th className="p-2 text-left text-sm font-medium">URL</th>
+                </tr>
+              </thead>
+              <tbody>
+                {processedData.map((item, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="p-2 text-sm">{index + 1}</td>
+                    <td className="p-2 text-sm">{item.agency}</td>
+                    <td className="p-2 text-sm">{item.title}</td>
+                    <td className="p-2 text-sm">{item.foa_code}</td>
+                    <td className="p-2 text-sm">
+                      <a href={item.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        {item.grant_url}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+      
+      {newRecords.length > 0 && (
+        <div className="mt-4 flex-1 overflow-hidden border rounded-md">
+          <div className="flex justify-between items-center p-3 bg-gray-50 border-b">
+            <h3 className="font-medium">New Records ({newRecords.length} records)</h3>
             
             <div className="flex items-center space-x-2">
               <Button 
                 size="sm" 
                 variant="default"
                 onClick={saveToDatabase}
-                disabled={isSaving || processedData.length === 0 || saveSuccess}
+                disabled={isSaving || newRecords.length === 0 || saveSuccess}
               >
                 {isSaving ? (
                   <>
@@ -554,9 +638,9 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
             </div>
           </div>
           
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" style={{ maxHeight: '300px' }}>
             <table className="w-full">
-              <thead>
+              <thead className="sticky top-0 bg-white">
                 <tr className="bg-gray-100">
                   <th className="p-2 text-left text-sm font-medium">#</th>
                   <th className="p-2 text-left text-sm font-medium">Agency</th>
@@ -565,8 +649,8 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
                   <th className="p-2 text-left text-sm font-medium">URL</th>
                 </tr>
               </thead>
-              <tbody className="overflow-y-auto max-h-[400px]">
-                {processedData.map((item, index) => (
+              <tbody>
+                {newRecords.map((item, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
                     <td className="p-2 text-sm">{index + 1}</td>
                     <td className="p-2 text-sm">{item.agency}</td>
