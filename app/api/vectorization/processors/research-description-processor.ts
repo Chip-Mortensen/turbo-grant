@@ -146,7 +146,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         // Store in Pinecone with metadata
         const metadata: ProcessingMetadata = {
           type: 'research_description',
-          projectId: this.projectId,
+          projectId: this.projectId || undefined,
           fileName: this.content.file_name,
           fileType: this.content.file_type,
           chunkIndex: i + 1,

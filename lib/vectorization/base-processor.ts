@@ -9,15 +9,15 @@ export interface ProcessingResult {
 }
 
 export interface ProcessingMetadata {
-  projectId: string;
-  type: 'research_description' | 'figure' | 'chalk_talk';
+  projectId?: string;
+  type: 'research_description' | 'scientific_figure' | 'chalk_talk' | 'foa';
   [key: string]: any;
 }
 
 export abstract class ContentProcessor {
-  protected projectId: string;
+  protected projectId: string | null;
 
-  constructor(projectId: string) {
+  constructor(projectId: string | null) {
     this.projectId = projectId;
   }
 
@@ -38,7 +38,8 @@ export abstract class ContentProcessor {
     // Add common metadata
     const enrichedMetadata = {
       ...metadata,
-      projectId: this.projectId,
+      // Only include projectId if it's not null
+      ...(this.projectId !== null ? { projectId: this.projectId } : {})
     };
 
     // Generate an ID using Node's crypto module

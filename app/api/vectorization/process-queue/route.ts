@@ -3,14 +3,15 @@ import { NextResponse } from 'next/server';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { ResearchDescriptionProcessor } from '../processors/research-description-processor';
+import { FOAProcessor } from '../processors/foa-processor';
 import { Database } from '@/types/supabase';
 
 // Use the Database type but define a simpler type for our processing logic
 type QueueItem = {
   id: string;
-  content_type: 'research_description' | 'scientific_figure' | 'chalk_talk';
+  content_type: 'research_description' | 'scientific_figure' | 'chalk_talk' | 'foa';
   content_id: string;
-  project_id: string;
+  project_id: string | null;
   status: 'pending' | 'processing' | 'completed' | 'error';
   retry_count: number;
 };
@@ -19,11 +20,11 @@ const BATCH_SIZE = 10; // Number of items to process in each batch
 
 async function processContent(
   content: any,
-  contentType: 'research_description' | 'scientific_figure' | 'chalk_talk',
-  projectId: string,
+  contentType: 'research_description' | 'scientific_figure' | 'chalk_talk' | 'foa',
+  projectId: string | null,
   supabase: SupabaseClient
 ): Promise<void> {
-  console.log(`Processing content of type: ${contentType}, project ID: ${projectId}`);
+  console.log(`Processing content of type: ${contentType}, project ID: ${projectId || 'NULL'}`);
   console.log('Content data:', JSON.stringify(content, null, 2).substring(0, 200) + '...');
   
   let processor: ContentProcessor;
@@ -31,6 +32,9 @@ async function processContent(
   switch (contentType) {
     case 'research_description':
       console.log('Creating ResearchDescriptionProcessor');
+      if (!projectId) {
+        throw new Error('Project ID is required for research descriptions');
+      }
       processor = new ResearchDescriptionProcessor(content, projectId, supabase);
       break;
     case 'scientific_figure':
@@ -39,6 +43,10 @@ async function processContent(
     case 'chalk_talk':
       // TODO: Implement ChalkTalkProcessor
       throw new Error('Chalk talk processing not implemented yet');
+    case 'foa':
+      console.log('Creating FOAProcessor');
+      processor = new FOAProcessor(content, projectId, supabase);
+      break;
     default:
       throw new Error(`Unknown content type: ${contentType}`);
   }
@@ -204,7 +212,7 @@ export async function POST(request: Request) {
   }
 }
 
-function getTableName(contentType: 'research_description' | 'scientific_figure' | 'chalk_talk'): string {
+function getTableName(contentType: 'research_description' | 'scientific_figure' | 'chalk_talk' | 'foa'): string {
   switch (contentType) {
     case 'research_description':
       return 'research_descriptions';
@@ -212,6 +220,8 @@ function getTableName(contentType: 'research_description' | 'scientific_figure' 
       return 'scientific_figures';
     case 'chalk_talk':
       return 'chalk_talks';
+    case 'foa':
+      return 'foas';
     default:
       throw new Error(`Unknown content type: ${contentType}`);
   }
