@@ -3,38 +3,56 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, FileSpreadsheet, Check } from 'lucide-react';
+import { AlertCircle, FileSpreadsheet, Upload, Check, Loader2 } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
 import { createClient } from '@/utils/supabase/client';
-import { FundingOpportunity } from '@/lib/funding-opportunity-extractor';
 
 interface ProcessCsvProps {
-  projectId: string;
+  projectId?: string;
   onSuccess?: (data: any) => void;
 }
 
-interface CsvEntry {
-  title: string;
-  url: string;
+type UploadType = 'NIH' | 'NSF';
+
+// Define the expected columns for each agency
+const NIH_REQUIRED_COLUMNS = [
+  'Title', 'Release_Date', 'Expired_Date', 'Activity_Code', 'Parent_Organization', 
+  'Organization', 'Participating_Orgs', 'Document_Number', 'Document_Type', 
+  'Clinical_Trials', 'URL'
+];
+
+const NSF_REQUIRED_COLUMNS = [
+  'Title', 'Synopsis', 'Award Type', 'Next due date (Y-m-d)', 
+  'Proposals accepted anytime', 'Program ID', 'NSF/PD Num', 'Status', 
+  'Posted date (Y-m-d)', 'URL', 'Type', 'Solicitation URL'
+];
+
+// Define the structure for processed FOA data
+interface ProcessedFoa {
   agency: 'NIH' | 'NSF';
+  title: string;
+  foa_code: string;
+  grant_url: string;
 }
 
 export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvFileName, setCsvFileName] = useState<string | null>(null);
-  const [extractedEntries, setExtractedEntries] = useState<CsvEntry[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [rows, setRows] = useState<string[][]>([]);
+  const [processedData, setProcessedData] = useState<ProcessedFoa[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadType, setUploadType] = useState<UploadType>('NSF');
+  const [missingColumns, setMissingColumns] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [savedCount, setSavedCount] = useState(0);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
-  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = async (file: File) => {
     // Check if it's a CSV file
     if (!file.name.endsWith('.csv') && file.type !== 'text/csv') {
       setError('Please upload a CSV file.');
@@ -44,259 +62,269 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
     setCsvFile(file);
     setCsvFileName(file.name);
     setError(null);
-    setSuccess(null);
-    setExtractedEntries([]);
+    setMissingColumns([]);
+    setProcessedData([]);
     
     try {
       const text = await file.text();
-      
-      // Use a simplified approach to extract entries
-      const entries = extractEntriesFromCsv(text);
-      
-      if (entries.length === 0) {
-        setError('No valid entries found in the CSV file. Please ensure the CSV contains at least "Title" and "URL" columns.');
-        return;
-      }
-      
-      setExtractedEntries(entries);
-      setSuccess(`Successfully extracted ${entries.length} entries from the CSV file.`);
+      parseCSV(text);
     } catch (err) {
       setError('Failed to read the CSV file.');
       console.error(err);
     }
   };
 
-  // Simplified function to extract entries from CSV
-  const extractEntriesFromCsv = (csvData: string): CsvEntry[] => {
-    try {
-      // Check if this is the specific CSV with the Cybersecurity record
-      if (csvData.includes('Cybersecurity Innovation for Cyberinfrastructure (CICI)')) {
-        // Hardcoded entries for the known problematic CSV
-        return [
-          {
-            title: 'Materials Research Science and Engineering Centers (MRSEC)',
-            url: 'https://www.nsf.gov/funding/opportunities/mrsec-materials-research-science-engineering-centers/nsf25-532',
-            agency: 'NSF'
-          },
-          {
-            title: 'Cybersecurity Innovation for Cyberinfrastructure (CICI)',
-            url: 'https://www.nsf.gov/funding/opportunities/cici-cybersecurity-innovation-cyberinfrastructure/nsf25-531',
-            agency: 'NSF'
-          }
-        ];
-      }
-      
-      // For other CSV files, use a more general approach
-      const entries: CsvEntry[] = [];
-      const lines = csvData.split('\n');
-      
-      if (lines.length <= 1) {
-        setError('CSV file must contain at least a header row and one data row.');
-        return [];
-      }
-      
-      // Parse header to find column indices
-      const headerLine = lines[0];
-      const headerFields = headerLine.split(',').map(field => 
-        field ? field.trim().toLowerCase() : ''
-      );
-      
-      const titleIndex = headerFields.indexOf('title');
-      let urlIndex = headerFields.indexOf('solicitation url');
-      if (urlIndex === -1) {
-        urlIndex = headerFields.indexOf('url');
-      }
-      
-      if (titleIndex === -1 || urlIndex === -1) {
-        setError("CSV must contain both 'Title' and either 'URL' or 'Solicitation URL' columns");
-        return [];
-      }
-      
-      // Check if Parent_Organization column exists to determine agency
-      const hasParentOrg = headerFields.indexOf('parent_organization') !== -1;
-      
-      // Process each line (skipping header)
-      for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue; // Skip empty lines
-        
-        try {
-          // Simple CSV parsing for non-problematic files
-          // This won't handle all edge cases but works for most standard CSVs
-          const fields = line.split(',');
-          
-          // Skip if we don't have enough fields
-          if (fields.length <= Math.max(titleIndex, urlIndex)) {
-            console.warn(`Row ${i} has insufficient columns:`, fields);
-            continue;
-          }
-          
-          // Extract title and URL
-          let title = fields[titleIndex]?.trim() || '';
-          let url = fields[urlIndex]?.trim() || '';
-          
-          // Handle quoted fields
-          if (title.startsWith('"') && title.endsWith('"')) {
-            title = title.substring(1, title.length - 1);
-          }
-          
-          if (url.startsWith('"') && url.endsWith('"')) {
-            url = url.substring(1, url.length - 1);
-          }
-          
-          if (!title || !url) {
-            console.warn(`Row ${i} has empty title or URL:`, { title, url });
-            continue;
-          }
-          
-          // Set agency based on presence of Parent_Organization column
-          const agency = hasParentOrg ? 'NIH' : 'NSF';
-          
-          entries.push({ title, url, agency });
-        } catch (err) {
-          console.error(`Error parsing row ${i}:`, err, lines[i]);
-        }
-      }
-      
-      return entries;
-    } catch (err) {
-      console.error('Error extracting entries from CSV:', err);
-      setError('Failed to parse the CSV file. The file may be malformed.');
-      return [];
+  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
+  };
+
+  // Drag and drop handlers
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragging) {
+      setIsDragging(true);
     }
   };
 
-  const saveToDatabase = async () => {
-    if (extractedEntries.length === 0) {
-      setError('No entries to save.');
-      return;
-    }
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
     
-    setIsSaving(true);
-    setError(null);
-    setSuccess(null);
-    setSavedCount(0);
+    const files = e.dataTransfer.files;
+    if (files.length === 0) return;
     
+    // Process only the first file if multiple files are dropped
+    await processFile(files[0]);
+  };
+
+  const parseCSV = (csvData: string) => {
     try {
-      const supabase = createClient();
-      let saved = 0;
-      const failedEntries: { index: number; title: string; error: string }[] = [];
+      // Split the CSV into lines
+      const allLines = csvData.split(/\r?\n/);
       
-      for (let i = 0; i < extractedEntries.length; i++) {
-        const entry = extractedEntries[i];
+      if (allLines.length === 0) {
+        setError('The CSV file appears to be empty.');
+        return;
+      }
+
+      // Parse header row
+      const headerLine = allLines[0];
+      const headerFields = parseCSVLine(headerLine);
+      setHeaders(headerFields);
+      
+      // Check for required columns based on upload type
+      const requiredColumns = uploadType === 'NIH' ? NIH_REQUIRED_COLUMNS : NSF_REQUIRED_COLUMNS;
+      const missing = requiredColumns.filter(col => !headerFields.includes(col));
+      
+      if (missing.length > 0) {
+        setMissingColumns(missing);
+        setError(`Missing ${missing.length} required columns for ${uploadType} CSV.`);
+        // Still continue processing to show what we have
+      }
+      
+      // First, let's try to identify complete rows by checking if they have the same number of fields as the header
+      const expectedColumnCount = headerFields.length;
+      let processedLines: string[] = [];
+      let currentLine = '';
+      
+      for (let i = 1; i < allLines.length; i++) {
+        const line = allLines[i].trim();
+        if (line === '') continue; // Skip empty lines
         
-        // Validate title
-        if (!entry.title.trim()) {
-          failedEntries.push({
-            index: i,
-            title: 'Empty title',
-            error: 'Title cannot be empty'
-          });
-          continue;
-        }
-        
-        if (entry.title.length > 255) {
-          failedEntries.push({
-            index: i,
-            title: entry.title.substring(0, 30) + '...',
-            error: 'Title is too long (maximum 255 characters)'
-          });
-          continue;
-        }
-        
-        // Validate URL format
-        let validUrl = true;
-        try {
-          new URL(entry.url);
-        } catch (e) {
-          validUrl = false;
-          failedEntries.push({
-            index: i,
-            title: entry.title,
-            error: 'Invalid URL format'
-          });
-          continue;
-        }
-        
-        // Create a basic funding opportunity record
-        const foaData: Partial<FundingOpportunity> = {
-          agency: entry.agency,
-          title: entry.title,
-          grant_url: entry.url,
-          // Generate a unique FOA code based on title if not available
-          foa_code: `AUTO-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          // Set default values for required fields
-          grant_type: 'Unknown',
-          description: `Imported from CSV: ${entry.title}`,
-          deadline: new Date().toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-          }),
-          num_awards: 1,
-          published_date: new Date().toISOString().split('T')[0],
-          organization_eligibility: {},
-          user_eligibility: {},
-          submission_requirements: {}
-        };
-        
-        const { error } = await supabase
-          .from('foas')
-          .insert(foaData);
-        
-        if (!error) {
-          saved++;
+        // If the current line is empty, start with this line
+        if (currentLine === '') {
+          currentLine = line;
         } else {
-          console.error('Error saving entry:', error);
-          failedEntries.push({
-            index: i,
-            title: entry.title,
-            error: error.message || 'Database error'
-          });
+          // Otherwise, append this line to the current line
+          currentLine += ' ' + line;
         }
+        
+        // Check if we have a complete row
+        const fields = parseCSVLine(currentLine);
+        if (fields.length >= expectedColumnCount) {
+          // This is a complete row
+          processedLines.push(currentLine);
+          currentLine = ''; // Reset for the next row
+        }
+        // If not a complete row, continue accumulating lines
       }
       
-      setSavedCount(saved);
-      
-      if (saved === extractedEntries.length) {
-        setSuccess(`Successfully saved all ${saved} entries to the database.`);
-        
-        // Clear the form if all entries were saved successfully
-        setCsvFile(null);
-        setCsvFileName(null);
-        setExtractedEntries([]);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      } else if (saved > 0) {
-        setSuccess(`Successfully saved ${saved} out of ${extractedEntries.length} entries to the database.`);
-        
-        if (failedEntries.length > 0) {
-          const failureDetails = failedEntries.map(entry => 
-            `Entry #${entry.index + 1} "${entry.title.substring(0, 30)}${entry.title.length > 30 ? '...' : ''}": ${entry.error}`
-          ).join('\n');
-          
-          setError(`Failed to save ${failedEntries.length} entries:\n${failureDetails}`);
-        }
-      } else {
-        setError('Failed to save any entries to the database.');
-        
-        if (failedEntries.length > 0) {
-          const failureDetails = failedEntries.map(entry => 
-            `Entry #${entry.index + 1} "${entry.title.substring(0, 30)}${entry.title.length > 30 ? '...' : ''}": ${entry.error}`
-          ).join('\n');
-          
-          setError(`Failed to save entries:\n${failureDetails}`);
-        }
+      // Add any remaining partial row
+      if (currentLine !== '') {
+        processedLines.push(currentLine);
       }
       
-      // Call onSuccess callback if provided
-      if (onSuccess && saved > 0) {
-        onSuccess(extractedEntries.filter((_, i) => !failedEntries.some(f => f.index === i)));
+      // Parse the processed lines into data rows
+      const dataRows = processedLines.map(line => parseCSVLine(line));
+      setRows(dataRows);
+      
+      // Process the data to match the foas table structure
+      if (headerFields.length > 0 && dataRows.length > 0) {
+        processRows(headerFields, dataRows);
       }
     } catch (err) {
-      console.error('Error saving entries:', err);
-      setError((err as Error).message || 'An error occurred while saving the entries');
+      console.error('Error parsing CSV:', err);
+      setError(`Failed to parse the CSV file: ${(err as Error).message}`);
+    }
+  };
+
+  // Process rows to match the foas table structure
+  const processRows = (headers: string[], rows: string[][]) => {
+    try {
+      const processed: ProcessedFoa[] = [];
+      
+      // Get column indices based on the requirements
+      const titleIndex = headers.indexOf('Title');
+      
+      // Different column mappings based on agency
+      let foaCodeIndex: number;
+      let urlIndex: number;
+      
+      if (uploadType === 'NIH') {
+        foaCodeIndex = headers.indexOf('Document_Number');
+        urlIndex = headers.indexOf('URL');
+      } else { // NSF
+        foaCodeIndex = headers.indexOf('NSF/PD Num');
+        urlIndex = headers.indexOf('Solicitation URL');
+      }
+      
+      // Process each row
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        
+        // Make sure we have all required columns
+        if (titleIndex === -1 || foaCodeIndex === -1 || urlIndex === -1) {
+          break;
+        }
+        
+        // Make sure the row has enough columns
+        if (Math.max(titleIndex, foaCodeIndex, urlIndex) >= row.length) {
+          continue;
+        }
+        
+        const title = row[titleIndex]?.trim() || '';
+        const foa_code = row[foaCodeIndex]?.trim() || '';
+        const grant_url = row[urlIndex]?.trim() || '';
+        
+        // Skip rows with missing essential data
+        if (!title) {
+          continue;
+        }
+        
+        processed.push({
+          agency: uploadType,
+          title,
+          foa_code,
+          grant_url
+        });
+      }
+      
+      setProcessedData(processed);
+    } catch (err) {
+      console.error('Error processing rows:', err);
+      setError(`Failed to process the CSV data: ${(err as Error).message}`);
+    }
+  };
+
+  // A more robust CSV line parser that handles quoted fields
+  const parseCSVLine = (line: string): string[] => {
+    // If the line is empty, return an empty array
+    if (!line || line.trim() === '') {
+      return [];
+    }
+    
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      
+      if (char === '"') {
+        // Handle quotes
+        if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+          // Double quotes inside quotes - add a single quote
+          current += '"';
+          i++;
+        } else {
+          // Toggle quote mode
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        // End of field
+        result.push(current.trim());
+        current = '';
+      } else {
+        // Add character to current field
+        current += char;
+      }
+    }
+    
+    // Add the last field
+    result.push(current.trim());
+    
+    return result;
+  };
+
+  const saveToDatabase = async () => {
+    if (processedData.length === 0) {
+      setError("No data to save. Please process a CSV file first.");
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveSuccess(false);
+    setSaveError(null);
+    
+    try {
+      // Prepare the data for insertion
+      const foasToInsert = processedData.map(item => ({
+        agency: item.agency,
+        title: item.title,
+        foa_code: item.foa_code,
+        grant_url: item.grant_url,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+      
+      // Create a client-side Supabase client with authentication
+      const supabase = createClient();
+      
+      // Insert the data into the foas table
+      const { data, error } = await supabase
+        .from('foas')
+        .insert(foasToInsert)
+        .select();
+      
+      if (error) {
+        throw error;
+      }
+      
+      setSaveSuccess(true);
+      
+      // Call the onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess(data);
+      }
+    } catch (err) {
+      console.error('Error saving to database:', err);
+      setSaveError(err instanceof Error ? err.message : "Unknown error occurred");
     } finally {
       setIsSaving(false);
     }
@@ -305,18 +333,66 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
   const clearAll = () => {
     setCsvFile(null);
     setCsvFileName(null);
-    setExtractedEntries([]);
+    setHeaders([]);
+    setRows([]);
+    setProcessedData([]);
     setError(null);
-    setSuccess(null);
+    setMissingColumns([]);
+    setSaveSuccess(false);
+    setSaveError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="mb-4 p-4 bg-gray-50 border rounded-md">
-        <div className="flex flex-col space-y-4">
+    <div className="w-full h-full flex flex-col p-4">
+      <Card className="mb-4">
+        <CardContent className="pt-6 pb-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Select Grant Source</h3>
+            
+            <div>
+              {/* Toggle Switch Container */}
+              <div 
+                className="w-48 h-10 bg-gray-200 rounded-full p-1 cursor-pointer"
+                onClick={() => setUploadType(uploadType === 'NSF' ? 'NIH' : 'NSF')}
+              >
+                {/* Sliding Toggle */}
+                <div 
+                  className={`h-8 w-[calc(50%-4px)] bg-white rounded-full shadow-md transition-all duration-300 ease-in-out flex items-center justify-center ${
+                    uploadType === 'NSF' ? 'translate-x-0' : 'translate-x-[calc(100%+8px)]'
+                  }`}
+                >
+                  <span className="font-medium text-sm">{uploadType}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <div 
+        ref={dropZoneRef}
+        className={`p-6 border-2 border-dashed rounded-md transition-colors ${
+          isDragging 
+            ? 'border-blue-400 bg-blue-50' 
+            : 'border-gray-300 bg-gray-50'
+        }`}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="flex flex-col items-center text-center">
+            <Upload className="h-10 w-10 text-gray-400 mb-2" />
+            <h3 className="text-lg font-medium">Drag & Drop your {uploadType} CSV file here</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              or click the button below to browse files
+            </p>
+          </div>
+          
           <div className="flex items-center space-x-4">
             <Input
               id="csv-file"
@@ -325,24 +401,21 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
               onChange={handleCsvUpload}
               ref={fileInputRef}
               className="hidden"
-              disabled={isProcessing || isSaving}
             />
             <Button
               type="button"
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center"
-              disabled={isProcessing || isSaving}
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              {csvFileName ? csvFileName : 'Choose CSV File'}
+              Choose CSV File
             </Button>
             
             {csvFileName && (
               <Button 
                 onClick={clearAll} 
                 variant="outline" 
-                disabled={isProcessing || isSaving}
                 size="sm"
               >
                 Clear
@@ -350,70 +423,164 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
             )}
           </div>
           
-          <p className="text-sm text-gray-500">
-            Upload a CSV file with at least "Title" and either "URL" or "Solicitation URL" columns. If a "Parent_Organization" column exists, entries will be marked as NIH, otherwise as NSF.
-          </p>
+          {csvFileName && (
+            <div className="mt-2 text-sm font-medium text-green-600">
+              File loaded: {csvFileName}
+            </div>
+          )}
         </div>
       </div>
 
       {error && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-4 mt-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription className="whitespace-pre-line">
+          <AlertDescription>
             {error}
           </AlertDescription>
         </Alert>
       )}
       
-      {success && (
-        <Alert className="bg-green-50 text-green-800 border-green-200 mb-4">
-          <AlertTitle>Success</AlertTitle>
-          <AlertDescription>{success}</AlertDescription>
+      {missingColumns.length > 0 && (
+        <Alert variant="destructive" className="mb-4 mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Missing Required Columns</AlertTitle>
+          <AlertDescription>
+            <p>The following required columns are missing from your CSV:</p>
+            <ul className="list-disc pl-5 mt-2">
+              {missingColumns.map((col, index) => (
+                <li key={index}>{col}</li>
+              ))}
+            </ul>
+          </AlertDescription>
         </Alert>
       )}
       
-      {extractedEntries.length > 0 && (
-        <div className="flex-1 overflow-hidden border rounded-md">
+      {processedData.length > 0 && (
+        <div className="mt-4 mb-4">
+          <Alert className="bg-green-50 text-green-800 border-green-200">
+            <AlertTitle>CSV Processed Successfully</AlertTitle>
+            <AlertDescription>
+              {processedData.length} records have been processed and are ready to be saved.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+      
+      {rows.length > 0 && (
+        <div className="mt-4 flex-1 overflow-hidden border rounded-md">
           <div className="flex justify-between items-center p-3 bg-gray-50 border-b">
-            <h3 className="font-medium">Extracted Entries ({extractedEntries.length})</h3>
-            <Button
-              onClick={saveToDatabase}
-              disabled={isSaving}
-              size="sm"
-            >
-              {isSaving ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Saving...
-                </>
-              ) : (
-                <>Save All Entries</>
-              )}
-            </Button>
+            <h3 className="font-medium">CSV Contents ({rows.length} rows)</h3>
+            
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">
+                {processedData.length} valid records found
+              </span>
+            </div>
           </div>
-          <div className="grid grid-cols-12 bg-gray-100 p-2 border-b font-medium text-sm">
-            <div className="col-span-1">#</div>
-            <div className="col-span-6">Title</div>
-            <div className="col-span-4">URL</div>
-            <div className="col-span-1">Agency</div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 text-left text-sm font-medium">#</th>
+                  {headers.map((header, index) => (
+                    <th key={index} className="p-2 text-left text-sm font-medium">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="overflow-y-auto max-h-[400px]">
+                {rows.map((row, rowIndex) => (
+                  <tr key={rowIndex} className="border-b hover:bg-gray-50">
+                    <td className="p-2 text-sm">{rowIndex + 1}</td>
+                    {row.map((cell, cellIndex) => (
+                      <td key={cellIndex} className="p-2 text-sm">
+                        {cell.length > 50 ? `${cell.substring(0, 50)}...` : cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="overflow-y-auto h-[400px]">
-            {extractedEntries.map((entry, index) => (
-              <div key={index} className="grid grid-cols-12 p-2 text-sm border-b last:border-b-0 hover:bg-gray-50">
-                <div className="col-span-1">{index + 1}</div>
-                <div className="col-span-6 truncate" title={entry.title}>{entry.title}</div>
-                <div className="col-span-4 truncate" title={entry.url}>
-                  <a href={entry.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                    {entry.url}
-                  </a>
-                </div>
-                <div className="col-span-1">{entry.agency}</div>
-              </div>
-            ))}
+        </div>
+      )}
+      
+      {saveSuccess && (
+        <div className="mt-4 mb-4">
+          <Alert className="bg-green-50 text-green-800 border-green-200">
+            <Check className="h-4 w-4" />
+            <AlertTitle>Success!</AlertTitle>
+            <AlertDescription>
+              {processedData.length} records have been saved to the database.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+      
+      {saveError && (
+        <Alert variant="destructive" className="mb-4 mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error saving to database</AlertTitle>
+          <AlertDescription>
+            {saveError}
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {processedData.length > 0 && (
+        <div className="mt-4 flex-1 overflow-hidden border rounded-md">
+          <div className="flex justify-between items-center p-3 bg-gray-50 border-b">
+            <h3 className="font-medium">Processed Data ({processedData.length} records)</h3>
+            
+            <div className="flex items-center space-x-2">
+              <Button 
+                size="sm" 
+                variant="default"
+                onClick={saveToDatabase}
+                disabled={isSaving || processedData.length === 0 || saveSuccess}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save to Database'
+                )}
+              </Button>
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 text-left text-sm font-medium">#</th>
+                  <th className="p-2 text-left text-sm font-medium">Agency</th>
+                  <th className="p-2 text-left text-sm font-medium">Title</th>
+                  <th className="p-2 text-left text-sm font-medium">FOA Code</th>
+                  <th className="p-2 text-left text-sm font-medium">URL</th>
+                </tr>
+              </thead>
+              <tbody className="overflow-y-auto max-h-[400px]">
+                {processedData.map((item, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="p-2 text-sm">{index + 1}</td>
+                    <td className="p-2 text-sm">{item.agency}</td>
+                    <td className="p-2 text-sm">{item.title}</td>
+                    <td className="p-2 text-sm">{item.foa_code}</td>
+                    <td className="p-2 text-sm">
+                      <a href={item.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        {item.grant_url}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

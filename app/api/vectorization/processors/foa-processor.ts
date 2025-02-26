@@ -81,7 +81,7 @@ export class FOAProcessor extends ContentProcessor {
         });
       } catch (error) {
         console.error('Error extracting funding opportunity information:', error);
-        await this.updateStatus('error', `Error extracting funding opportunity: ${(error as Error).message}`);
+        await this.updateStatus('error');
         throw new Error(`Failed to extract funding opportunity information: ${(error as Error).message}`);
       }
       
@@ -135,31 +135,26 @@ export class FOAProcessor extends ContentProcessor {
       console.error('Error processing FOA:', error);
       
       // Update FOA with error status
-      await this.updateStatus('error', (error as Error).message);
+      await this.updateStatus('error');
       
       throw error;
     }
   }
   
-  async updateStatus(status: string, error?: string): Promise<void> {
-    const updates: any = {
-      vectorization_status: status
-    };
-    
-    if (error) {
-      updates.vectorization_error = error;
-    } else {
-      // Clear any previous error when setting a non-error status
-      updates.vectorization_error = null;
-    }
-    
-    const { error: updateError } = await this.supabase
-      .from('foas')
-      .update(updates)
-      .eq('id', this.foa.id);
-      
-    if (updateError) {
-      console.error('Error updating FOA status:', updateError);
+  async updateStatus(status: string): Promise<void> {
+    try {
+      const { error: updateError } = await this.supabase
+        .from('foas')
+        .update({
+          vectorization_status: status
+        })
+        .eq('id', this.foa.id);
+        
+      if (updateError) {
+        console.error('Error updating FOA status:', updateError);
+      }
+    } catch (error) {
+      console.error('Exception updating FOA status:', error);
     }
   }
 } 
