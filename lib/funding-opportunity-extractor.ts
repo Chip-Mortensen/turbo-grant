@@ -278,9 +278,9 @@ export class FundingOpportunityExtractor {
     // Log the submission requirements for debugging
     console.log('Submission requirements after normalization:', JSON.stringify(info.submission_requirements, null, 2));
     
-    // Ensure grant_url is set
+    // Ensure grant_url is set, but don't warn if it's going to be set later
     if (!info.grant_url) {
-      console.warn('Missing grant_url field, defaulting to empty string');
+      // Only set a default value, don't log a warning
       info.grant_url = '';
     }
 
