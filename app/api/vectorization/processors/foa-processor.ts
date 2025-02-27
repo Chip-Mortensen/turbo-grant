@@ -144,7 +144,7 @@ export class FOAProcessor extends ContentProcessor {
         
         // Create metadata object
         const metadata = {
-          type: 'foa' as const,
+          type: 'foa_description' as const,
           foaId: this.foa.id,
           projectId: this.projectId || undefined,
           agency: extractedData.agency,
@@ -211,7 +211,7 @@ export class FOAProcessor extends ContentProcessor {
       return {
         pineconeIds,
         metadata: {
-          type: 'foa',
+          type: 'foa_description',
           foaId: this.foa.id,
           projectId: this.projectId || undefined,
           agency: extractedData.agency,
