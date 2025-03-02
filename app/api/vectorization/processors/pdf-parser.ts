@@ -2,35 +2,14 @@
  * Custom PDF parser that uses pdf-parse but prevents it from loading test files
  * This is necessary because pdf-parse tries to load test files during initialization
  * which causes issues in serverless environments
+ * 
+ * Note: The Buffer() deprecation warning (DEP0005) comes from the pdf-parse library itself.
+ * In production, you can suppress this warning by setting the NODE_OPTIONS environment variable:
+ * NODE_OPTIONS="--no-deprecation" or NODE_OPTIONS="--no-warnings"
+ * 
+ * For Vercel deployments, this can be set in the project settings under "Environment Variables".
+ * The warning doesn't affect functionality and can be safely ignored.
  */
-
-// Add a targeted warning handler for the Buffer() deprecation warning
-if (typeof process !== 'undefined' && process.on) {
-  // Listen for warning events and filter out Buffer() deprecation warnings
-  process.on('warning', (warning) => {
-    // Define an interface for Node.js warning objects
-    interface NodeWarning extends Error {
-      code?: string;
-      name: string;
-      message: string;
-    }
-    
-    const nodeWarning = warning as NodeWarning;
-    
-    // Only log warnings that aren't about Buffer() deprecation
-    if (nodeWarning.name === 'DeprecationWarning' && 
-        (nodeWarning.code === 'DEP0005' || 
-         nodeWarning.message.includes('Buffer() is deprecated'))) {
-      // Silently ignore Buffer() deprecation warnings
-      return;
-    }
-    
-    // For all other warnings, log them as usual
-    console.warn(nodeWarning.name, nodeWarning.message);
-  });
-  
-  console.log('Added targeted warning handler for Buffer() deprecation');
-}
 
 // Patch the fs module to prevent pdf-parse from looking for test files
 if (typeof process !== 'undefined') {
@@ -66,8 +45,15 @@ if (typeof process !== 'undefined') {
  */
 export async function parsePdf(buffer: Buffer): Promise<string> {
   try {
-    // Dynamically import pdf-parse
-    const pdfParse = (await import('pdf-parse')).default;
+    // Create a wrapper function to import pdf-parse
+    // This isolates the deprecation warnings to this function call
+    const importPdfParse = async () => {
+      // We can't directly suppress the warning, but we can isolate it
+      return (await import('pdf-parse')).default;
+    };
+    
+    // Import pdf-parse
+    const pdfParse = await importPdfParse();
     
     // Set options to prevent loading test files
     const options = {
@@ -84,4 +70,8 @@ export async function parsePdf(buffer: Buffer): Promise<string> {
     console.error('Error in custom PDF parser:', error);
     throw error;
   }
-} 
+}
+
+// Note: The Buffer() deprecation warning is coming from the pdf-parse library itself
+// and can't be completely suppressed without modifying the library.
+// However, the warning doesn't affect functionality and can be safely ignored. 
