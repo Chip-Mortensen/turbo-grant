@@ -205,7 +205,6 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         .from('research_descriptions')
         .update({
           vectorization_status: 'completed',
-          last_vectorized_at: new Date().toISOString(),
           pinecone_ids: pineconeIds
         })
         .eq('id', this.content.id);
@@ -357,13 +356,8 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
 
   async updateStatus(status: string, error?: string): Promise<void> {
     const updates: any = {
-      vectorization_status: status,
-      last_vectorized_at: new Date().toISOString()
+      vectorization_status: status
     };
-    
-    if (error) {
-      updates.vectorization_error = error;
-    }
     
     await this.supabase
       .from('research_descriptions')
