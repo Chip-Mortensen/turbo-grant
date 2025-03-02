@@ -203,6 +203,9 @@ export function UploadFigure({
           onChange={(e) => setCaption(e.target.value)}
           disabled={isUploading}
         />
+        <p className="text-xs text-muted-foreground">
+          AI will automatically generate a detailed description of your figure. Add a caption here if you have specific information you want to include in the search index.
+        </p>
       </div>
 
       {error && <div className="text-sm text-red-500">{error}</div>}
