@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import { Label } from "@/components/ui/label"
@@ -18,6 +18,9 @@ export function UploadFigure({
   const [error, setError] = useState<string | null>(null)
   const [caption, setCaption] = useState("")
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
   const validateFile = (file: File): string | null => {
@@ -33,31 +36,58 @@ export function UploadFigure({
     return null;
   };
 
-  const onFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return
-
-    const file = e.target.files[0]
+  const handleFile = useCallback((file: File) => {
     const validationError = validateFile(file);
     if (validationError) {
       setError(validationError);
       return;
     }
 
+    // Store the selected file
+    setSelectedFile(file);
+    
     const url = URL.createObjectURL(file)
     setPreviewUrl(url)
     setError(null);
-  }, [])
+  }, []);
+
+  const onFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    handleFile(e.target.files[0]);
+  }, [handleFile]);
+
+  const onDragOver = useCallback((e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const onDragLeave = useCallback((e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const onDrop = useCallback((e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
+      e.dataTransfer.clearData();
+    }
+  }, [handleFile]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement
-    if (!fileInput.files || fileInput.files.length === 0) {
+    
+    if (!selectedFile) {
       setError("Please select an image")
       return
     }
 
-    const file = fileInput.files[0]
-    const validationError = validateFile(file);
+    const validationError = validateFile(selectedFile);
     if (validationError) {
       setError(validationError);
       return;
@@ -71,8 +101,8 @@ export function UploadFigure({
       
       // Upload file to storage
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("scientific_figures")
-        .upload(`${projectId}/${file.name}`, file)
+        .from("scientific-figures")
+        .upload(`${projectId}/${selectedFile.name}`, selectedFile)
 
       if (uploadError) throw uploadError
 
@@ -93,7 +123,10 @@ export function UploadFigure({
       // Reset form
       setCaption("")
       setPreviewUrl(null)
-      fileInput.value = ""
+      setSelectedFile(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
       router.refresh()
     } catch (err) {
       console.error("Error uploading:", err)
@@ -110,7 +143,10 @@ export function UploadFigure({
         <div className="flex items-center justify-center w-full">
           <label
             htmlFor="figure"
-            className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 relative"
+            className={`flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 relative ${isDragging ? 'border-primary bg-gray-100' : ''}`}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
           >
             {previewUrl ? (
               <div className="absolute inset-0 w-full h-full">
@@ -147,6 +183,7 @@ export function UploadFigure({
             )}
             <input
               id="figure"
+              ref={fileInputRef}
               type="file"
               className="hidden"
               accept="image/jpeg,image/png"

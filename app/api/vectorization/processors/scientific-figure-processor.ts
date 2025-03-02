@@ -114,9 +114,16 @@ export class ScientificFigureProcessor extends ContentProcessor {
       const description = await generateImageDescription(base64Image);
       console.log('Generated AI description, length:', description.length);
 
-      // Generate embedding for the description
-      console.log('Generating embedding for description');
-      const embedding = await generateEmbeddings(description);
+      // Combine caption with AI description if available
+      let fullText = description;
+      if (this.content.caption) {
+        fullText = `Caption: ${this.content.caption}\n\nDescription: ${description}`;
+        console.log('Combined caption with AI description');
+      }
+
+      // Generate embedding for the combined text
+      console.log('Generating embedding for text');
+      const embedding = await generateEmbeddings(fullText);
       console.log('Generated embedding');
 
       // Store in Pinecone with metadata
@@ -125,9 +132,9 @@ export class ScientificFigureProcessor extends ContentProcessor {
         projectId: this.projectId || undefined,
         figureId: this.content.id,
         caption: this.content.caption || undefined,
-        text: description,
-        charCount: description.length,
-        wordCount: description.split(/\s+/).length
+        text: fullText,
+        charCount: fullText.length,
+        wordCount: fullText.split(/\s+/).length
       };
 
       const pineconeId = await this.storePineconeVector(embedding, metadata);

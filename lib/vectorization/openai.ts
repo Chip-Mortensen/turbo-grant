@@ -25,12 +25,26 @@ export async function generateImageDescription(imageBase64: string): Promise<str
       {
         role: 'user',
         content: [
-          { type: 'text', text: 'Please describe this scientific figure in detail.' },
+          { 
+            type: 'text', 
+            text: `Please provide a detailed description of this scientific figure in plain text format.
+
+Important: Do NOT use any markdown formatting (no headings, no bullet points, no asterisks for bold/italic, etc.).
+
+Your description should:
+1. Start with a clear title or summary of what the figure shows
+2. Include a comprehensive overview of the figure's content
+3. Describe the key elements, data points, or trends visible in the figure
+4. Explain any labels, legends, or annotations
+5. Mention the significance or implications of what's shown, if apparent
+
+Use simple, clear language without any special formatting characters. The description should be comprehensive enough for someone who cannot see the image to understand its content and significance.`
+          },
           { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
         ],
       },
     ],
-    max_tokens: 500,
+    max_tokens: 800,
   });
 
   return response.choices[0].message.content || '';

@@ -350,7 +350,7 @@ export async function getFigureUrl(figureId: string) {
 
   // Get a signed URL for the file
   const { data, error } = await supabase.storage
-    .from("scientific_figures")
+    .from("scientific-figures")
     .createSignedUrl(figure.image_path, 60) // URL valid for 60 seconds
 
   if (error) {
