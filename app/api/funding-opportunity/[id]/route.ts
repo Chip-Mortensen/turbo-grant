@@ -9,7 +9,7 @@ import { getPineconeClient } from '@/lib/vectorization/pinecone';
  */
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get the current user
@@ -23,9 +23,8 @@ export async function DELETE(
       );
     }
 
-    // Properly await and access the id parameter
-    const params = await context.params;
-    const foaId = params.id;
+    // Await the params to get the id
+    const foaId = (await params).id;
     
     if (!foaId) {
       return NextResponse.json(

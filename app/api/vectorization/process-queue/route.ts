@@ -16,7 +16,7 @@ type QueueItem = {
   retry_count: number;
 };
 
-const BATCH_SIZE = 10; // Number of items to process in each batch
+const BATCH_SIZE = 5; // Number of items to process in each batch
 
 async function processContent(
   content: any,
