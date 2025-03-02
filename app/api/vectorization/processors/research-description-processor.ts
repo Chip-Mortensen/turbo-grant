@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { Database } from '@/types/supabase';
+import { encode } from 'gpt-tokenizer';
 
 type ResearchDescription = Database['public']['Tables']['research_descriptions']['Row'];
 
@@ -130,8 +131,8 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
       const text = await this.extractText(fileData);
       console.log('Extracted text length:', text.length);
 
-      // Split into chunks
-      const chunks = this.splitIntoChunks(text);
+      // Split into chunks using token-based chunking
+      const chunks = this.chunkByTokens(text);
       console.log('Split into chunks:', chunks.length);
 
       // Process each chunk
@@ -143,6 +144,9 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         const embedding = await this.generateEmbeddings(chunk);
         console.log(`Generated embedding for chunk ${i + 1}/${chunks.length}`);
 
+        // Determine if this is a full document or a chunk
+        const isFullDocument = chunks.length === 1 && encode(chunk).length <= 4000;
+        
         // Store in Pinecone with metadata
         const metadata: ProcessingMetadata = {
           type: 'research_description',
@@ -151,6 +155,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
           fileType: this.content.file_type,
           chunkIndex: i + 1,
           totalChunks: chunks.length,
+          documentType: isFullDocument ? 'full_document' : 'chunk',
           text: chunk,
           charCount: chunk.length,
           wordCount: chunk.split(/\s+/).length
@@ -158,7 +163,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
 
         const pineconeId = await this.storePineconeVector(embedding, metadata);
         pineconeIds.push(pineconeId);
-        console.log(`Stored chunk ${i + 1} in Pinecone with ID: ${pineconeId}`);
+        console.log(`Stored ${isFullDocument ? 'full document' : 'chunk'} ${i + 1} in Pinecone with ID: ${pineconeId}`);
       }
 
       // Update the description status
@@ -248,5 +253,138 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
       .from('research_descriptions')
       .update(updates)
       .eq('id', this.content.id);
+  }
+
+  /**
+   * Chunks text by token count using gpt-tokenizer with a hybrid approach
+   * @param text The text to chunk
+   * @param maxTokens Maximum tokens per chunk
+   * @returns Array of text chunks
+   */
+  private chunkByTokens(text: string, maxTokens: number = 2500): string[] {
+    console.log('Chunking text by tokens, text length:', text.length);
+    
+    // Check if the entire text is under a reasonable token limit for a single chunk
+    const totalTokens = encode(text).length;
+    console.log(`Total tokens in document: ${totalTokens}`);
+    
+    // If the document is small enough, return it as a single chunk
+    if (totalTokens <= 4000) {
+      console.log('Document is small enough for a single chunk');
+      return [text];
+    }
+    
+    try {
+      // Split text into paragraphs first
+      const paragraphs = text.split(/\n\s*\n/);
+      console.log(`Split text into ${paragraphs.length} paragraphs`);
+      
+      const chunks: string[] = [];
+      let currentChunk = '';
+      let currentTokenCount = 0;
+      
+      // Process each paragraph
+      for (const paragraph of paragraphs) {
+        if (paragraph.trim().length === 0) continue;
+        
+        // Get token count for this paragraph
+        const paragraphTokens = encode(paragraph);
+        const paragraphTokenCount = paragraphTokens.length;
+        
+        // If adding this paragraph would exceed the max tokens, start a new chunk
+        if (currentTokenCount + paragraphTokenCount > maxTokens && currentChunk.length > 0) {
+          chunks.push(currentChunk);
+          currentChunk = '';
+          currentTokenCount = 0;
+        }
+        
+        // Add paragraph to current chunk
+        if (currentChunk.length > 0) {
+          currentChunk += '\n\n';
+        }
+        currentChunk += paragraph;
+        currentTokenCount += paragraphTokenCount;
+        
+        // If this single paragraph is too large, we need to split it further
+        if (paragraphTokenCount > maxTokens) {
+          // Split into sentences
+          const sentences = paragraph.match(/[^.!?]+[.!?]+/g) || [paragraph];
+          
+          // Reset current chunk since we're going to process sentences
+          chunks.pop(); // Remove the chunk we just added
+          currentChunk = '';
+          currentTokenCount = 0;
+          
+          // Process each sentence
+          for (const sentence of sentences) {
+            const sentenceTokens = encode(sentence);
+            const sentenceTokenCount = sentenceTokens.length;
+            
+            // If adding this sentence would exceed the max tokens, start a new chunk
+            if (currentTokenCount + sentenceTokenCount > maxTokens && currentChunk.length > 0) {
+              chunks.push(currentChunk);
+              currentChunk = '';
+              currentTokenCount = 0;
+            }
+            
+            // Add sentence to current chunk
+            if (currentChunk.length > 0 && !currentChunk.endsWith(' ')) {
+              currentChunk += ' ';
+            }
+            currentChunk += sentence;
+            currentTokenCount += sentenceTokenCount;
+            
+            // If this single sentence is still too large (rare), we'll have to split by character count
+            if (sentenceTokenCount > maxTokens) {
+              // This is a fallback for extremely long sentences
+              const words = sentence.split(' ');
+              
+              // Reset current chunk since we're going to process words
+              chunks.pop(); // Remove the chunk we just added
+              currentChunk = '';
+              currentTokenCount = 0;
+              
+              // Process each word
+              for (const word of words) {
+                const wordTokens = encode(word + ' ');
+                const wordTokenCount = wordTokens.length;
+                
+                // If adding this word would exceed the max tokens, start a new chunk
+                if (currentTokenCount + wordTokenCount > maxTokens && currentChunk.length > 0) {
+                  chunks.push(currentChunk);
+                  currentChunk = '';
+                  currentTokenCount = 0;
+                }
+                
+                // Add word to current chunk
+                currentChunk += word + ' ';
+                currentTokenCount += wordTokenCount;
+              }
+            }
+          }
+        }
+      }
+      
+      // Add the last chunk if it's not empty
+      if (currentChunk.length > 0) {
+        chunks.push(currentChunk);
+      }
+      
+      console.log(`Created ${chunks.length} chunks using gpt-tokenizer`);
+      return chunks;
+    } catch (error) {
+      console.error('Error chunking text by tokens:', error);
+      
+      // Fallback to simple character-based chunking
+      console.log('Falling back to character-based chunking');
+      const chunks: string[] = [];
+      const chunkSize = 7500; // Approximate character count for 2500 tokens
+      
+      for (let i = 0; i < text.length; i += chunkSize) {
+        chunks.push(text.slice(i, i + chunkSize));
+      }
+      
+      return chunks;
+    }
   }
 } 

@@ -5,12 +5,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Database } from "@/types/supabase"
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle, Trash2 } from "lucide-react"
 
 type Description = Database["public"]["Tables"]["research_descriptions"]["Row"]
 
 export function DescriptionList({ descriptions }: { descriptions: Description[] | null }) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedDescription, setSelectedDescription] = useState<Description | null>(null)
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null)
   const router = useRouter()
 
   const handleDownload = async (id: string) => {
@@ -32,17 +46,26 @@ export function DescriptionList({ descriptions }: { descriptions: Description[] 
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this description?")) return
+  const handleDeleteClick = (description: Description) => {
+    setSelectedDescription(description)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedDescription) return
 
     setError(null)
-    setIsLoading(id)
+    setDeleteSuccess(null)
+    setIsLoading(selectedDescription.id)
 
     try {
-      const result = await deleteDescription(id)
+      const result = await deleteDescription(selectedDescription.id)
       if (result.error) {
         throw new Error(result.error)
       }
+      
+      setDeleteSuccess(`Successfully deleted "${selectedDescription.file_name}"`)
+      setDeleteDialogOpen(false)
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error deleting file")
@@ -61,7 +84,19 @@ export function DescriptionList({ descriptions }: { descriptions: Description[] 
 
   return (
     <div className="grid gap-4">
-      {error && <div className="text-sm text-red-500">{error}</div>}
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {deleteSuccess && (
+        <Alert className="mb-4 bg-green-50 border-green-200">
+          <AlertDescription className="text-green-800">{deleteSuccess}</AlertDescription>
+        </Alert>
+      )}
+      
       {descriptions.map((description) => (
         <Card key={description.id}>
           <CardHeader>
@@ -75,24 +110,70 @@ export function DescriptionList({ descriptions }: { descriptions: Description[] 
               {description.file_type}
             </div>
             <div className="flex gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => handleDownload(description.id)}
                 disabled={isLoading === description.id}
-                className="text-sm text-primary hover:underline disabled:opacity-50"
               >
                 {isLoading === description.id ? "Loading..." : "Download"}
-              </button>
-              <button
-                onClick={() => handleDelete(description.id)}
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDeleteClick(description)}
                 disabled={isLoading === description.id}
-                className="text-sm text-red-500 hover:underline disabled:opacity-50"
+                className="flex items-center gap-1"
               >
+                <Trash2 className="h-4 w-4" />
                 {isLoading === description.id ? "Loading..." : "Delete"}
-              </button>
+              </Button>
             </div>
           </CardContent>
         </Card>
       ))}
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Research Description</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this research description? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedDescription?.pinecone_ids && selectedDescription.pinecone_ids.length > 0 && (
+            <div className="mt-2 text-amber-600">
+              This will also delete {selectedDescription.pinecone_ids.length} associated vectors from Pinecone.
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isLoading === selectedDescription?.id}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isLoading === selectedDescription?.id}
+            >
+              {isLoading === selectedDescription?.id ? (
+                <>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-b-transparent rounded-full"></div>
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 

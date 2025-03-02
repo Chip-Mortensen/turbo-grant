@@ -3,6 +3,10 @@
 import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
@@ -16,6 +20,10 @@ export function UploadDescription({ projectId }: { projectId: string }) {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [replaceDialogOpen, setReplaceDialogOpen] = useState(false)
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null)
+  const [existingDescription, setExistingDescription] = useState<any | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const router = useRouter()
 
   const validateFile = (file: File): string | null => {
@@ -35,6 +43,29 @@ export function UploadDescription({ projectId }: { projectId: string }) {
     return null;
   };
 
+  const checkExistingDescription = async (file: File) => {
+    try {
+      const supabase = createClient()
+      const { data: descriptions } = await supabase
+        .from("research_descriptions")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("uploaded_at", { ascending: false })
+        .limit(1)
+
+      if (descriptions && descriptions.length > 0) {
+        setExistingDescription(descriptions[0])
+        setFileToUpload(file)
+        setReplaceDialogOpen(true)
+        return true
+      }
+      return false
+    } catch (err) {
+      console.error("Error checking for existing descriptions:", err)
+      return false
+    }
+  }
+
   const handleUpload = useCallback(async (file: File) => {
     const validationError = validateFile(file);
     if (validationError) {
@@ -42,8 +73,20 @@ export function UploadDescription({ projectId }: { projectId: string }) {
       return;
     }
 
+    // Check if there's an existing description
+    const hasExisting = await checkExistingDescription(file)
+    if (hasExisting) {
+      // Dialog will be shown, upload will happen after confirmation
+      return
+    }
+
+    await processUpload(file)
+  }, [projectId, router])
+
+  const processUpload = async (file: File) => {
     setIsUploading(true)
     setError(null)
+    setSuccess(null)
     console.log('Starting upload process for file:', file.name)
 
     try {
@@ -68,6 +111,32 @@ export function UploadDescription({ projectId }: { projectId: string }) {
       }
 
       console.log('Project verification successful:', project.id)
+      
+      // If there's an existing description, delete it first
+      if (existingDescription) {
+        console.log('Deleting existing description:', existingDescription.id)
+        
+        // Delete the file from storage
+        const { error: storageError } = await supabase.storage
+          .from("research-descriptions")
+          .remove([existingDescription.file_path])
+
+        if (storageError) {
+          console.error('Error deleting existing file:', storageError)
+          // Continue anyway to replace the record
+        }
+
+        // Delete the database record
+        const { error: dbError } = await supabase
+          .from("research_descriptions")
+          .delete()
+          .eq("id", existingDescription.id)
+
+        if (dbError) {
+          console.error('Error deleting existing record:', dbError)
+          // The unique constraint should handle this case
+        }
+      }
       
       // Upload file to storage
       console.log('Attempting to upload file to storage bucket')
@@ -103,15 +172,20 @@ export function UploadDescription({ projectId }: { projectId: string }) {
       }
 
       console.log('Database record created successfully:', dbData)
-
+      setSuccess(existingDescription 
+        ? `Successfully replaced "${existingDescription.file_name}" with "${file.name}"`
+        : `Successfully uploaded "${file.name}"`)
+      
       router.refresh()
     } catch (err) {
       console.error("Upload process failed:", err)
       setError(err instanceof Error ? err.message : "Error uploading file")
     } finally {
       setIsUploading(false)
+      setExistingDescription(null)
+      setReplaceDialogOpen(false)
     }
-  }, [projectId, router])
+  }
 
   const onDrop = useCallback((e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault()
@@ -132,6 +206,19 @@ export function UploadDescription({ projectId }: { projectId: string }) {
 
   return (
     <div className="space-y-4">
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert className="mb-4 bg-green-50 border-green-200">
+          <AlertDescription className="text-green-800">{success}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="flex items-center justify-center w-full">
         <label
           htmlFor="dropzone-file"
@@ -183,12 +270,64 @@ export function UploadDescription({ projectId }: { projectId: string }) {
           />
         </label>
       </div>
-      {error && <div className="text-sm text-red-500">{error}</div>}
+      
       {isUploading && (
         <div className="text-sm text-center text-muted-foreground">
           Uploading...
         </div>
       )}
+      
+      {/* Replace Confirmation Dialog */}
+      <Dialog open={replaceDialogOpen} onOpenChange={setReplaceDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Replace Existing Description</DialogTitle>
+            <DialogDescription>
+              This project already has a research description. Uploading a new one will replace the existing description.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {existingDescription && (
+            <div className="mt-2 text-sm">
+              <p>Existing file: <span className="font-medium">{existingDescription.file_name}</span></p>
+              <p>Uploaded on: <span className="font-medium">{new Date(existingDescription.uploaded_at).toLocaleDateString()}</span></p>
+              
+              {existingDescription.pinecone_ids && existingDescription.pinecone_ids.length > 0 && (
+                <div className="mt-2 text-amber-600">
+                  This will also delete {existingDescription.pinecone_ids.length} associated vectors from Pinecone.
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setReplaceDialogOpen(false)
+                setFileToUpload(null)
+                setExistingDescription(null)
+              }}
+              disabled={isUploading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => fileToUpload && processUpload(fileToUpload)}
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-b-transparent rounded-full"></div>
+                  Replacing...
+                </>
+              ) : (
+                'Replace'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 

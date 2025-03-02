@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link"
 import { UploadDescription } from "@/components/projects/upload-description"
 import { DescriptionList } from "@/components/projects/description-list"
+import { Info } from "lucide-react"
 
 interface PageProps {
   params: Promise<{ projectId: string }>
@@ -43,7 +44,7 @@ export default async function ResearchDescriptionPage({ params }: PageProps) {
         <div>
           <h1 className="text-2xl font-semibold">Research Description</h1>
           <p className="text-sm text-muted-foreground">
-            Upload and manage your research descriptions
+            Upload and manage your research description
           </p>
         </div>
         <Link
@@ -56,10 +57,18 @@ export default async function ResearchDescriptionPage({ params }: PageProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Upload Description</CardTitle>
-          <CardDescription>
-            Upload a document describing your research project
-          </CardDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle>Upload Description</CardTitle>
+              <CardDescription>
+                Upload a document describing your research project
+              </CardDescription>
+            </div>
+            <div className="flex items-center text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-md">
+              <Info className="h-3 w-3 mr-1" />
+              Only one description allowed per project
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <UploadDescription projectId={projectId} />
@@ -67,7 +76,7 @@ export default async function ResearchDescriptionPage({ params }: PageProps) {
       </Card>
 
       <div className="grid gap-4">
-        <h2 className="text-lg font-semibold">Uploaded Descriptions</h2>
+        <h2 className="text-lg font-semibold">Current Description</h2>
         <DescriptionList descriptions={descriptions} />
       </div>
     </div>
