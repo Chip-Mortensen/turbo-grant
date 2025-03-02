@@ -2,6 +2,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { Database } from '@/types/supabase';
 import { encode } from 'gpt-tokenizer';
+import pdfParse from 'pdf-parse';
 
 type ResearchDescription = Database['public']['Tables']['research_descriptions']['Row'];
 
@@ -244,76 +245,24 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         try {
           console.log('Processing PDF file, size:', buffer.byteLength);
           
-          // Import pdfjs-dist
-          const pdfjsLib = await import('pdfjs-dist');
-          console.log('PDF.js version:', pdfjsLib.version);
+          // Convert ArrayBuffer to Buffer for pdf-parse
+          const nodeBuffer = Buffer.from(buffer);
           
-          // Check if we're in a Node.js environment
-          const isNodeJS = typeof window === 'undefined' || 
-                          (typeof process !== 'undefined' && process.versions && process.versions.node);
-          
-          if (isNodeJS) {
-            console.log('Detected Node.js environment, configuring PDF.js accordingly');
-            // For Node.js, we need to disable the worker
-            pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-          } else {
-            // For browser environments, use CDN
-            const workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-            pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
-          }
-          
-          console.log('Worker configured for current environment');
-          
-          // Create a new Uint8Array from the buffer
-          const uint8Array = new Uint8Array(buffer);
-          
-          // Load the PDF document with minimal options
-          console.log('Starting PDF document loading...');
-          
-          // Use a more compatible approach for Node.js
-          const loadingTask = pdfjsLib.getDocument({
-            data: uint8Array,
-            verbosity: 0,
-            disableAutoFetch: true,
-            disableStream: true,
-            disableFontFace: true,
-            // Explicitly disable range requests which can cause issues in Node.js
-            rangeChunkSize: 65536 * 10,
-            maxImageSize: -1,
-            isEvalSupported: false,
-            useSystemFonts: false
+          // Use pdf-parse to extract text
+          console.log('Starting PDF parsing with pdf-parse...');
+          const data = await pdfParse(nodeBuffer, {
+            // Optional: Limit the max pages to parse
+            max: 0, // 0 means parse all pages
           });
           
-          const pdf = await loadingTask.promise;
-          console.log(`PDF document loaded with ${pdf.numPages} pages`);
+          console.log(`PDF parsed successfully: ${data.numpages} pages, ${data.text.length} characters`);
           
-          // Extract text from all pages
-          let text = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
-            try {
-              console.log(`Processing page ${i}/${pdf.numPages}`);
-              const page = await pdf.getPage(i);
-              const textContent = await page.getTextContent();
-              const pageText = textContent.items
-                .filter((item: any) => 'str' in item)
-                .map((item: any) => item.str)
-                .join(' ');
-              
-              text += pageText + '\n';
-              console.log(`Extracted text from page ${i}`);
-            } catch (pageError) {
-              console.error(`Error extracting text from page ${i}:`, pageError);
-              // Continue with other pages even if one fails
-            }
-          }
-          
-          if (!text || text.trim().length === 0) {
+          if (!data.text || data.text.trim().length === 0) {
             console.error('PDF parsing returned empty result');
             throw new Error('Failed to extract text from PDF');
           }
           
-          console.log(`Successfully extracted ${text.length} characters from PDF`);
-          return text;
+          return data.text;
         } catch (err) {
           const error = err as Error;
           console.error('Error processing PDF file:', error);
