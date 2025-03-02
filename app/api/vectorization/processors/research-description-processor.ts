@@ -124,12 +124,25 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         .download(this.content.file_path);
 
       if (fileError || !fileData) {
-        throw new Error(`Failed to download file: ${fileError?.message}`);
+        const errorMsg = `Failed to download file: ${fileError?.message}`;
+        console.error(errorMsg);
+        await this.updateStatus('failed', errorMsg);
+        throw new Error(errorMsg);
       }
 
       // Extract text based on file type
-      const text = await this.extractText(fileData);
-      console.log('Extracted text length:', text.length);
+      let text: string;
+      try {
+        text = await this.extractText(fileData);
+        console.log('Extracted text length:', text.length);
+      } catch (extractError) {
+        const errorMsg = extractError instanceof Error 
+          ? `Text extraction failed: ${extractError.message}` 
+          : 'Text extraction failed';
+        console.error(errorMsg);
+        await this.updateStatus('failed', errorMsg);
+        throw extractError;
+      }
 
       // Split into chunks using token-based chunking
       const chunks = this.chunkByTokens(text);
@@ -140,30 +153,47 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         
-        // Generate embedding for chunk
-        const embedding = await this.generateEmbeddings(chunk);
-        console.log(`Generated embedding for chunk ${i + 1}/${chunks.length}`);
+        try {
+          // Generate embedding for chunk
+          const embedding = await this.generateEmbeddings(chunk);
+          console.log(`Generated embedding for chunk ${i + 1}/${chunks.length}`);
 
-        // Determine if this is a full document or a chunk
-        const isFullDocument = chunks.length === 1 && encode(chunk).length <= 4000;
-        
-        // Store in Pinecone with metadata
-        const metadata: ProcessingMetadata = {
-          type: 'research_description',
-          projectId: this.projectId || undefined,
-          fileName: this.content.file_name,
-          fileType: this.content.file_type,
-          chunkIndex: i + 1,
-          totalChunks: chunks.length,
-          documentType: isFullDocument ? 'full_document' : 'chunk',
-          text: chunk,
-          charCount: chunk.length,
-          wordCount: chunk.split(/\s+/).length
-        };
+          // Determine if this is a full document or a chunk
+          const isFullDocument = chunks.length === 1 && encode(chunk).length <= 4000;
+          
+          // Store in Pinecone with metadata
+          const metadata: ProcessingMetadata = {
+            type: 'research_description',
+            projectId: this.projectId || undefined,
+            fileName: this.content.file_name,
+            fileType: this.content.file_type,
+            chunkIndex: i + 1,
+            totalChunks: chunks.length,
+            documentType: isFullDocument ? 'full_document' : 'chunk',
+            text: chunk,
+            charCount: chunk.length,
+            wordCount: chunk.split(/\s+/).length
+          };
 
-        const pineconeId = await this.storePineconeVector(embedding, metadata);
-        pineconeIds.push(pineconeId);
-        console.log(`Stored ${isFullDocument ? 'full document' : 'chunk'} ${i + 1} in Pinecone with ID: ${pineconeId}`);
+          const pineconeId = await this.storePineconeVector(embedding, metadata);
+          pineconeIds.push(pineconeId);
+          console.log(`Stored ${isFullDocument ? 'full document' : 'chunk'} ${i + 1} in Pinecone with ID: ${pineconeId}`);
+        } catch (chunkError) {
+          const errorMsg = chunkError instanceof Error 
+            ? `Error processing chunk ${i + 1}: ${chunkError.message}` 
+            : `Error processing chunk ${i + 1}`;
+          console.error(errorMsg);
+          
+          // Continue with other chunks even if one fails
+          continue;
+        }
+      }
+
+      if (pineconeIds.length === 0) {
+        const errorMsg = 'Failed to process any chunks successfully';
+        console.error(errorMsg);
+        await this.updateStatus('failed', errorMsg);
+        throw new Error(errorMsg);
       }
 
       // Update the description status
@@ -177,6 +207,7 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         .eq('id', this.content.id);
 
       if (updateError) {
+        console.error('Error updating description status:', updateError);
         throw updateError;
       }
 
@@ -191,6 +222,15 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
       };
     } catch (error) {
       console.error('Error in processResearchDescription:', error);
+      
+      // Make sure we update the status if it hasn't been done already
+      try {
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        await this.updateStatus('failed', errorMsg);
+      } catch (statusError) {
+        console.error('Failed to update error status:', statusError);
+      }
+      
       throw error;
     }
   }
@@ -200,9 +240,30 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
     
     switch (this.content.file_type) {
       case 'application/pdf': {
-        const pdfParse = (await import('pdf-parse')).default;
-        const pdfData = await pdfParse(Buffer.from(buffer));
-        return pdfData.text;
+        try {
+          console.log('Processing PDF file, size:', buffer.byteLength);
+          const pdfParse = (await import('pdf-parse')).default;
+          
+          // Create options object to override the default behavior
+          const options = {
+            // Disable the use of the local test file
+            max: 0, // No page limit
+          };
+          
+          const pdfData = await pdfParse(Buffer.from(buffer), options);
+          
+          if (!pdfData || !pdfData.text) {
+            console.error('PDF parsing returned empty result');
+            throw new Error('Failed to extract text from PDF');
+          }
+          
+          console.log(`Successfully extracted ${pdfData.text.length} characters from PDF`);
+          return pdfData.text;
+        } catch (err) {
+          const error = err as Error;
+          console.error('Error processing PDF file:', error);
+          throw new Error(`Failed to process PDF file: ${error.message}`);
+        }
       }
       
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
