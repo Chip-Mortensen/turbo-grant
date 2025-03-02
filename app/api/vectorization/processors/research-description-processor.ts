@@ -237,31 +237,71 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
 
   private async extractText(file: Blob): Promise<string> {
     const buffer = await file.arrayBuffer();
+    console.log(`File buffer size: ${buffer.byteLength} bytes`);
     
     switch (this.content.file_type) {
       case 'application/pdf': {
         try {
           console.log('Processing PDF file, size:', buffer.byteLength);
-          const pdfParse = (await import('pdf-parse')).default;
           
-          // Create options object to override the default behavior
-          const options = {
-            // Disable the use of the local test file
-            max: 0, // No page limit
+          // Use pdfjs-dist instead of pdf-parse
+          const pdfjsLib = await import('pdfjs-dist');
+          console.log('PDF.js version:', pdfjsLib.version);
+          
+          // Disable the worker to process in the main thread
+          // This is more reliable in server environments
+          pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+          console.log('Worker disabled for server-side processing');
+          
+          // Load the PDF document with more detailed logging
+          console.log('Starting PDF document loading...');
+          const loadingTask = pdfjsLib.getDocument({ 
+            data: new Uint8Array(buffer),
+            disableFontFace: true, // Disable font rendering for better performance
+            cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
+            cMapPacked: true,
+          });
+          
+          // Add progress monitoring
+          loadingTask.onProgress = (progressData: { loaded: number, total: number }) => {
+            console.log(`Loading PDF: ${Math.round((progressData.loaded / progressData.total) * 100)}%`);
           };
           
-          const pdfData = await pdfParse(Buffer.from(buffer), options);
+          const pdf = await loadingTask.promise;
+          console.log(`PDF document loaded with ${pdf.numPages} pages`);
           
-          if (!pdfData || !pdfData.text) {
+          // Extract text from all pages
+          let text = '';
+          for (let i = 1; i <= pdf.numPages; i++) {
+            try {
+              console.log(`Starting to process page ${i}/${pdf.numPages}`);
+              const page = await pdf.getPage(i);
+              console.log(`Got page ${i}, extracting text content...`);
+              const content = await page.getTextContent();
+              console.log(`Text content extracted from page ${i}, item count: ${content.items.length}`);
+              
+              const strings = content.items.map((item: any) => {
+                return 'str' in item ? item.str : '';
+              });
+              text += strings.join(' ') + '\n';
+              console.log(`Extracted ${strings.length} text elements from page ${i}/${pdf.numPages}`);
+            } catch (pageError) {
+              console.error(`Error extracting text from page ${i}:`, pageError);
+              // Continue with other pages even if one fails
+            }
+          }
+          
+          if (!text || text.trim().length === 0) {
             console.error('PDF parsing returned empty result');
             throw new Error('Failed to extract text from PDF');
           }
           
-          console.log(`Successfully extracted ${pdfData.text.length} characters from PDF`);
-          return pdfData.text;
+          console.log(`Successfully extracted ${text.length} characters from PDF`);
+          return text;
         } catch (err) {
           const error = err as Error;
           console.error('Error processing PDF file:', error);
+          console.error('Error stack:', error.stack);
           throw new Error(`Failed to process PDF file: ${error.message}`);
         }
       }
