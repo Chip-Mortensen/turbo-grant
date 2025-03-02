@@ -2,7 +2,7 @@ import { ContentProcessor, ProcessingResult } from '@/lib/vectorization/base-pro
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 import { FundingOpportunityExtractor, FundingOpportunity } from '@/lib/funding-opportunity-extractor';
-import { encoding_for_model } from 'tiktoken';
+import { encode } from 'gpt-tokenizer';
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 
@@ -309,7 +309,7 @@ export class FOAProcessor extends ContentProcessor {
   }
   
   /**
-   * Chunks text by token count using tiktoken
+   * Chunks text by token count using gpt-tokenizer
    * @param text The text to chunk
    * @param maxTokens Maximum tokens per chunk
    * @returns Array of text chunks
@@ -318,10 +318,6 @@ export class FOAProcessor extends ContentProcessor {
     console.log('Chunking text by tokens, text length:', text.length);
     
     try {
-      // Get the encoder for the embedding model
-      const encoder = encoding_for_model('text-embedding-3-large');
-      console.log('Using tiktoken encoder for text-embedding-3-large');
-      
       // Split text into sentences or paragraphs first
       const paragraphs = text.split(/\n\s*\n/);
       console.log(`Split text into ${paragraphs.length} paragraphs`);
@@ -335,7 +331,7 @@ export class FOAProcessor extends ContentProcessor {
         if (paragraph.trim().length === 0) continue;
         
         // Get token count for this paragraph
-        const paragraphTokens = encoder.encode(paragraph);
+        const paragraphTokens = encode(paragraph);
         const paragraphTokenCount = paragraphTokens.length;
         
         // If adding this paragraph would exceed the max tokens, start a new chunk
@@ -364,7 +360,7 @@ export class FOAProcessor extends ContentProcessor {
           
           // Process each sentence
           for (const sentence of sentences) {
-            const sentenceTokens = encoder.encode(sentence);
+            const sentenceTokens = encode(sentence);
             const sentenceTokenCount = sentenceTokens.length;
             
             // If adding this sentence would exceed the max tokens, start a new chunk
@@ -393,7 +389,7 @@ export class FOAProcessor extends ContentProcessor {
               
               // Process each word
               for (const word of words) {
-                const wordTokens = encoder.encode(word + ' ');
+                const wordTokens = encode(word + ' ');
                 const wordTokenCount = wordTokens.length;
                 
                 // If adding this word would exceed the max tokens, start a new chunk
@@ -417,10 +413,7 @@ export class FOAProcessor extends ContentProcessor {
         chunks.push(currentChunk);
       }
       
-      // Free the encoder resources
-      encoder.free();
-      
-      console.log(`Created ${chunks.length} chunks using tiktoken`);
+      console.log(`Created ${chunks.length} chunks using gpt-tokenizer`);
       return chunks;
     } catch (error) {
       console.error('Error chunking text by tokens:', error);
