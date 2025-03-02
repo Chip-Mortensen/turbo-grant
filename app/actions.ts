@@ -261,7 +261,7 @@ export async function deleteDescription(descriptionId: string) {
     const { error: queueError } = await supabase
       .from('processing_queue')
       .delete()
-      .eq('content_type', 'description')
+      .eq('content_type', 'research_description')
       .eq('content_id', descriptionId);
 
     if (queueError) {

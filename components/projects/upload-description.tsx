@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { deleteDescription } from "@/app/actions"
 
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
@@ -112,29 +113,16 @@ export function UploadDescription({ projectId }: { projectId: string }) {
 
       console.log('Project verification successful:', project.id)
       
-      // If there's an existing description, delete it first
+      // If there's an existing description, delete it first using the deleteDescription function
       if (existingDescription) {
         console.log('Deleting existing description:', existingDescription.id)
         
-        // Delete the file from storage
-        const { error: storageError } = await supabase.storage
-          .from("research-descriptions")
-          .remove([existingDescription.file_path])
-
-        if (storageError) {
-          console.error('Error deleting existing file:', storageError)
-          // Continue anyway to replace the record
-        }
-
-        // Delete the database record
-        const { error: dbError } = await supabase
-          .from("research_descriptions")
-          .delete()
-          .eq("id", existingDescription.id)
-
-        if (dbError) {
-          console.error('Error deleting existing record:', dbError)
-          // The unique constraint should handle this case
+        // Use the deleteDescription function to properly clean up vectors
+        const result = await deleteDescription(existingDescription.id)
+        
+        if (result.error) {
+          console.error('Error deleting existing description:', result.error)
+          // Continue anyway to replace the record, but log the error
         }
       }
       
