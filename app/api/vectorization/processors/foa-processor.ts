@@ -2,6 +2,7 @@ import { ContentProcessor, ProcessingResult } from '@/lib/vectorization/base-pro
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 import { FundingOpportunityExtractor, FundingOpportunity } from '@/lib/funding-opportunity-extractor';
+import { encoding_for_model } from 'tiktoken';
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 
@@ -46,6 +47,20 @@ export class FOAProcessor extends ContentProcessor {
     return true;
   }
 
+  /**
+   * Strips HTML tags from content to get plain text
+   * @param html The HTML content to strip
+   * @returns Plain text content
+   */
+  private stripHtml(html: string): string {
+    return html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
   async process(content?: any): Promise<ProcessingResult> {
     console.log('Processing FOA:', this.foa.id);
     console.log('FOA Title:', this.foa.title);
@@ -64,13 +79,28 @@ export class FOAProcessor extends ContentProcessor {
         throw new Error('FOA does not have a grant URL');
       }
       
-      // Use the FundingOpportunityExtractor to extract data from the URL
+      // Fetch the raw HTML content for later processing
+      let rawTextContent = '';
       let extractedData: FundingOpportunity;
+      
       try {
-        console.log('Extracting data using FundingOpportunityExtractor');
+        console.log('Fetching HTML content from URL');
+        const response = await fetch(this.foa.grant_url);
         
-        // The extractFromUrl method now automatically preserves the URL
-        extractedData = await this.extractor.extractFromUrl(this.foa.grant_url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
+        }
+        
+        const htmlContent = await response.text();
+        
+        // Strip HTML tags to get raw text content
+        rawTextContent = this.stripHtml(htmlContent);
+        
+        console.log('Raw text content length:', rawTextContent.length);
+        
+        // Use the FundingOpportunityExtractor to extract structured data
+        console.log('Extracting data using FundingOpportunityExtractor');
+        extractedData = await this.extractor.extractFromHtml(htmlContent, { grant_url: this.foa.grant_url });
         
         console.log('Successfully extracted data from URL');
         
@@ -88,8 +118,8 @@ export class FOAProcessor extends ContentProcessor {
         throw new Error(`Failed to extract funding opportunity information: ${(error as Error).message}`);
       }
       
-      // Generate embeddings and store in Pinecone
-      const pineconeIds: string[] = [];
+      // Generate embeddings and store in Pinecone for the FOA description
+      const descriptionPineconeIds: string[] = [];
       try {
         console.log('Generating embeddings for FOA description');
         
@@ -167,13 +197,62 @@ export class FOAProcessor extends ContentProcessor {
         // Store vector in Pinecone
         console.log('Storing vector in Pinecone with metadata');
         const pineconeId = await this.storePineconeVector(embedding, metadata);
-        pineconeIds.push(pineconeId);
+        descriptionPineconeIds.push(pineconeId);
         console.log('Successfully stored vector in Pinecone with ID:', pineconeId);
       } catch (error) {
-        console.error('Error generating embeddings or storing in Pinecone:', error);
+        console.error('Error generating embeddings or storing in Pinecone for description:', error);
         // Continue with the process even if vectorization fails
         // We'll still update the FOA record with the extracted information
       }
+      
+      // Process raw content
+      const rawContentPineconeIds: string[] = [];
+      try {
+        if (rawTextContent && rawTextContent.length > 0) {
+          console.log('Processing raw content for vectorization');
+          console.log('Raw content length:', rawTextContent.length);
+          
+          // Chunk the raw content by tokens
+          const chunks = this.chunkByTokens(rawTextContent);
+          console.log(`Split raw content into ${chunks.length} chunks`);
+          
+          // Process each chunk
+          for (let i = 0; i < chunks.length; i++) {
+            const chunk = chunks[i];
+            console.log(`Processing chunk ${i + 1}/${chunks.length}, length: ${chunk.length}`);
+            
+            try {
+              // Generate embedding for the chunk
+              const embedding = await this.generateEmbeddings(chunk);
+              
+              // Create minimal metadata
+              const metadata = {
+                type: 'foa_raw' as const,
+                foaId: this.foa.id,
+                chunkIndex: i + 1,
+                totalChunks: chunks.length
+              };
+              
+              // Store in Pinecone
+              const pineconeId = await this.storePineconeVector(embedding, metadata);
+              rawContentPineconeIds.push(pineconeId);
+              console.log(`Successfully stored raw chunk ${i + 1} in Pinecone with ID: ${pineconeId}`);
+            } catch (chunkError) {
+              console.error(`Error processing chunk ${i + 1}:`, chunkError);
+              // Continue with next chunk
+            }
+          }
+        } else {
+          console.warn('No raw content available for vectorization');
+        }
+      } catch (error) {
+        console.error('Error processing raw content:', error);
+        // Continue with the process even if raw content vectorization fails
+      }
+      
+      // Combine all Pinecone IDs
+      const allPineconeIds = [...descriptionPineconeIds, ...rawContentPineconeIds];
+      console.log(`Total Pinecone IDs: ${allPineconeIds.length} (${descriptionPineconeIds.length} description, ${rawContentPineconeIds.length} raw)`);
       
       // Update FOA record with extracted information
       const { error: updateError } = await this.supabase
@@ -198,7 +277,7 @@ export class FOAProcessor extends ContentProcessor {
           submission_requirements: extractedData.submission_requirements,
           grant_url: extractedData.grant_url,
           vectorization_status: 'completed',
-          pinecone_ids: pineconeIds.length > 0 ? pineconeIds : null
+          pinecone_ids: allPineconeIds.length > 0 ? allPineconeIds : null
         })
         .eq('id', this.foa.id);
       
@@ -209,7 +288,7 @@ export class FOAProcessor extends ContentProcessor {
       console.log('FOA record updated with extracted information and vectorization status');
       
       return {
-        pineconeIds,
+        pineconeIds: allPineconeIds,
         metadata: {
           type: 'foa_description',
           foaId: this.foa.id,
@@ -226,6 +305,136 @@ export class FOAProcessor extends ContentProcessor {
       await this.updateStatus('error');
       
       throw error;
+    }
+  }
+  
+  /**
+   * Chunks text by token count using tiktoken
+   * @param text The text to chunk
+   * @param maxTokens Maximum tokens per chunk
+   * @returns Array of text chunks
+   */
+  private chunkByTokens(text: string, maxTokens: number = 4000): string[] {
+    console.log('Chunking text by tokens, text length:', text.length);
+    
+    try {
+      // Get the encoder for the embedding model
+      const encoder = encoding_for_model('text-embedding-3-large');
+      console.log('Using tiktoken encoder for text-embedding-3-large');
+      
+      // Split text into sentences or paragraphs first
+      const paragraphs = text.split(/\n\s*\n/);
+      console.log(`Split text into ${paragraphs.length} paragraphs`);
+      
+      const chunks: string[] = [];
+      let currentChunk = '';
+      let currentTokenCount = 0;
+      
+      // Process each paragraph
+      for (const paragraph of paragraphs) {
+        if (paragraph.trim().length === 0) continue;
+        
+        // Get token count for this paragraph
+        const paragraphTokens = encoder.encode(paragraph);
+        const paragraphTokenCount = paragraphTokens.length;
+        
+        // If adding this paragraph would exceed the max tokens, start a new chunk
+        if (currentTokenCount + paragraphTokenCount > maxTokens && currentChunk.length > 0) {
+          chunks.push(currentChunk);
+          currentChunk = '';
+          currentTokenCount = 0;
+        }
+        
+        // Add paragraph to current chunk
+        if (currentChunk.length > 0) {
+          currentChunk += '\n\n';
+        }
+        currentChunk += paragraph;
+        currentTokenCount += paragraphTokenCount;
+        
+        // If this single paragraph is too large, we need to split it further
+        if (paragraphTokenCount > maxTokens) {
+          // Split into sentences
+          const sentences = paragraph.match(/[^.!?]+[.!?]+/g) || [paragraph];
+          
+          // Reset current chunk since we're going to process sentences
+          chunks.pop(); // Remove the chunk we just added
+          currentChunk = '';
+          currentTokenCount = 0;
+          
+          // Process each sentence
+          for (const sentence of sentences) {
+            const sentenceTokens = encoder.encode(sentence);
+            const sentenceTokenCount = sentenceTokens.length;
+            
+            // If adding this sentence would exceed the max tokens, start a new chunk
+            if (currentTokenCount + sentenceTokenCount > maxTokens && currentChunk.length > 0) {
+              chunks.push(currentChunk);
+              currentChunk = '';
+              currentTokenCount = 0;
+            }
+            
+            // Add sentence to current chunk
+            if (currentChunk.length > 0 && !currentChunk.endsWith(' ')) {
+              currentChunk += ' ';
+            }
+            currentChunk += sentence;
+            currentTokenCount += sentenceTokenCount;
+            
+            // If this single sentence is still too large (rare), we'll have to split by character count
+            if (sentenceTokenCount > maxTokens) {
+              // This is a fallback for extremely long sentences
+              const words = sentence.split(' ');
+              
+              // Reset current chunk since we're going to process words
+              chunks.pop(); // Remove the chunk we just added
+              currentChunk = '';
+              currentTokenCount = 0;
+              
+              // Process each word
+              for (const word of words) {
+                const wordTokens = encoder.encode(word + ' ');
+                const wordTokenCount = wordTokens.length;
+                
+                // If adding this word would exceed the max tokens, start a new chunk
+                if (currentTokenCount + wordTokenCount > maxTokens && currentChunk.length > 0) {
+                  chunks.push(currentChunk);
+                  currentChunk = '';
+                  currentTokenCount = 0;
+                }
+                
+                // Add word to current chunk
+                currentChunk += word + ' ';
+                currentTokenCount += wordTokenCount;
+              }
+            }
+          }
+        }
+      }
+      
+      // Add the last chunk if it's not empty
+      if (currentChunk.length > 0) {
+        chunks.push(currentChunk);
+      }
+      
+      // Free the encoder resources
+      encoder.free();
+      
+      console.log(`Created ${chunks.length} chunks using tiktoken`);
+      return chunks;
+    } catch (error) {
+      console.error('Error chunking text by tokens:', error);
+      
+      // Fallback to simple character-based chunking
+      console.log('Falling back to character-based chunking');
+      const chunks: string[] = [];
+      const chunkSize = 12000; // Approximate character count for 4000 tokens
+      
+      for (let i = 0; i < text.length; i += chunkSize) {
+        chunks.push(text.slice(i, i + chunkSize));
+      }
+      
+      return chunks;
     }
   }
   
