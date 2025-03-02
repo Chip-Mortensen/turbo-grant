@@ -32,6 +32,8 @@ export abstract class ContentProcessor {
     vector: number[],
     metadata: ProcessingMetadata
   ): Promise<string> {
+    console.log(`Storing vector in Pinecone with metadata type: ${metadata.type}`);
+    
     const client = await getPineconeClient();
     const index = client.index(process.env.PINECONE_INDEX_NAME!);
     
@@ -42,15 +44,33 @@ export abstract class ContentProcessor {
       ...(this.projectId !== null ? { projectId: this.projectId } : {})
     };
 
+    // Log metadata size
+    const metadataSize = JSON.stringify(enrichedMetadata).length;
+    console.log(`Metadata size: ${metadataSize} bytes`);
+    
+    // Check if metadata contains text
+    if ('text' in enrichedMetadata) {
+      console.log(`Metadata includes text field of length: ${(enrichedMetadata as any).text.length}`);
+    } else {
+      console.log('Metadata does not include text field');
+    }
+
     // Generate an ID using Node's crypto module
     const id = randomUUID();
+    console.log(`Generated Pinecone vector ID: ${id}`);
 
-    // Upsert the vector
-    await index.upsert([{
-      id,
-      values: vector,
-      metadata: enrichedMetadata,
-    }]);
+    try {
+      // Upsert the vector
+      await index.upsert([{
+        id,
+        values: vector,
+        metadata: enrichedMetadata,
+      }]);
+      console.log(`Successfully upserted vector with ID: ${id} to Pinecone`);
+    } catch (error) {
+      console.error(`Error upserting vector to Pinecone:`, error);
+      throw error;
+    }
 
     return id;
   }

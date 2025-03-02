@@ -211,6 +211,7 @@ export class FOAProcessor extends ContentProcessor {
         if (rawTextContent && rawTextContent.length > 0) {
           console.log('Processing raw content for vectorization');
           console.log('Raw content length:', rawTextContent.length);
+          console.log('Raw content sample (first 200 chars):', rawTextContent.substring(0, 200));
           
           // Chunk the raw content by tokens
           const chunks = this.chunkByTokens(rawTextContent);
@@ -220,18 +221,23 @@ export class FOAProcessor extends ContentProcessor {
           for (let i = 0; i < chunks.length; i++) {
             const chunk = chunks[i];
             console.log(`Processing chunk ${i + 1}/${chunks.length}, length: ${chunk.length}`);
+            console.log(`Chunk ${i + 1} sample (first 100 chars):`, chunk.substring(0, 100));
             
             try {
               // Generate embedding for the chunk
               const embedding = await this.generateEmbeddings(chunk);
+              console.log(`Generated embedding for chunk ${i + 1}, embedding length:`, embedding.length);
               
-              // Create minimal metadata
+              // Create metadata with the text content included
               const metadata = {
                 type: 'foa_raw' as const,
                 foaId: this.foa.id,
                 chunkIndex: i + 1,
-                totalChunks: chunks.length
+                totalChunks: chunks.length,
+                text: chunk // Include the actual text content in the metadata
               };
+              
+              console.log(`Storing chunk ${i + 1} in Pinecone with metadata type:`, metadata.type);
               
               // Store in Pinecone
               const pineconeId = await this.storePineconeVector(embedding, metadata);
@@ -290,7 +296,7 @@ export class FOAProcessor extends ContentProcessor {
       return {
         pineconeIds: allPineconeIds,
         metadata: {
-          type: 'foa_description',
+          type: 'foa_description' as const,
           foaId: this.foa.id,
           projectId: this.projectId || undefined,
           agency: extractedData.agency,
