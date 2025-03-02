@@ -2,7 +2,8 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { Database } from '@/types/supabase';
 import { encode } from 'gpt-tokenizer';
-import pdfParse from 'pdf-parse';
+// Import our custom PDF parser
+import { parsePdf } from './pdf-parser';
 
 type ResearchDescription = Database['public']['Tables']['research_descriptions']['Row'];
 
@@ -248,21 +249,16 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
           // Convert ArrayBuffer to Buffer for pdf-parse
           const nodeBuffer = Buffer.from(buffer);
           
-          // Use pdf-parse to extract text
-          console.log('Starting PDF parsing with pdf-parse...');
-          const data = await pdfParse(nodeBuffer, {
-            // Optional: Limit the max pages to parse
-            max: 0, // 0 means parse all pages
-          });
+          // Use our custom PDF parser
+          console.log('Starting PDF parsing with custom parser...');
+          const text = await parsePdf(nodeBuffer);
           
-          console.log(`PDF parsed successfully: ${data.numpages} pages, ${data.text.length} characters`);
-          
-          if (!data.text || data.text.trim().length === 0) {
+          if (!text || text.trim().length === 0) {
             console.error('PDF parsing returned empty result');
             throw new Error('Failed to extract text from PDF');
           }
           
-          return data.text;
+          return text;
         } catch (err) {
           const error = err as Error;
           console.error('Error processing PDF file:', error);
