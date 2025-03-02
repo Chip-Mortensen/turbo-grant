@@ -244,60 +244,105 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
         try {
           console.log('Processing PDF file, size:', buffer.byteLength);
           
-          // Use pdfjs-dist instead of pdf-parse
+          // Use a simpler approach with pdfjs-dist
           const pdfjsLib = await import('pdfjs-dist');
           console.log('PDF.js version:', pdfjsLib.version);
           
-          // Disable the worker to process in the main thread
-          // This is more reliable in server environments
+          // Disable the worker completely for server-side processing
+          // This is the most reliable approach in serverless environments
           pdfjsLib.GlobalWorkerOptions.workerSrc = '';
           console.log('Worker disabled for server-side processing');
           
-          // Load the PDF document with more detailed logging
-          console.log('Starting PDF document loading...');
-          const loadingTask = pdfjsLib.getDocument({ 
-            data: new Uint8Array(buffer),
-            disableFontFace: true, // Disable font rendering for better performance
-            cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
-            cMapPacked: true,
-          });
+          // Create a new Uint8Array from the buffer
+          const uint8Array = new Uint8Array(buffer);
           
-          // Add progress monitoring
-          loadingTask.onProgress = (progressData: { loaded: number, total: number }) => {
-            console.log(`Loading PDF: ${Math.round((progressData.loaded / progressData.total) * 100)}%`);
-          };
-          
-          const pdf = await loadingTask.promise;
-          console.log(`PDF document loaded with ${pdf.numPages} pages`);
-          
-          // Extract text from all pages
-          let text = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
+          try {
+            // First attempt: Load the PDF document with minimal options to avoid test file dependencies
+            console.log('Starting PDF document loading (primary method)...');
+            const loadingTask = pdfjsLib.getDocument({
+              data: uint8Array,
+              disableFontFace: true,
+              useSystemFonts: false,
+              standardFontDataUrl: '',  // Prevent loading external font data
+              cMapUrl: '',              // Prevent loading external character maps
+              verbosity: 0              // Reduce logging
+            });
+            
+            // Add progress monitoring
+            loadingTask.onProgress = (progressData: { loaded: number, total: number }) => {
+              console.log(`Loading PDF: ${Math.round((progressData.loaded / progressData.total) * 100)}%`);
+            };
+            
+            const pdf = await loadingTask.promise;
+            console.log(`PDF document loaded with ${pdf.numPages} pages`);
+            
+            // Extract text from all pages
+            let text = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              try {
+                console.log(`Starting to process page ${i}/${pdf.numPages}`);
+                const page = await pdf.getPage(i);
+                console.log(`Got page ${i}, extracting text content...`);
+                const content = await page.getTextContent();
+                console.log(`Text content extracted from page ${i}, item count: ${content.items.length}`);
+                
+                const strings = content.items.map((item: any) => {
+                  return 'str' in item ? item.str : '';
+                });
+                text += strings.join(' ') + '\n';
+                console.log(`Extracted ${strings.length} text elements from page ${i}/${pdf.numPages}`);
+              } catch (pageError) {
+                console.error(`Error extracting text from page ${i}:`, pageError);
+                // Continue with other pages even if one fails
+              }
+            }
+            
+            if (!text || text.trim().length === 0) {
+              console.error('PDF parsing returned empty result');
+              throw new Error('Failed to extract text from PDF');
+            }
+            
+            console.log(`Successfully extracted ${text.length} characters from PDF`);
+            return text;
+          } catch (primaryError) {
+            // If the primary method fails, try a fallback approach
+            const error = primaryError as Error;
+            console.error('Primary PDF processing method failed:', error);
+            console.log('Attempting fallback PDF processing method...');
+            
             try {
-              console.log(`Starting to process page ${i}/${pdf.numPages}`);
-              const page = await pdf.getPage(i);
-              console.log(`Got page ${i}, extracting text content...`);
-              const content = await page.getTextContent();
-              console.log(`Text content extracted from page ${i}, item count: ${content.items.length}`);
+              // Fallback method: Use a more basic approach
+              const pdf = await pdfjsLib.getDocument(uint8Array).promise;
+              console.log(`PDF document loaded with fallback method, ${pdf.numPages} pages`);
               
-              const strings = content.items.map((item: any) => {
-                return 'str' in item ? item.str : '';
-              });
-              text += strings.join(' ') + '\n';
-              console.log(`Extracted ${strings.length} text elements from page ${i}/${pdf.numPages}`);
-            } catch (pageError) {
-              console.error(`Error extracting text from page ${i}:`, pageError);
-              // Continue with other pages even if one fails
+              let text = '';
+              for (let i = 1; i <= pdf.numPages; i++) {
+                try {
+                  const page = await pdf.getPage(i);
+                  const textContent = await page.getTextContent();
+                  const pageText = textContent.items
+                    .filter((item: any) => 'str' in item)
+                    .map((item: any) => item.str)
+                    .join(' ');
+                  
+                  text += pageText + '\n';
+                  console.log(`Extracted text from page ${i} using fallback method`);
+                } catch (pageError) {
+                  console.error(`Error extracting text from page ${i} with fallback method:`, pageError);
+                }
+              }
+              
+              if (!text || text.trim().length === 0) {
+                throw new Error('Fallback PDF parsing returned empty result');
+              }
+              
+              console.log(`Successfully extracted ${text.length} characters using fallback method`);
+              return text;
+            } catch (fallbackError) {
+              console.error('Fallback PDF processing method also failed:', fallbackError);
+              throw new Error(`All PDF processing methods failed: ${error.message}`);
             }
           }
-          
-          if (!text || text.trim().length === 0) {
-            console.error('PDF parsing returned empty result');
-            throw new Error('Failed to extract text from PDF');
-          }
-          
-          console.log(`Successfully extracted ${text.length} characters from PDF`);
-          return text;
         } catch (err) {
           const error = err as Error;
           console.error('Error processing PDF file:', error);
