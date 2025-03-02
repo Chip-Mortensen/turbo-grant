@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { ResearchDescriptionProcessor } from '../processors/research-description-processor';
+import { ScientificFigureProcessor } from '../processors/scientific-figure-processor';
 import { FOAProcessor } from '../processors/foa-processor';
 import { Database } from '@/types/supabase';
 
@@ -38,8 +39,12 @@ async function processContent(
       processor = new ResearchDescriptionProcessor(content, projectId, supabase);
       break;
     case 'scientific_figure':
-      // TODO: Implement FigureProcessor
-      throw new Error('Scientific figure processing not implemented yet');
+      console.log('Creating ScientificFigureProcessor');
+      if (!projectId) {
+        throw new Error('Project ID is required for scientific figures');
+      }
+      processor = new ScientificFigureProcessor(content, projectId, supabase);
+      break;
     case 'chalk_talk':
       // TODO: Implement ChalkTalkProcessor
       throw new Error('Chalk talk processing not implemented yet');

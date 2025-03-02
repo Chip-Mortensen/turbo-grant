@@ -388,11 +388,37 @@ export async function deleteFigure(figureId: string) {
 
   // Delete the file from storage
   const { error: storageError } = await supabase.storage
-    .from("scientific_figures")
+    .from("scientific-figures")
     .remove([figure.image_path])
 
   if (storageError) {
     return { error: storageError.message }
+  }
+
+  // Delete vector from Pinecone if it exists
+  if (figure.pinecone_id) {
+    try {
+      const pinecone = await getPineconeClient();
+      const index = pinecone.index(process.env.PINECONE_INDEX_NAME!);
+      
+      await index.deleteOne(figure.pinecone_id);
+      console.log('Deleted vector from Pinecone:', figure.pinecone_id);
+    } catch (pineconeError) {
+      console.error('Error deleting from Pinecone:', pineconeError);
+      // Continue with other deletions even if Pinecone fails
+    }
+  }
+
+  // Delete any associated processing queue items
+  const { error: queueError } = await supabase
+    .from('processing_queue')
+    .delete()
+    .eq('content_type', 'scientific_figure')
+    .eq('content_id', figureId);
+
+  if (queueError) {
+    console.error('Error deleting queue items:', queueError);
+    // Continue with figure deletion even if queue deletion fails
   }
 
   // Delete the database record

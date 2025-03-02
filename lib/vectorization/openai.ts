@@ -20,7 +20,7 @@ export async function generateEmbeddings(text: string): Promise<number[]> {
 
 export async function generateImageDescription(imageBase64: string): Promise<string> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4-vision-preview',
+    model: 'gpt-4o-mini',
     messages: [
       {
         role: 'user',
