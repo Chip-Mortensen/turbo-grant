@@ -245,8 +245,12 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
     const nodeBuffer = Buffer.from(buffer);
     
     try {
-      // Process based on file type
-      switch (fileType.toLowerCase()) {
+      // Normalize the file type by handling MIME types
+      const normalizedType = this.normalizeFileType(fileType);
+      console.log(`Normalized file type: ${normalizedType}`);
+      
+      // Process based on normalized file type
+      switch (normalizedType) {
         case 'pdf':
           return await getTextFromPdf(nodeBuffer);
           
@@ -254,7 +258,6 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
           return await getTextFromDocx(nodeBuffer);
           
         case 'txt':
-        case 'text/plain':
           return getTextFromTxt(nodeBuffer);
           
         default:
@@ -264,6 +267,45 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
       console.error(`Error extracting text from ${fileType} file:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Normalize file type by handling MIME types and extensions
+   * @param fileType - The file type or MIME type
+   * @returns Normalized file type (pdf, docx, txt, etc.)
+   */
+  private normalizeFileType(fileType: string): string {
+    // Convert to lowercase for consistent comparison
+    const type = fileType.toLowerCase();
+    
+    // Handle MIME types
+    if (type.includes('application/pdf')) {
+      return 'pdf';
+    }
+    
+    if (type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+      return 'docx';
+    }
+    
+    if (type.includes('text/plain')) {
+      return 'txt';
+    }
+    
+    // Handle file extensions
+    if (type === 'pdf') {
+      return 'pdf';
+    }
+    
+    if (type === 'docx') {
+      return 'docx';
+    }
+    
+    if (type === 'txt') {
+      return 'txt';
+    }
+    
+    // If we can't determine the type, return the original
+    return type;
   }
 
   async updateStatus(status: string, error?: string): Promise<void> {
