@@ -5,9 +5,17 @@ import { createClient } from '@/utils/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, FileText, Calendar, Building, AlertCircle } from 'lucide-react';
+import { Search, FileText, Calendar, Building, AlertCircle, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { FundingOpportunity } from '@/lib/funding-opportunity-extractor';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog';
 
 interface FoaListProps {
   projectId: string;
@@ -16,6 +24,8 @@ interface FoaListProps {
 // Extend the FundingOpportunity type to include id
 interface FoaWithId extends FundingOpportunity {
   id: string;
+  pinecone_ids?: string[];
+  vectorization_status?: string;
 }
 
 export default function FoaList({ projectId }: FoaListProps) {
@@ -24,6 +34,9 @@ export default function FoaList({ projectId }: FoaListProps) {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFoa, setSelectedFoa] = useState<FoaWithId | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingFoa, setDeletingFoa] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFoas = async () => {
@@ -95,6 +108,46 @@ export default function FoaList({ projectId }: FoaListProps) {
     setSelectedFoa(foa as FoaWithId);
   };
 
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedFoa) return;
+    
+    setDeletingFoa(true);
+    setError(null);
+    setDeleteSuccess(null);
+    
+    try {
+      const response = await fetch(`/api/funding-opportunity/${selectedFoa.id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete funding opportunity');
+      }
+      
+      // Remove the deleted FOA from the state
+      setFoas(prevFoas => prevFoas.filter(foa => foa.id !== selectedFoa.id));
+      
+      // Set success message
+      setDeleteSuccess(`Successfully deleted "${selectedFoa.title}"`);
+      
+      // Clear selected FOA if it was deleted
+      setSelectedFoa(null);
+      
+      // Close the dialog
+      setDeleteDialogOpen(false);
+    } catch (err) {
+      console.error('Error deleting FOA:', err);
+      setError(`Failed to delete funding opportunity: ${(err as Error).message}`);
+    } finally {
+      setDeletingFoa(false);
+    }
+  };
+
   return (
     <div className="w-full h-full flex flex-col">
       <div className="mb-4 relative">
@@ -111,6 +164,12 @@ export default function FoaList({ projectId }: FoaListProps) {
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {deleteSuccess && (
+        <Alert className="mb-4 bg-green-50 border-green-200">
+          <AlertDescription className="text-green-800">{deleteSuccess}</AlertDescription>
         </Alert>
       )}
 
@@ -162,7 +221,18 @@ export default function FoaList({ projectId }: FoaListProps) {
         <div className="w-3/5 overflow-y-auto p-4 h-full">
           {selectedFoa ? (
             <div className="space-y-4">
-              <h3 className="font-medium text-lg">{selectedFoa.title}</h3>
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium text-lg">{selectedFoa.title}</h3>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={handleDeleteClick}
+                  className="flex items-center gap-1"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
+              </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -342,6 +412,48 @@ export default function FoaList({ projectId }: FoaListProps) {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Funding Opportunity</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this funding opportunity? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedFoa?.pinecone_ids && selectedFoa.pinecone_ids.length > 0 && (
+            <div className="mt-2 text-amber-600">
+              This will also delete {selectedFoa.pinecone_ids.length} associated vectors from Pinecone.
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deletingFoa}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={deletingFoa}
+            >
+              {deletingFoa ? (
+                <>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-b-transparent rounded-full"></div>
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 
