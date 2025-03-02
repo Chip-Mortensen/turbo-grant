@@ -2,8 +2,8 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { Database } from '@/types/supabase';
 import { encode } from 'gpt-tokenizer';
-// Import our custom PDF parser
-import { parsePdf } from './pdf-parser';
+// Import file processing utilities
+import { getTextFromPdf, getTextFromDocx, getTextFromTxt } from '@/lib/file-processing';
 import { generateEmbeddings } from '@/lib/vectorization/openai';
 
 type ResearchDescription = Database['public']['Tables']['research_descriptions']['Row'];
@@ -239,118 +239,30 @@ export class ResearchDescriptionProcessor extends ContentProcessor {
   }
 
   private async extractText(buffer: ArrayBuffer, fileType: string): Promise<string> {
-    console.log(`Extracting text from file of type: ${fileType}, buffer size: ${buffer.byteLength}`);
+    console.log(`Extracting text from ${fileType} file`);
     
-    switch (fileType) {
-      case 'application/pdf': {
-        try {
-          console.log('Processing PDF file');
-          // Use our custom PDF parser which is already set up
-          const nodeBuffer = Buffer.from(buffer);
-          console.log('PDF buffer size:', nodeBuffer.length);
+    // Convert ArrayBuffer to Buffer for Node.js APIs
+    const nodeBuffer = Buffer.from(buffer);
+    
+    try {
+      // Process based on file type
+      switch (fileType.toLowerCase()) {
+        case 'pdf':
+          return await getTextFromPdf(nodeBuffer);
           
-          // Use the existing pdf-parser
-          const text = await parsePdf(nodeBuffer);
+        case 'docx':
+          return await getTextFromDocx(nodeBuffer);
           
-          if (!text || text.trim().length === 0) {
-            console.error('No text content extracted from PDF');
-            throw new Error('No text content extracted from PDF');
-          }
+        case 'txt':
+        case 'text/plain':
+          return getTextFromTxt(nodeBuffer);
           
-          console.log(`Successfully extracted ${text.length} characters from PDF`);
-          return text;
-        } catch (err) {
-          const error = err as Error;
-          console.error('Error processing PDF file:', error);
-          console.error('Error stack:', error.stack);
-          throw new Error(`Failed to process PDF file: ${error.message}`);
-        }
+        default:
+          throw new Error(`Unsupported file type: ${fileType}`);
       }
-      
-      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
-        try {
-          console.log('Processing DOCX file with mammoth');
-          const mammoth = await import('mammoth');
-          
-          // Convert ArrayBuffer to Buffer for mammoth
-          const nodeBuffer = Buffer.from(buffer);
-          
-          console.log('DOCX buffer size:', nodeBuffer.length);
-          
-          // Use the correct parameter name: 'buffer' not 'arrayBuffer'
-          const result = await mammoth.extractRawText({
-            buffer: nodeBuffer
-          });
-          
-          if (!result.value || result.value.trim().length === 0) {
-            console.error('No text content extracted from DOCX file');
-            throw new Error('No text content extracted from DOCX file');
-          }
-          
-          // Log any warnings or messages
-          if (result.messages && result.messages.length > 0) {
-            console.warn('DOCX processing messages:', result.messages);
-          }
-          
-          console.log('Successfully extracted text from DOCX, length:', result.value.length);
-          return result.value;
-        } catch (err) {
-          const error = err as Error;
-          console.error('Error processing DOCX file:', error);
-          console.error('Error stack:', error.stack);
-          throw new Error(`Failed to process DOCX file: ${error.message}`);
-        }
-      }
-      
-      case 'text/plain': {
-        try {
-          console.log('Processing plain text file');
-          // Convert ArrayBuffer to string
-          const decoder = new TextDecoder('utf-8');
-          const text = decoder.decode(buffer);
-          
-          console.log(`Successfully extracted ${text.length} characters from text file`);
-          return text;
-        } catch (err) {
-          const error = err as Error;
-          console.error('Error processing text file:', error);
-          throw new Error(`Failed to process text file: ${error.message}`);
-        }
-      }
-      
-      case 'application/rtf':
-      case 'text/rtf': {
-        try {
-          console.log('Processing RTF file');
-          // Convert ArrayBuffer to string
-          const decoder = new TextDecoder('utf-8');
-          const rtfContent = decoder.decode(buffer);
-          
-          // Simple RTF to text conversion (basic stripping of RTF commands)
-          // For a more robust solution, consider using a dedicated RTF parser library
-          let text = rtfContent
-            .replace(/[\\][*]\\\w+/g, '') // Remove control words
-            .replace(/[\\][{]/g, '{')     // Replace escaped braces
-            .replace(/[\\][}]/g, '}')
-            .replace(/[\\][\n\r]/g, '\n') // Replace escaped newlines
-            .replace(/[{][^{}]*[}]/g, '') // Remove groups
-            .replace(/\\par/g, '\n')      // Replace paragraph markers
-            .replace(/\\\w+/g, '')        // Remove remaining control words
-            .replace(/[{}]/g, '')         // Remove remaining braces
-            .trim();
-            
-          console.log(`Successfully extracted ${text.length} characters from RTF file`);
-          return text;
-        } catch (err) {
-          const error = err as Error;
-          console.error('Error processing RTF file:', error);
-          throw new Error(`Failed to process RTF file: ${error.message}`);
-        }
-      }
-      
-      default:
-        console.error(`Unsupported file type: ${fileType}`);
-        throw new Error(`Unsupported file type: ${fileType}`);
+    } catch (error) {
+      console.error(`Error extracting text from ${fileType} file:`, error);
+      throw error;
     }
   }
 

@@ -1,7 +1,9 @@
 /**
- * Custom PDF parser that uses pdf-parse but prevents it from loading test files
- * This is necessary because pdf-parse tries to load test files during initialization
- * which causes issues in serverless environments
+ * PDF processing utilities
+ * 
+ * This module provides functions for extracting text from PDF files.
+ * It includes a patched version of pdf-parse that prevents it from loading test files,
+ * which is necessary for serverless environments.
  */
 
 // Patch the fs module to prevent pdf-parse from looking for test files
@@ -31,28 +33,31 @@ if (typeof process !== 'undefined') {
 }
 
 /**
- * Parse a PDF buffer and extract text
- * @param buffer PDF file as Buffer
+ * Extract text from a PDF buffer
+ * 
+ * @param buffer - PDF file as Buffer
  * @returns Extracted text from the PDF
  */
-export async function parsePdf(buffer: Buffer): Promise<string> {
+export async function getTextFromPdf(buffer: Buffer): Promise<string> {
   try {
-    // Dynamically import pdf-parse
+    console.log('Parsing PDF with size:', buffer.length);
+    
+    // Dynamically import pdf-parse to avoid issues in browser environments
     const pdfParse = (await import('pdf-parse')).default;
     
-    // Set options to prevent loading test files
-    const options = {
-      max: 0, // Parse all pages
-      // Explicitly set the path to the buffer we're providing
-      pdfPath: 'memory-buffer.pdf'
-    };
+    // Note: pdf-parse uses the deprecated Buffer() constructor internally
+    // This will show a deprecation warning in Node.js, but it's from the library, not our code
+    // To suppress this warning in production, set NODE_OPTIONS="--no-deprecation" in your environment
+    const data = await pdfParse(buffer);
     
-    const data = await pdfParse(buffer, options);
+    if (!data.text || data.text.trim().length === 0) {
+      throw new Error('No text content extracted from PDF');
+    }
     
-    console.log(`PDF parsed with ${data.numpages} pages, ${data.text.length} characters`);
+    console.log('Successfully extracted text from PDF, length:', data.text.length);
     return data.text;
   } catch (error) {
-    console.error('Error in custom PDF parser:', error);
+    console.error('Error parsing PDF:', error);
     throw error;
   }
 } 
