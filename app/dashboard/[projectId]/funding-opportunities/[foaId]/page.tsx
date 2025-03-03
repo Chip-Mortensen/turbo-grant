@@ -19,14 +19,6 @@ import Link from 'next/link';
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 
-interface FoaDetailsPageProps {
-  params: {
-    projectId: string;
-    foaId: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
-
 // Format currency for display
 const formatCurrency = (value: number | null | undefined) => {
   if (value === undefined || value === null) return 'Not specified';
@@ -47,7 +39,12 @@ const formatDate = (dateString: string | null | undefined) => {
   });
 };
 
-export default async function FoaDetailsPage({ params }: FoaDetailsPageProps) {
+export default async function FoaDetailsPage({
+  params,
+}: {
+  params: { projectId: string; foaId: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   const { projectId, foaId } = params;
   
   // Initialize Supabase client
@@ -222,7 +219,7 @@ export default async function FoaDetailsPage({ params }: FoaDetailsPageProps) {
                 <h4 className="text-sm font-medium mb-2">Required Documents</h4>
                 <ul className="list-disc pl-5 space-y-1">
                   {Array.isArray(foa.submission_requirements.required_documents) ? 
-                    foa.submission_requirements.required_documents.map((doc, index) => (
+                    foa.submission_requirements.required_documents.map((doc: any, index: number) => (
                       <li key={index}>
                         {typeof doc === 'object' && doc !== null ? 
                           `${doc.Document}${doc.Description ? `: ${doc.Description}` : ''}` : 
@@ -246,7 +243,7 @@ export default async function FoaDetailsPage({ params }: FoaDetailsPageProps) {
                 <h4 className="text-sm font-medium mb-2">Formats</h4>
                 <ul className="list-disc pl-5 space-y-1">
                   {Array.isArray(foa.submission_requirements.formats) ? 
-                    foa.submission_requirements.formats.map((format, index) => (
+                    foa.submission_requirements.formats.map((format: string, index: number) => (
                       <li key={index}>{String(format)}</li>
                     )) : 
                     <li>{String(foa.submission_requirements.formats)}</li>
