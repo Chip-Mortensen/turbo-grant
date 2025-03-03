@@ -543,3 +543,82 @@ export async function createOrganization(formData: FormData) {
 
   return { success: true }
 }
+
+export async function deleteChalkTalk(chalkTalkId: string) {
+  try {
+    console.log('Starting deletion process for chalk talk:', chalkTalkId);
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { error: "Not authenticated" };
+    }
+
+    // Get the chalk talk to find the file path and Pinecone IDs
+    const { data: chalkTalk } = await supabase
+      .from("chalk_talks")
+      .select("*")
+      .eq("id", chalkTalkId)
+      .single();
+
+    if (!chalkTalk) {
+      return { error: "Chalk talk not found" };
+    }
+
+    // Delete the file from storage first
+    const { error: storageError } = await supabase.storage
+      .from("chalk-talks")
+      .remove([chalkTalk.media_path]);
+
+    if (storageError) {
+      console.error('Error deleting storage file:', storageError);
+      return { error: storageError.message };
+    }
+
+    // Delete vectors from Pinecone if they exist
+    if (chalkTalk.pinecone_ids && chalkTalk.pinecone_ids.length > 0) {
+      try {
+        const pinecone = await getPineconeClient();
+        const index = pinecone.index(process.env.PINECONE_INDEX_NAME!);
+        
+        await index.deleteMany(chalkTalk.pinecone_ids);
+        console.log('Deleted vectors from Pinecone:', chalkTalk.pinecone_ids);
+      } catch (pineconeError) {
+        console.error('Error deleting from Pinecone:', pineconeError);
+        // Continue with other deletions even if Pinecone fails
+      }
+    }
+
+    // Delete any associated processing queue items
+    const { error: queueError } = await supabase
+      .from('processing_queue')
+      .delete()
+      .eq('content_type', 'chalk_talk')
+      .eq('content_id', chalkTalkId);
+
+    if (queueError) {
+      console.error('Error deleting queue items:', queueError);
+      // Continue with chalk talk deletion even if queue deletion fails
+    }
+
+    // Finally, delete the database record
+    const { error: dbError } = await supabase
+      .from("chalk_talks")
+      .delete()
+      .eq("id", chalkTalkId);
+
+    if (dbError) {
+      console.error('Error deleting chalk talk record:', dbError);
+      return { error: dbError.message };
+    }
+
+    console.log('Successfully deleted chalk talk and associated data');
+    return { success: true };
+  } catch (error) {
+    console.error('Unexpected error during deletion:', error);
+    return { error: 'Internal server error' };
+  }
+}

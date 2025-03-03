@@ -62,7 +62,7 @@ export default async function ChalkTalkPage({ params }: PageProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <UploadChalkTalk projectId={projectId} />
+          <UploadChalkTalk projectId={projectId} existingChalkTalks={chalkTalks} />
         </CardContent>
       </Card>
 

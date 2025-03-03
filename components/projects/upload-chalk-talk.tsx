@@ -9,12 +9,25 @@ import { extractAudioFromVideo, checkBrowserCompatibility } from "@/lib/client/a
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import * as tus from 'tus-js-client'
+import { deleteChalkTalk } from "@/app/actions"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 
 // Constants for file limits
 const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 const MAX_DURATION_SECONDS = 60 * 60; // 60 minutes
 
-export function UploadChalkTalk({ projectId }: { projectId: string }) {
+export function UploadChalkTalk({ projectId, existingChalkTalks }: { 
+  projectId: string, 
+  existingChalkTalks?: { id: string }[] | null 
+}) {
   const [isUploading, setIsUploading] = useState(false)
   const [isConverting, setIsConverting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,6 +38,10 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
   const [isDragging, setIsDragging] = useState(false)
   const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [replaceDialogOpen, setReplaceDialogOpen] = useState(false)
+  const [existingChalkTalkId, setExistingChalkTalkId] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -225,6 +242,14 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
 
   // Process the file (validate and convert if needed)
   const processFile = async (file: File) => {
+    // Check if there are existing chalk talks
+    if (existingChalkTalks && existingChalkTalks.length > 0) {
+      setExistingChalkTalkId(existingChalkTalks[0].id);
+      setReplaceDialogOpen(true);
+      setSelectedFile(file);
+      return;
+    }
+    
     // Validate the file
     const validationError = await validateFile(file);
     if (validationError) {
@@ -232,18 +257,42 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
       return;
     }
     
-    // If it's a video file, extract audio
-    if (file.type !== 'audio/mpeg') {
-      if (!browserCompatible) {
-        setError('Your browser does not support audio extraction from video files. Please upload an MP3 audio file instead.');
-        return;
-      }
+    // If it's an audio file, just set it as selected
+    if (file.type === 'audio/mpeg') {
+      setSelectedFile(file);
+      return;
+    }
+    
+    // For video files, we need to extract the audio
+    if (browserCompatible && file.type.startsWith('video/')) {
+      setIsConverting(true);
+      setExtractionProgress(0);
       
       try {
-        setIsConverting(true);
-        setExtractionProgress(0);
+        // Create a video element to load the file
+        const video = document.createElement('video');
+        video.preload = 'metadata';
         
-        // Extract audio from video
+        // Create object URL for the file
+        const objectUrl = URL.createObjectURL(file);
+        video.src = objectUrl;
+        
+        // Wait for metadata to load to check duration
+        await new Promise((resolve, reject) => {
+          video.onloadedmetadata = resolve;
+          video.onerror = reject;
+        });
+        
+        // Check duration
+        const duration = video.duration;
+        if (duration > MAX_DURATION_SECONDS) {
+          setIsConverting(false);
+          setError(`Video is too long (${Math.round(duration / 60)} minutes). Maximum allowed is ${Math.round(MAX_DURATION_SECONDS / 60)} minutes.`);
+          URL.revokeObjectURL(objectUrl);
+          return;
+        }
+        
+        // Extract audio using FFmpeg
         const audioBlob = await extractAudioFromVideo(file, (progress) => {
           setExtractionProgress(progress);
         });
@@ -251,17 +300,15 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
         // Create an audio preview URL
         const previewUrl = URL.createObjectURL(audioBlob);
         setAudioPreviewUrl(previewUrl);
-        
         setIsConverting(false);
+        
+        // Clean up
+        URL.revokeObjectURL(objectUrl);
       } catch (err) {
-        console.error('Error extracting audio:', err);
-        setError('Failed to extract audio from video. Please try again or upload an MP3 file directly.');
+        console.error('Error processing video:', err);
+        setError('Error processing video: ' + (err instanceof Error ? err.message : String(err)));
         setIsConverting(false);
       }
-    } else {
-      // If it's already an MP3, create a preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setAudioPreviewUrl(previewUrl);
     }
   };
 
@@ -287,6 +334,50 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
       return
     }
     
+    // Check if there's an existing chalk talk
+    if (existingChalkTalks && existingChalkTalks.length > 0) {
+      setExistingChalkTalkId(existingChalkTalks[0].id)
+      setReplaceDialogOpen(true)
+      return
+    }
+    
+    // If no existing chalk talk, proceed with upload
+    await uploadChalkTalk(file)
+  }
+  
+  const handleReplaceConfirm = async () => {
+    if (!existingChalkTalkId || !selectedFile) {
+      setReplaceDialogOpen(false)
+      return
+    }
+    
+    setReplaceDialogOpen(false)
+    setIsDeleting(true)
+    setProcessingStep("Deleting existing chalk talk...")
+    
+    try {
+      // Delete the existing chalk talk
+      const result = await deleteChalkTalk(existingChalkTalkId)
+      
+      if (result.error) {
+        throw new Error(result.error)
+      }
+      
+      // Proceed with upload
+      await uploadChalkTalk(selectedFile)
+      
+      // Note: We don't need to call resetFormState() here because uploadChalkTalk already does it
+    } catch (err) {
+      console.error("Error replacing chalk talk:", err)
+      setError(err instanceof Error ? err.message : "Error replacing chalk talk")
+      setIsDeleting(false)
+      
+      // Reset form state even on error
+      resetFormState()
+    }
+  }
+  
+  const uploadChalkTalk = async (file: File) => {
     setIsUploading(true)
     setError(null)
     setProcessingStep("Uploading to storage...")
@@ -299,126 +390,114 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
       
       // If it's a video file that hasn't been converted yet, extract audio
       if (file.type !== 'audio/mpeg' && !audioPreviewUrl) {
-        if (!browserCompatible) {
-          setError('Your browser does not support audio extraction from video files. Please upload an MP3 audio file instead.');
-          setIsUploading(false);
-          return;
-        }
-        
-        try {
-          setProcessingStep("Extracting audio from video...")
-          
-          // Extract audio from video
-          const audioBlob = await extractAudioFromVideo(file, (progress) => {
-            setExtractionProgress(progress);
-          });
-          
-          // Create a File object from the Blob
-          fileName = sanitizeFileName(file.name.replace(/\.[^/.]+$/, ".mp3"));
-          fileToUpload = new File(
-            [audioBlob], 
-            fileName, 
-            { type: 'audio/mpeg' }
-          );
-          
-          // Create an audio preview URL
-          const previewUrl = URL.createObjectURL(audioBlob);
-          setAudioPreviewUrl(previewUrl);
-        } catch (err) {
-          console.error('Error extracting audio:', err);
-          setError('Failed to extract audio from video. Please try again or upload an MP3 file directly.');
-          setIsUploading(false);
-          return;
-        }
-      } else if (audioPreviewUrl && file.type !== 'audio/mpeg') {
-        // If we already have a converted audio blob, use that
-        // We need to fetch the blob from the audio preview URL
-        try {
-          const response = await fetch(audioPreviewUrl);
-          const audioBlob = await response.blob();
-          
-          fileName = sanitizeFileName(file.name.replace(/\.[^/.]+$/, ".mp3"));
-          fileToUpload = new File(
-            [audioBlob], 
-            fileName, 
-            { type: 'audio/mpeg' }
-          );
-        } catch (err) {
-          console.error('Error retrieving converted audio:', err);
-          setError('Error retrieving converted audio. Please try again.');
-          setIsUploading(false);
-          return;
-        }
-      } else {
-        // If it's already an MP3, sanitize the filename
-        fileName = sanitizeFileName(fileName);
+        setError("Please wait for the video to be converted to MP3 before uploading")
+        setIsUploading(false)
+        return
       }
       
-      setProcessingStep("Uploading to storage...")
+      // If we have an audio preview from a converted video, use that instead
+      if (audioPreviewUrl && file.type !== 'audio/mpeg') {
+        // Fetch the blob from the audio preview URL
+        const response = await fetch(audioPreviewUrl);
+        const audioBlob = await response.blob();
+        
+        // Create a new file from the blob
+        const audioFileName = file.name.replace(/\.[^/.]+$/, "") + ".mp3";
+        fileToUpload = new File([audioBlob], audioFileName, { type: 'audio/mpeg' });
+        fileName = audioFileName;
+      }
       
-      // Upload file using TUS for resumable uploads with progress
-      const filePath = await uploadFileWithTus(fileToUpload, fileName, contentType);
-
+      // Sanitize the file name
+      const sanitizedFileName = sanitizeFileName(fileName);
+      
+      // Upload the file using TUS
+      const mediaPath = await uploadFileWithTus(fileToUpload, sanitizedFileName, contentType);
+      
+      // Create the database record
       setProcessingStep("Creating database record...")
-      // Create database record
-      const supabase = createClient();
-      const { data: chalkTalkRecord, error: dbError } = await supabase
+      const supabase = createClient()
+      
+      const { data: chalkTalkData, error: dbError } = await supabase
         .from("chalk_talks")
-        .insert([
-          {
-            project_id: projectId,
-            media_path: filePath,
-            media_type: 'audio', // Always audio since we're extracting from videos
-          },
-        ])
-        .select('id')
-        .single();
-
+        .insert([{
+          project_id: projectId,
+          media_path: mediaPath,
+          media_type: file.type.startsWith('video/') ? 'audio' : 'audio',
+          transcription_status: 'pending',
+          vectorization_status: 'pending'
+        }])
+        .select()
+        .single()
+      
       if (dbError) throw dbError
-
-      // Trigger transcription process
-      try {
-        setProcessingStep("Starting transcription...")
-        
-        const transcriptionResponse = await fetch('/api/trigger-transcription', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            chalkTalkId: chalkTalkRecord.id,
-            filePath,
-          }),
-        });
-
-        if (!transcriptionResponse.ok) {
-          const errorData = await transcriptionResponse.json();
-          throw new Error(errorData.error || 'Failed to start transcription process');
-        }
-
-        // Transcription has been initiated but will continue in the background
-        setProcessingStep("Upload complete! Transcription started in the background.");
-        
-      } catch (transcriptionErr) {
-        console.error('Error starting transcription:', transcriptionErr);
-        // Don't block the user flow for transcription errors
-      }
-
-      // Reset form
-      fileInput.value = ""
-      setSelectedFile(null);
-      if (audioPreviewUrl) {
-        URL.revokeObjectURL(audioPreviewUrl);
-        setAudioPreviewUrl(null);
-      }
+      
+      // Trigger the transcription process in the background (non-blocking)
+      const chalkTalkId = chalkTalkData.id
+      fetch('/api/trigger-transcription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          chalkTalkId,
+          filePath: mediaPath
+        })
+      }).catch(error => {
+        console.error('Error triggering transcription:', error)
+        // We don't throw here as the upload was successful
+      })
+      
+      // Refresh the page to show the new chalk talk
       router.refresh()
+      
+      // Reset the form state
+      resetFormState()
+      
+      setIsUploading(false)
+      setUploadSuccess(true)
     } catch (err) {
-      console.error("Error uploading:", err)
-      setError(err instanceof Error ? err.message : "Error uploading file")
-    } finally {
+      console.error("Error uploading chalk talk:", err)
+      setError(err instanceof Error ? err.message : "Error uploading chalk talk")
       setIsUploading(false)
     }
   }
+
+  // Function to reset the form state after upload
+  const resetFormState = () => {
+    setIsUploading(false);
+    setIsConverting(false);
+    setSelectedFile(null);
+    setUploadProgress(0);
+    setExtractionProgress(0);
+    setProcessingStep("");
+    
+    // Clear the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
+    // Clear audio preview if it exists
+    if (audioPreviewUrl) {
+      URL.revokeObjectURL(audioPreviewUrl);
+      setAudioPreviewUrl(null);
+    }
+  };
+
+  // Add a function to handle dialog close
+  const handleReplaceDialogClose = (open: boolean) => {
+    setReplaceDialogOpen(open);
+    
+    // If dialog is being closed, reset the state
+    if (!open) {
+      setSelectedFile(null);
+      setExistingChalkTalkId(null);
+      
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   return (
     <form id="upload-form" onSubmit={onSubmit} className="space-y-6">
@@ -427,165 +506,158 @@ export function UploadChalkTalk({ projectId }: { projectId: string }) {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Browser Compatibility Issue</AlertTitle>
           <AlertDescription>
-            Your browser doesn't support audio extraction from video files. You can only upload MP3 audio files directly.
-            You can convert your video to MP3 using <a href="https://cloudconvert.com/mp4-to-mp3" target="_blank" rel="noopener noreferrer" className="underline font-medium">CloudConvert</a>.
+            Your browser does not support audio extraction from video files. Please upload an MP3 audio file instead.
           </AlertDescription>
         </Alert>
       )}
       
-      <div className="flex items-center justify-between mb-2">
-        <Label htmlFor="media" className="text-base font-medium">Upload Presentation Audio</Label>
-        <a 
-          href="https://cloudconvert.com/mp4-to-mp3" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {/* File input section */}
+      <div className="space-y-2">
+        <Label
+          htmlFor="file-upload"
+          className={`flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer ${
+            isDragging 
+              ? "border-primary bg-primary/5" 
+              : "border-border bg-gray-50 hover:bg-gray-100"
+          }`}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-external-link">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <line x1="10" y1="14" x2="21" y2="3"></line>
-          </svg>
-          Convert video to MP3
-        </a>
+          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+            <svg
+              className="w-8 h-8 mb-4 text-gray-500"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 16"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+              />
+            </svg>
+            <p className="mb-2 text-sm text-gray-500">
+              <span className="font-semibold">Click to upload</span> or drag and drop
+            </p>
+            <p className="text-xs text-gray-500">
+              MP3, MP4, MOV, WEBM, or AVI (max. {Math.round(MAX_FILE_SIZE / (1024 * 1024))}MB, {Math.round(MAX_DURATION_SECONDS / 60)} min)
+            </p>
+            {browserCompatible && (
+              <p className="text-xs text-green-600 mt-2">
+                Audio will be automatically extracted from video files
+              </p>
+            )}
+          </div>
+          <input
+            id="file-upload"
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".mp3,audio/mpeg,video/mp4,video/quicktime,video/webm,video/x-msvideo"
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                setSelectedFile(e.target.files[0]);
+                processFile(e.target.files[0]);
+              }
+            }}
+            disabled={isUploading || isConverting}
+          />
+        </Label>
+        
+        {selectedFile && (
+          <div className="text-sm">
+            Selected: <span className="font-medium">{selectedFile.name}</span> ({Math.round(selectedFile.size / 1024)} KB)
+          </div>
+        )}
       </div>
       
-      <div className="space-y-2">
-        <div className="flex items-center justify-center w-full">
-          <label
-            htmlFor="media"
-            className={`flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer ${
-              isDragging ? 'bg-blue-50 border-blue-300' : 'bg-gray-50 hover:bg-gray-100'
-            }`}
-            onDragEnter={handleDragEnter}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <svg
-                className="w-8 h-8 mb-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 16"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                />
-              </svg>
-              <p className="mb-2 text-sm text-gray-500">
-                <span className="font-semibold">Click to upload</span> or drag and drop
-              </p>
-              <p className="text-xs text-gray-500">
-                MP3 audio or video file (MP4, MOV, WEBM, AVI)
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Max {Math.round(MAX_FILE_SIZE / (1024 * 1024))}MB, {Math.round(MAX_DURATION_SECONDS / 60)} minutes
-              </p>
-              {browserCompatible && (
-                <p className="text-xs text-green-600 mt-2">
-                  Audio will be automatically extracted from video files
-                </p>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              id="media"
-              type="file"
-              className="hidden"
-              accept="audio/mpeg,video/mp4,video/quicktime,video/webm,video/x-msvideo"
-              disabled={isUploading || isConverting}
-              onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) {
-                  setError(null);
-                  setSelectedFile(e.target.files[0]);
-                  
-                  // Clear any previous audio preview
-                  if (audioPreviewUrl) {
-                    URL.revokeObjectURL(audioPreviewUrl);
-                    setAudioPreviewUrl(null);
-                  }
-                  
-                  // Process the file immediately
-                  processFile(e.target.files[0]);
-                }
-              }}
-            />
-          </label>
+      {/* Audio preview */}
+      {audioPreviewUrl && (
+        <div className="space-y-2">
+          <Label htmlFor="audio-preview">Audio Preview</Label>
+          <audio
+            id="audio-preview"
+            src={audioPreviewUrl}
+            controls
+            className="w-full"
+          />
         </div>
-      </div>
-
-      {/* Audio conversion progress */}
+      )}
+      
+      {/* Progress indicators */}
       {isConverting && (
         <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-sm">Converting video to MP3...</span>
-            <span className="text-sm">{Math.round(extractionProgress)}%</span>
+          <div className="flex justify-between text-sm">
+            <span>Converting video to audio...</span>
+            <span>{Math.round(extractionProgress)}%</span>
           </div>
           <Progress value={extractionProgress} />
         </div>
       )}
-
-      {/* Upload progress */}
+      
       {isUploading && (
         <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-sm">{processingStep}</span>
-            <span className="text-sm">
-              {processingStep.includes("Extracting") 
-                ? `${Math.round(extractionProgress)}%` 
-                : processingStep.includes("Uploading") 
-                  ? `${Math.round(uploadProgress)}%` 
-                  : ""}
-            </span>
+          <div className="flex justify-between text-sm">
+            <span>{processingStep}</span>
+            {uploadProgress > 0 && <span>{Math.round(uploadProgress)}%</span>}
           </div>
-          <Progress 
-            value={processingStep.includes("Extracting") 
-              ? extractionProgress 
-              : processingStep.includes("Uploading") 
-                ? uploadProgress 
-                : 0} 
-          />
+          {uploadProgress > 0 && <Progress value={uploadProgress} />}
         </div>
       )}
-
-      {/* Audio preview player */}
-      {audioPreviewUrl && !isUploading && !isConverting && (
-        <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">Audio Preview</h3>
-            <span className="text-xs text-gray-500">
-              Ready for upload
-            </span>
+      
+      {isDeleting && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>{processingStep}</span>
           </div>
-          <audio 
-            controls 
-            className="w-full" 
-            src={audioPreviewUrl}
-          >
-            Your browser does not support the audio element.
-          </audio>
+          <Progress value={100} className="animate-pulse" />
         </div>
       )}
-
-      {error && <div className="text-sm text-red-500">{error}</div>}
       
       <button
         type="submit"
-        className="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md disabled:opacity-50"
-        disabled={isUploading || isConverting || !selectedFile}
+        className="w-full px-4 py-2 text-white bg-primary rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isUploading || isConverting || isDeleting || !selectedFile}
       >
-        {isUploading 
-          ? "Processing..." 
-          : isConverting 
-            ? "Converting to MP3..." 
-            : "Upload Presentation"}
+        {isUploading || isDeleting
+          ? "Processing..."
+          : isConverting
+          ? "Converting..."
+          : "Upload Presentation"}
       </button>
+
+      {/* Add the replace dialog */}
+      <Dialog open={replaceDialogOpen} onOpenChange={handleReplaceDialogClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Replace Existing Chalk Talk</DialogTitle>
+            <DialogDescription>
+              You already have a chalk talk for this project. Uploading a new one will replace the existing one.
+              This will delete the existing chalk talk and all associated data, including transcriptions and vectors.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => handleReplaceDialogClose(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleReplaceConfirm}>
+              Replace
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </form>
   )
 } 
