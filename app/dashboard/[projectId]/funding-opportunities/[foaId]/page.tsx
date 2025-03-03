@@ -1,8 +1,6 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/utils/supabase/server';
+import { notFound } from 'next/navigation';
+import { Database } from '@/types/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,10 +13,9 @@ import {
   Calendar, 
   FileText, 
   ExternalLink, 
-  Star, 
-  Loader2 
+  Star
 } from 'lucide-react';
-import { Database } from '@/types/supabase';
+import Link from 'next/link';
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 
@@ -27,109 +24,54 @@ interface FoaDetailsPageProps {
     projectId: string;
     foaId: string;
   };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default function FoaDetailsPage({ params }: FoaDetailsPageProps) {
-  const router = useRouter();
+// Format currency for display
+const formatCurrency = (value: number | null | undefined) => {
+  if (value === undefined || value === null) return 'Not specified';
+  return new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(value);
+};
+
+// Format date for display
+const formatDate = (dateString: string | null | undefined) => {
+  if (!dateString) return 'Not specified';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+export default async function FoaDetailsPage({ params }: FoaDetailsPageProps) {
   const { projectId, foaId } = params;
   
-  const [foa, setFoa] = useState<FOA | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Initialize Supabase client
+  const supabase = await createClient();
   
-  useEffect(() => {
-    const fetchFoaDetails = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const supabase = createClient();
-        
-        const { data, error } = await supabase
-          .from('foas')
-          .select('*')
-          .eq('id', foaId)
-          .single();
-        
-        if (error) {
-          throw error;
-        }
-        
-        setFoa(data);
-      } catch (err) {
-        console.error('Error fetching FOA details:', err);
-        setError('Failed to load funding opportunity details');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchFoaDetails();
-  }, [foaId]);
-  
-  // Format currency for display
-  const formatCurrency = (value: number | null | undefined) => {
-    if (value === undefined || value === null) return 'Not specified';
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-  
-  // Format date for display
-  const formatDate = (dateString: string | null | undefined) => {
-    if (!dateString) return 'Not specified';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-  
-  // Go back to funding opportunities list
-  const handleBack = () => {
-    router.push(`/dashboard/${projectId}/funding-opportunities`);
-  };
-  
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-6 flex items-center justify-center h-[600px]">
-        <div className="flex flex-col items-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Loading funding opportunity details...</p>
-        </div>
-      </div>
-    );
-  }
+  // Fetch FOA data
+  const { data: foa, error } = await supabase
+    .from('foas')
+    .select('*')
+    .eq('id', foaId)
+    .single();
   
   if (error || !foa) {
-    return (
-      <div className="container mx-auto py-6 space-y-6">
-        <Button variant="outline" onClick={handleBack} className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Funding Opportunities
-        </Button>
-        
-        <div className="flex flex-col items-center justify-center h-[400px]">
-          <div className="text-red-500 mb-4">
-            <FileText className="h-12 w-12 mx-auto mb-2" />
-            <p className="text-lg font-medium">{error || 'Funding opportunity not found'}</p>
-          </div>
-          <Button variant="default" onClick={handleBack}>
-            Return to Funding Opportunities
-          </Button>
-        </div>
-      </div>
-    );
+    notFound();
   }
   
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <Button variant="outline" onClick={handleBack} className="gap-2">
-        <ArrowLeft className="h-4 w-4" />
-        Back to Funding Opportunities
-      </Button>
+      <Link href={`/dashboard/${projectId}/funding-opportunities`} passHref>
+        <Button variant="outline" className="gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Funding Opportunities
+        </Button>
+      </Link>
       
       <div className="flex justify-between items-start">
         <h1 className="text-2xl font-bold tracking-tight">{foa.title}</h1>
@@ -269,6 +211,61 @@ export default function FoaDetailsPage({ params }: FoaDetailsPageProps) {
           </div>
         </div>
       </div>
+      
+      {/* Submission Requirements */}
+      {foa.submission_requirements && (
+        <div className="mt-6 space-y-4">
+          <h3 className="text-lg font-medium">Submission Requirements</h3>
+          <div className="space-y-4">
+            {foa.submission_requirements.required_documents && (
+              <div>
+                <h4 className="text-sm font-medium mb-2">Required Documents</h4>
+                <ul className="list-disc pl-5 space-y-1">
+                  {Array.isArray(foa.submission_requirements.required_documents) ? 
+                    foa.submission_requirements.required_documents.map((doc, index) => (
+                      <li key={index}>
+                        {typeof doc === 'object' && doc !== null ? 
+                          `${doc.Document}${doc.Description ? `: ${doc.Description}` : ''}` : 
+                          String(doc)
+                        }
+                      </li>
+                    )) : 
+                    <li>
+                      {typeof foa.submission_requirements.required_documents === 'object' ? 
+                        JSON.stringify(foa.submission_requirements.required_documents) : 
+                        String(foa.submission_requirements.required_documents)
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+            )}
+            
+            {foa.submission_requirements.formats && (
+              <div>
+                <h4 className="text-sm font-medium mb-2">Formats</h4>
+                <ul className="list-disc pl-5 space-y-1">
+                  {Array.isArray(foa.submission_requirements.formats) ? 
+                    foa.submission_requirements.formats.map((format, index) => (
+                      <li key={index}>{String(format)}</li>
+                    )) : 
+                    <li>{String(foa.submission_requirements.formats)}</li>
+                  }
+                </ul>
+              </div>
+            )}
+            
+            {foa.submission_requirements.additional_instructions && (
+              <div>
+                <h4 className="text-sm font-medium mb-2">Additional Instructions</h4>
+                <p className="text-muted-foreground">
+                  {foa.submission_requirements.additional_instructions}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
