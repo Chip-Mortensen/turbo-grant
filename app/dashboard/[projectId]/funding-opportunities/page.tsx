@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 import { FundingOpportunitiesSearch } from '@/components/grants/funding-opportunities-search';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Funding Opportunities | Turbo Grant',
@@ -15,9 +17,21 @@ export default async function FundingOpportunitiesPage({ params }: PageProps) {
   
   return (
     <div className="container py-6 space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Search for funding opportunities and save them to your project.
-      </p>
+      <div className="flex justify-between items-center">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold">Funding Opportunities</h1>
+          <p className="text-sm text-muted-foreground">
+            For best results, describe your research goals and requirements in detail rather than using keywords.
+          </p>
+        </div>
+        <Link
+          href={`/dashboard/${projectId}`}
+          className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Project
+        </Link>
+      </div>
       
       <FundingOpportunitiesSearch projectId={projectId} />
     </div>
