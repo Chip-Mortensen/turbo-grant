@@ -108,7 +108,7 @@ export class ChalkTalkProcessor extends ContentProcessor {
       if (pineconeIds.length === 0) {
         const errorMsg = 'Failed to process any chunks successfully';
         console.error(errorMsg);
-        await this.updateStatus('failed', content, errorMsg);
+        await this.updateStatus('failed', content);
         throw new Error(errorMsg);
       }
 
@@ -117,8 +117,7 @@ export class ChalkTalkProcessor extends ContentProcessor {
         .from('chalk_talks')
         .update({
           vectorization_status: 'completed',
-          pinecone_ids: pineconeIds,
-          last_vectorized_at: new Date().toISOString()
+          pinecone_ids: pineconeIds
         })
         .eq('id', content.id);
 
@@ -139,8 +138,7 @@ export class ChalkTalkProcessor extends ContentProcessor {
       
       // Make sure we update the status if it hasn't been done already
       try {
-        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-        await this.updateStatus('failed', content, errorMsg);
+        await this.updateStatus('failed', content);
       } catch (statusError) {
         console.error('Failed to update error status:', statusError);
       }
@@ -149,19 +147,23 @@ export class ChalkTalkProcessor extends ContentProcessor {
     }
   }
 
-  async updateStatus(status: string, content: ChalkTalk, error?: string): Promise<void> {
-    const updates: any = {
-      vectorization_status: status
-    };
-    
-    if (error) {
-      updates.vectorization_error = error;
+  async updateStatus(status: string, content: ChalkTalk): Promise<void> {
+    try {
+      console.log(`Updating chalk talk ${content.id} status to ${status}`);
+      
+      const { error: updateError } = await this.supabase
+        .from('chalk_talks')
+        .update({ vectorization_status: status })
+        .eq('id', content.id);
+      
+      if (updateError) {
+        console.error('Error updating chalk talk status:', updateError);
+        throw updateError;
+      }
+    } catch (error) {
+      console.error('Error updating chalk talk status:', error);
+      throw error;
     }
-    
-    await this.supabase
-      .from('chalk_talks')
-      .update(updates)
-      .eq('id', content.id);
   }
 
   /**
