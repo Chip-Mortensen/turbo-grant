@@ -41,11 +41,11 @@ const formatDate = (dateString: string | null | undefined) => {
 };
 
 type PageProps = {
-  params: { projectId: string; foaId: string };
+  params: Promise<{ projectId: string; foaId: string }>;
 };
 
 const page = async ({ params }: PageProps) => {
-  const { projectId, foaId } = params;
+  const { projectId, foaId } = await params;
   
   // Initialize Supabase client
   const supabase = await createClient();
