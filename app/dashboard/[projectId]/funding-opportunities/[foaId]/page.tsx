@@ -16,6 +16,7 @@ import {
   Star
 } from 'lucide-react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 
@@ -39,12 +40,11 @@ const formatDate = (dateString: string | null | undefined) => {
   });
 };
 
-export default async function FoaDetailsPage({
-  params,
-}: {
+type PageProps = {
   params: { projectId: string; foaId: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+};
+
+const page = async ({ params }: PageProps) => {
   const { projectId, foaId } = params;
   
   // Initialize Supabase client
@@ -265,4 +265,6 @@ export default async function FoaDetailsPage({
       )}
     </div>
   );
-} 
+};
+
+export default page; 
