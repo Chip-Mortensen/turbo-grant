@@ -78,12 +78,32 @@ export async function GET(request: NextRequest) {
         filter.agency = agency;
       }
       if (minAward !== null && maxAward !== null) {
-        filter.award_floor = { $gte: minAward };
-        filter.award_ceiling = { $lte: maxAward };
+        // At least one of these conditions should be true:
+        // 1. award_floor (if exists) is within the range
+        // 2. award_ceiling (if exists) is within the range
+        // 3. range completely encompasses the award range (floor to ceiling)
+        filter.$or = [
+          { award_floor: { $gte: minAward, $lte: maxAward } },
+          { award_ceiling: { $gte: minAward, $lte: maxAward } },
+          {
+            $and: [
+              { award_floor: { $lte: minAward } },
+              { award_ceiling: { $gte: maxAward } }
+            ]
+          }
+        ];
       } else if (minAward !== null) {
-        filter.award_floor = { $gte: minAward };
+        // Either the floor or ceiling should be >= minAward
+        filter.$or = [
+          { award_floor: { $gte: minAward } },
+          { award_ceiling: { $gte: minAward } }
+        ];
       } else if (maxAward !== null) {
-        filter.award_ceiling = { $lte: maxAward };
+        // Either the floor or ceiling should be <= maxAward
+        filter.$or = [
+          { award_floor: { $lte: maxAward } },
+          { award_ceiling: { $lte: maxAward } }
+        ];
       }
       if (animalTrials !== null) {
         filter.animal_trials = animalTrials;
@@ -96,44 +116,44 @@ export async function GET(request: NextRequest) {
       if (deadlineDate !== null) {
         // Convert date to Unix timestamp (seconds)
         const timestamp = Math.floor(deadlineDate.getTime() / 1000);
-        filter.deadline_timestamp = { $gte: timestamp };
+        filter.deadline_timestamp = { $lte: timestamp };
       }
       
       // Add organization eligibility filters
       if (orgHigherEducation !== null) {
-        filter['organization_eligibility.higherEducation'] = orgHigherEducation;
+        filter.org_higher_education = orgHigherEducation;
       }
       if (orgNonProfit !== null) {
-        filter['organization_eligibility.nonProfit'] = orgNonProfit;
+        filter.org_non_profit = orgNonProfit;
       }
       if (orgForProfit !== null) {
-        filter['organization_eligibility.forProfit'] = orgForProfit;
+        filter.org_for_profit = orgForProfit;
       }
       if (orgGovernment !== null) {
-        filter['organization_eligibility.government'] = orgGovernment;
+        filter.org_government = orgGovernment;
       }
       if (orgHospital !== null) {
-        filter['organization_eligibility.hospital'] = orgHospital;
+        filter.org_hospital = orgHospital;
       }
       if (orgForeign !== null) {
-        filter['organization_eligibility.foreign'] = orgForeign;
+        filter.org_foreign = orgForeign;
       }
       if (orgIndividual !== null) {
-        filter['organization_eligibility.individual'] = orgIndividual;
+        filter.org_individual = orgIndividual;
       }
       
       // Add user eligibility filters
       if (userPrincipalInvestigator !== null) {
-        filter['user_eligibility.principalInvestigator'] = userPrincipalInvestigator;
+        filter.user_pi = userPrincipalInvestigator;
       }
       if (userPostdoc !== null) {
-        filter['user_eligibility.postdoc'] = userPostdoc;
+        filter.user_postdoc = userPostdoc;
       }
       if (userGraduateStudent !== null) {
-        filter['user_eligibility.graduateStudent'] = userGraduateStudent;
+        filter.user_grad_student = userGraduateStudent;
       }
       if (userEarlyCareer !== null) {
-        filter['user_eligibility.earlyCareer'] = userEarlyCareer;
+        filter.user_senior_personnel = userEarlyCareer; // Early career maps to senior personnel in our metadata
       }
       
       // FOAs are global, so we don't filter by projectId

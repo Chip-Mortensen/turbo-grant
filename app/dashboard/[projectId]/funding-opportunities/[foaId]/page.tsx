@@ -13,7 +13,8 @@ import {
   Calendar, 
   FileText, 
   ExternalLink, 
-  Star
+  Check,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -21,8 +22,10 @@ import type { Metadata } from 'next';
 type FOA = Database['public']['Tables']['foas']['Row'];
 
 // Format currency for display
-const formatCurrency = (value: number | null | undefined) => {
-  if (value === undefined || value === null) return 'Not specified';
+const formatCurrency = (value: number | null | undefined, isFloor: boolean = false) => {
+  if (value === undefined || value === null) {
+    return isFloor ? '$0' : 'Not specified';
+  }
   return new Intl.NumberFormat('en-US', { 
     style: 'currency', 
     currency: 'USD',
@@ -61,6 +64,8 @@ const page = async ({ params }: PageProps) => {
     notFound();
   }
   
+  console.log('FOA Data:', JSON.stringify(foa, null, 2));
+  
   return (
     <div className="container mx-auto py-6 space-y-6">
       <Link href={`/dashboard/${projectId}/funding-opportunities`} passHref>
@@ -73,9 +78,6 @@ const page = async ({ params }: PageProps) => {
       <div className="flex justify-between items-start">
         <h1 className="text-2xl font-bold tracking-tight">{foa.title}</h1>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
-            <Star className="h-4 w-4" />
-          </Button>
           {foa.grant_url && (
             <Button variant="outline" size="sm" asChild>
               <a href={foa.grant_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
@@ -124,12 +126,12 @@ const page = async ({ params }: PageProps) => {
       <Separator />
       
       {/* Award information */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Award Floor</div>
             <div className="text-xl font-semibold">
-              {formatCurrency(foa.award_floor)}
+              {formatCurrency(foa.award_floor, true)}
             </div>
           </CardContent>
         </Card>
@@ -149,6 +151,22 @@ const page = async ({ params }: PageProps) => {
             </div>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground">Letters of Intent</div>
+            <div className="text-xl font-semibold">
+              {foa.letters_of_intent ? 'Required' : 'Not Required'}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground">Preliminary Proposal</div>
+            <div className="text-xl font-semibold">
+              {foa.preliminary_proposal ? 'Required' : 'Not Required'}
+            </div>
+          </CardContent>
+        </Card>
       </div>
       
       {/* Description */}
@@ -163,48 +181,57 @@ const page = async ({ params }: PageProps) => {
       <div className="mt-6 space-y-4">
         <h3 className="text-lg font-medium">Eligibility</h3>
         
-        {foa.organization_eligibility && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Organization Types</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {Object.entries(foa.organization_eligibility as Record<string, boolean>).map(([key, value]) => (
-                value && (
-                  <Badge key={key} variant="secondary">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </Badge>
-                )
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Organization Eligibility */}
+          <div className="rounded-lg border bg-muted/40 p-6">
+            <h4 className="text-sm font-medium mb-4">Organization</h4>
+            <div className="space-y-2">
+              {[
+                { key: 'Higher Education', label: 'Higher Education' },
+                { key: 'Non-Profit', label: 'Non-Profit' },
+                { key: 'For-Profit', label: 'For-Profit' },
+                { key: 'Government', label: 'Government' },
+                { key: 'Hospital', label: 'Hospital' },
+                { key: 'Foreign', label: 'Foreign' },
+                { key: 'Individual', label: 'Individual' }
+              ].map(({ key, label }) => (
+                <div key={key} className="flex items-center gap-3">
+                  {foa.organization_eligibility?.[key] ? (
+                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  ) : (
+                    <X className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  )}
+                  <span className="text-sm">{label}</span>
+                </div>
               ))}
             </div>
           </div>
-        )}
-        
-        {foa.user_eligibility && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">User Roles</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {Object.entries(foa.user_eligibility as Record<string, boolean>).map(([key, value]) => (
-                value && (
-                  <Badge key={key} variant="secondary">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </Badge>
-                )
+          
+          {/* Individual Eligibility */}
+          <div className="rounded-lg border bg-muted/40 p-6">
+            <h4 className="text-sm font-medium mb-4">Individual</h4>
+            <div className="space-y-2">
+              {[
+                { key: 'Principal Investigator (PI)', label: 'Principal Investigator' },
+                { key: 'Co-Principal Investigator (Co-PI)', label: 'Co-Principal Investigator' },
+                { key: 'Co-Investigator (Co-I)', label: 'Co-Investigator' },
+                { key: 'Senior Personnel', label: 'Senior Personnel' },
+                { key: 'Postdoctoral Researcher', label: 'Postdoctoral Researcher' },
+                { key: 'Graduate Student', label: 'Graduate Student' },
+                { key: 'Undergraduate Student', label: 'Undergraduate Student' },
+                { key: 'Project Administrator', label: 'Project Administrator' },
+                { key: 'Authorized Organizational Representative (AOR)', label: 'Authorized Organizational Representative' }
+              ].map(({ key, label }) => (
+                <div key={key} className="flex items-center gap-3">
+                  {foa.user_eligibility?.[key] ? (
+                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  ) : (
+                    <X className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  )}
+                  <span className="text-sm">{label}</span>
+                </div>
               ))}
             </div>
-          </div>
-        )}
-      </div>
-      
-      {/* Additional requirements */}
-      <div className="mt-6 space-y-4">
-        <h3 className="text-lg font-medium">Additional Requirements</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-2">
-            <Checkbox checked={foa.letters_of_intent || false} disabled />
-            <Label className="text-sm font-normal">Letters of Intent Required</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox checked={foa.preliminary_proposal || false} disabled />
-            <Label className="text-sm font-normal">Preliminary Proposal Required</Label>
           </div>
         </div>
       </div>
@@ -233,20 +260,6 @@ const page = async ({ params }: PageProps) => {
                         String(foa.submission_requirements.required_documents)
                       }
                     </li>
-                  }
-                </ul>
-              </div>
-            )}
-            
-            {foa.submission_requirements.formats && (
-              <div>
-                <h4 className="text-sm font-medium mb-2">Formats</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  {Array.isArray(foa.submission_requirements.formats) ? 
-                    foa.submission_requirements.formats.map((format: string, index: number) => (
-                      <li key={index}>{String(format)}</li>
-                    )) : 
-                    <li>{String(foa.submission_requirements.formats)}</li>
                   }
                 </ul>
               </div>
