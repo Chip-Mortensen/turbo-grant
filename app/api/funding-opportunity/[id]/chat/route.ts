@@ -11,7 +11,7 @@ const openai = new OpenAI({
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+): Promise<Response> {
   try {
     const { messages } = await request.json();
     const id = params.id;
