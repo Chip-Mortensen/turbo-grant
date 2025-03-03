@@ -359,9 +359,19 @@ export default function FoaList({ projectId }: FoaListProps) {
                             <ul className="list-disc pl-5 space-y-1">
                               {Array.isArray(selectedFoa.submission_requirements.required_documents) ? 
                                 selectedFoa.submission_requirements.required_documents.map((doc, index) => (
-                                  <li key={index}>{doc}</li>
+                                  <li key={index}>
+                                    {typeof doc === 'object' && doc !== null ? 
+                                      `${doc.Document}${doc.Description ? `: ${doc.Description}` : ''}` : 
+                                      String(doc)
+                                    }
+                                  </li>
                                 )) : 
-                                <li>{String(selectedFoa.submission_requirements.required_documents)}</li>
+                                <li>
+                                  {typeof selectedFoa.submission_requirements.required_documents === 'object' ? 
+                                    JSON.stringify(selectedFoa.submission_requirements.required_documents) : 
+                                    String(selectedFoa.submission_requirements.required_documents)
+                                  }
+                                </li>
                               }
                             </ul>
                           </div>

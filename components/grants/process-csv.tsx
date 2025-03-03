@@ -33,7 +33,7 @@ interface ProcessedFoa {
   agency: 'NIH' | 'NSF';
   title: string;
   foa_code: string;
-  grant_url: string;
+  grant_url: string | null;
 }
 
 export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
@@ -44,6 +44,8 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
   const [processedData, setProcessedData] = useState<ProcessedFoa[]>([]);
   const [newRecords, setNewRecords] = useState<ProcessedFoa[]>([]);
   const [existingFoaCodes, setExistingFoaCodes] = useState<string[]>([]);
+  const [existingGrantUrls, setExistingGrantUrls] = useState<string[]>([]);
+  const [skippedRecords, setSkippedRecords] = useState<{reason: string, count: number}[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadType, setUploadType] = useState<UploadType>('NSF');
@@ -65,20 +67,33 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
     setIsLoading(true);
     try {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from('foas')
-        .select('foa_code');
+      // Fetch both foa_codes and grant_urls in parallel
+      const [foaResult, urlResult] = await Promise.all([
+        supabase.from('foas').select('foa_code'),
+        supabase.from('foas').select('grant_url')
+      ]);
       
-      if (error) {
-        throw error;
+      if (foaResult.error) {
+        throw foaResult.error;
       }
       
-      if (data) {
-        const codes = data.map(item => item.foa_code);
+      if (urlResult.error) {
+        throw urlResult.error;
+      }
+      
+      if (foaResult.data) {
+        const codes = foaResult.data.map(item => item.foa_code);
         setExistingFoaCodes(codes);
       }
+      
+      if (urlResult.data) {
+        const urls = urlResult.data
+          .map(item => item.grant_url)
+          .filter(url => url && url.trim() !== ''); // Filter out empty URLs
+        setExistingGrantUrls(urls);
+      }
     } catch (err) {
-      console.error('Error fetching existing FOA codes:', err);
+      console.error('Error fetching existing data:', err);
     } finally {
       setIsLoading(false);
     }
@@ -86,9 +101,72 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
 
   // Filter processed data to find new records
   const filterNewRecords = (processed: ProcessedFoa[]) => {
-    const newItems = processed.filter(item => 
-      item.foa_code && !existingFoaCodes.includes(item.foa_code)
-    );
+    // Track URLs we've seen in this batch to avoid duplicates
+    const seenUrls = new Set<string>();
+    let skippedExistingFoa = 0;
+    let skippedExistingUrl = 0;
+    let skippedDuplicateUrl = 0;
+    let skippedMissingUrl = 0;
+    
+    const newItems = processed.filter(item => {
+      // Skip records with missing URLs
+      if (!item.grant_url) {
+        skippedMissingUrl++;
+        return false;
+      }
+      
+      // Skip if FOA code already exists in database
+      if (item.foa_code && existingFoaCodes.includes(item.foa_code)) {
+        skippedExistingFoa++;
+        return false;
+      }
+      
+      // Skip if URL already exists in database
+      const normalizedUrl = normalizeUrl(item.grant_url || '');
+      if (!normalizedUrl) {
+        skippedMissingUrl++;
+        return false;
+      }
+      
+      if (normalizedUrl && existingGrantUrls.includes(normalizedUrl)) {
+        console.warn(`Skipping record with duplicate URL in database: ${normalizedUrl}`);
+        skippedExistingUrl++;
+        return false;
+      }
+      
+      // Check if URL already exists in this batch
+      if (normalizedUrl && seenUrls.has(normalizedUrl)) {
+        console.warn(`Skipping record with duplicate URL in batch: ${normalizedUrl}`);
+        skippedDuplicateUrl++;
+        return false;
+      }
+      
+      // Add URL to seen set if it's not null
+      if (normalizedUrl) {
+        seenUrls.add(normalizedUrl);
+      }
+      
+      return true;
+    });
+    
+    // Update skipped records
+    setSkippedRecords(prev => {
+      const updated = [...prev];
+      if (skippedExistingFoa > 0) {
+        updated.push({ reason: 'FOA code already in database', count: skippedExistingFoa });
+      }
+      if (skippedExistingUrl > 0) {
+        updated.push({ reason: 'URL already in database', count: skippedExistingUrl });
+      }
+      if (skippedDuplicateUrl > 0) {
+        updated.push({ reason: 'Duplicate URL in filtered records', count: skippedDuplicateUrl });
+      }
+      if (skippedMissingUrl > 0) {
+        updated.push({ reason: 'Missing or invalid URL', count: skippedMissingUrl });
+      }
+      return updated;
+    });
+    
     setNewRecords(newItems);
   };
 
@@ -229,6 +307,12 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
   const processRows = (headers: string[], rows: string[][]) => {
     try {
       const processed: ProcessedFoa[] = [];
+      const seenFoaCodes = new Set<string>();
+      const seenUrls = new Set<string>();
+      let skippedDuplicateFoa = 0;
+      let skippedDuplicateUrl = 0;
+      let skippedMissingTitle = 0;
+      let skippedMissingUrl = 0;
       
       // Get column indices based on the requirements
       const titleIndex = headers.indexOf('Title');
@@ -261,12 +345,41 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
         
         const title = row[titleIndex]?.trim() || '';
         const foa_code = row[foaCodeIndex]?.trim() || '';
-        const grant_url = row[urlIndex]?.trim() || '';
+        let grant_url: string | null = row[urlIndex]?.trim() || '';
         
         // Skip rows with missing essential data
         if (!title) {
+          skippedMissingTitle++;
           continue;
         }
+        
+        // Skip duplicate FOA codes within the current batch
+        if (foa_code && seenFoaCodes.has(foa_code)) {
+          console.warn(`Skipping duplicate FOA code in CSV: ${foa_code}`);
+          skippedDuplicateFoa++;
+          continue;
+        }
+        
+        // Normalize the URL
+        grant_url = normalizeUrl(grant_url);
+        
+        // Skip records with missing or invalid URLs
+        if (!grant_url) {
+          console.warn(`Skipping record with missing or invalid URL: ${row[urlIndex]}`);
+          skippedMissingUrl++;
+          continue;
+        }
+        
+        // Skip duplicate URLs within the current batch
+        if (grant_url && seenUrls.has(grant_url)) {
+          console.warn(`Skipping duplicate URL in CSV: ${grant_url}`);
+          skippedDuplicateUrl++;
+          continue;
+        }
+        
+        // Add to seen sets
+        if (foa_code) seenFoaCodes.add(foa_code);
+        if (grant_url) seenUrls.add(grant_url);
         
         processed.push({
           agency: uploadType,
@@ -275,6 +388,22 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
           grant_url
         });
       }
+      
+      // Track skipped records
+      const skipped = [];
+      if (skippedMissingTitle > 0) {
+        skipped.push({ reason: 'Missing title', count: skippedMissingTitle });
+      }
+      if (skippedDuplicateFoa > 0) {
+        skipped.push({ reason: 'Duplicate FOA code in CSV', count: skippedDuplicateFoa });
+      }
+      if (skippedDuplicateUrl > 0) {
+        skipped.push({ reason: 'Duplicate URL in CSV', count: skippedDuplicateUrl });
+      }
+      if (skippedMissingUrl > 0) {
+        skipped.push({ reason: 'Missing or invalid URL', count: skippedMissingUrl });
+      }
+      setSkippedRecords(skipped);
       
       setProcessedData(processed);
       // Filter for new records
@@ -325,6 +454,48 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
     return result;
   };
 
+  // Helper function to normalize and validate URLs
+  const normalizeUrl = (url: string): string | null => {
+    if (!url || url.trim() === '') {
+      return null; // Return null instead of empty string
+    }
+    
+    let normalizedUrl = url.trim();
+    
+    try {
+      // Check if it's already a valid URL
+      new URL(normalizedUrl);
+      return normalizedUrl;
+    } catch (e) {
+      // Not a valid URL, try adding https://
+      try {
+        new URL(`https://${normalizedUrl}`);
+        return `https://${normalizedUrl}`;
+      } catch (e2) {
+        // Still not valid
+        console.warn(`Invalid URL: ${normalizedUrl}`);
+        return null; // Return null instead of empty string
+      }
+    }
+  };
+
+  // Check if a URL is valid and not empty
+  const isValidUrl = (url: string | null): boolean => {
+    if (!url || url.trim() === '') return false;
+    
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      try {
+        new URL(`https://${url}`);
+        return true;
+      } catch (e2) {
+        return false;
+      }
+    }
+  };
+
   const saveToDatabase = async () => {
     if (newRecords.length === 0) {
       setError("No new records to save. All records already exist in the database.");
@@ -336,41 +507,148 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
     setSaveError(null);
     
     try {
-      // Prepare the data for insertion
-      const foasToInsert = newRecords.map(item => ({
-        agency: item.agency,
-        title: item.title,
-        foa_code: item.foa_code,
-        grant_url: item.grant_url,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }));
-      
-      // Create a client-side Supabase client with authentication
+      // First, refresh our list of existing FOA codes and URLs to ensure we have the latest data
       const supabase = createClient();
       
-      // Insert the data into the foas table
-      const { data, error } = await supabase
-        .from('foas')
-        .insert(foasToInsert)
-        .select();
+      // Fetch the latest data from the database
+      const [foaResult, urlResult] = await Promise.all([
+        supabase.from('foas').select('foa_code'),
+        supabase.from('foas').select('grant_url')
+      ]);
       
-      if (error) {
-        throw error;
+      if (foaResult.error) throw foaResult.error;
+      if (urlResult.error) throw urlResult.error;
+      
+      // Update our local state with the latest data
+      const latestFoaCodes = foaResult.data?.map(item => item.foa_code) || [];
+      const latestGrantUrls = urlResult.data?.map(item => item.grant_url).filter(url => url && url.trim() !== '') || [];
+      
+      // Re-filter our records to ensure we're not trying to insert duplicates
+      const trulyNewRecords = newRecords.filter(item => {
+        // Skip records with missing URLs
+        if (!item.grant_url) {
+          console.warn(`Skipping record with missing URL`);
+          return false;
+        }
+        
+        // Skip if FOA code already exists in database
+        if (item.foa_code && latestFoaCodes.includes(item.foa_code)) {
+          console.warn(`Skipping record with FOA code already in database: ${item.foa_code}`);
+          return false;
+        }
+        
+        // Skip if URL already exists in database
+        const normalizedUrl = normalizeUrl(item.grant_url || '');
+        if (!normalizedUrl) {
+          console.warn(`Skipping record with invalid URL: ${item.grant_url}`);
+          return false;
+        }
+        
+        if (normalizedUrl && latestGrantUrls.includes(normalizedUrl)) {
+          console.warn(`Skipping record with URL already in database: ${normalizedUrl}`);
+          return false;
+        }
+        
+        return true;
+      });
+      
+      if (trulyNewRecords.length === 0) {
+        setError("After re-checking, all records already exist in the database.");
+        setIsSaving(false);
+        return;
       }
       
-      setSaveSuccess(true);
+      // Validate URLs and prepare the data for insertion
+      const foasToInsert = trulyNewRecords.map(item => {
+        const normalizedUrl = normalizeUrl(item.grant_url || '');
+        
+        return {
+          agency: item.agency,
+          title: item.title,
+          foa_code: item.foa_code,
+          grant_url: normalizedUrl,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      });
+      
+      // Process in batches of 5 records to avoid potential size limits
+      const BATCH_SIZE = 5;
+      let successCount = 0;
+      let errors = [];
+      
+      // Use a Set to track URLs we've already inserted in this session
+      // to avoid duplicate key errors within our own batches
+      const insertedUrls = new Set<string>();
+      
+      for (let i = 0; i < foasToInsert.length; i += BATCH_SIZE) {
+        // Filter out any records with URLs we've already inserted in previous batches
+        const batchCandidates = foasToInsert.slice(i, i + BATCH_SIZE);
+        const batch = batchCandidates.filter(item => {
+          if (!item.grant_url) return true; // Allow records with null URLs
+          if (insertedUrls.has(item.grant_url)) {
+            console.warn(`Skipping record with URL already inserted in this session: ${item.grant_url}`);
+            return false;
+          }
+          return true;
+        });
+        
+        if (batch.length === 0) continue;
+        
+        try {
+          const { data, error } = await supabase
+            .from('foas')
+            .insert(batch)
+            .select();
+          
+          if (error) {
+            console.error(`Batch ${Math.floor(i/BATCH_SIZE) + 1} error:`, error);
+            errors.push(`Batch ${Math.floor(i/BATCH_SIZE) + 1}: ${error.message || JSON.stringify(error)}`);
+          } else {
+            successCount += (data?.length || 0);
+            // Add successfully inserted URLs to our tracking set
+            data?.forEach(item => {
+              if (item.grant_url) insertedUrls.add(item.grant_url);
+            });
+          }
+        } catch (batchErr) {
+          console.error(`Batch ${Math.floor(i/BATCH_SIZE) + 1} exception:`, batchErr);
+          errors.push(`Batch ${Math.floor(i/BATCH_SIZE) + 1}: ${batchErr instanceof Error ? batchErr.message : String(batchErr)}`);
+        }
+      }
+      
+      // Handle overall results
+      if (errors.length > 0) {
+        if (successCount > 0) {
+          // Partial success
+          setSaveSuccess(true);
+          setSaveError(`Partially successful: ${successCount} records saved, but encountered errors: ${errors.join('; ')}`);
+        } else {
+          // Complete failure
+          throw new Error(`Failed to save records: ${errors.join('; ')}`);
+        }
+      } else {
+        // Complete success
+        setSaveSuccess(true);
+      }
       
       // Update existing FOA codes
       await fetchExistingFoaCodes();
       
       // Call the onSuccess callback if provided
-      if (onSuccess) {
-        onSuccess(data);
+      if (onSuccess && successCount > 0) {
+        onSuccess({ count: successCount });
       }
     } catch (err) {
       console.error('Error saving to database:', err);
-      setSaveError(err instanceof Error ? err.message : "Unknown error occurred");
+      // Try to get more information about the error
+      if (err instanceof Error) {
+        setSaveError(`${err.message}\n${err.stack || 'No stack trace available'}`);
+      } else if (typeof err === 'object' && err !== null) {
+        setSaveError(`Error object: ${JSON.stringify(err, null, 2)}`);
+      } else {
+        setSaveError(String(err));
+      }
     } finally {
       setIsSaving(false);
     }
@@ -383,6 +661,7 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
     setRows([]);
     setProcessedData([]);
     setNewRecords([]);
+    setSkippedRecords([]);
     setError(null);
     setMissingColumns([]);
     setSaveSuccess(false);
@@ -509,6 +788,16 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
             <AlertTitle>CSV Processed Successfully</AlertTitle>
             <AlertDescription>
               {processedData.length} records have been processed. {newRecords.length} are new records not in the database.
+              {skippedRecords.length > 0 && (
+                <div className="mt-2">
+                  <p className="font-medium">Skipped records:</p>
+                  <ul className="list-disc pl-5">
+                    {skippedRecords.map((item, index) => (
+                      <li key={index}>{item.count} due to {item.reason}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </AlertDescription>
           </Alert>
         </div>
@@ -572,7 +861,9 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error saving to database</AlertTitle>
           <AlertDescription>
-            {saveError}
+            <div className="max-h-40 overflow-y-auto">
+              {saveError}
+            </div>
           </AlertDescription>
         </Alert>
       )}
@@ -602,9 +893,13 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
                     <td className="p-2 text-sm">{item.title}</td>
                     <td className="p-2 text-sm">{item.foa_code}</td>
                     <td className="p-2 text-sm">
-                      <a href={item.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                        {item.grant_url}
-                      </a>
+                      {item.grant_url ? (
+                        <a href={item.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                          {item.grant_url}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">No URL</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -657,9 +952,13 @@ export default function ProcessCsv({ projectId, onSuccess }: ProcessCsvProps) {
                     <td className="p-2 text-sm">{item.title}</td>
                     <td className="p-2 text-sm">{item.foa_code}</td>
                     <td className="p-2 text-sm">
-                      <a href={item.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                        {item.grant_url}
-                      </a>
+                      {item.grant_url ? (
+                        <a href={item.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                          {item.grant_url}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">No URL</span>
+                      )}
                     </td>
                   </tr>
                 ))}

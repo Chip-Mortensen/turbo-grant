@@ -161,11 +161,13 @@ export class FOAProcessor extends ContentProcessor {
         
         // Format deadline as ISO date if possible
         let formattedDeadline = extractedData.deadline;
+        let deadlineTimestamp: number | undefined;
         try {
           if (extractedData.deadline) {
             const deadlineDate = new Date(extractedData.deadline);
             if (!isNaN(deadlineDate.getTime())) {
               formattedDeadline = deadlineDate.toISOString().split('T')[0]; // YYYY-MM-DD
+              deadlineTimestamp = Math.floor(deadlineDate.getTime() / 1000); // Unix timestamp in seconds
             }
           }
         } catch (e) {
@@ -182,7 +184,7 @@ export class FOAProcessor extends ContentProcessor {
           ...(extractedData.agency === 'NIH' ? { grant_type: extractedData.grant_type } : {}),
           title: extractedData.title,
           foa_code: extractedData.foa_code,
-          deadline: formattedDeadline,
+          deadline_timestamp: deadlineTimestamp, // Store only the timestamp for filtering
           award_floor: typeof extractedData.award_floor === 'number' ? extractedData.award_floor : undefined,
           award_ceiling: typeof extractedData.award_ceiling === 'number' ? extractedData.award_ceiling : undefined,
           animal_trials: !!extractedData.animal_trials,

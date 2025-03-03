@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
-import { Sparkles } from "lucide-react"
+import { Sparkles, FileText, Image, PresentationIcon, Search } from "lucide-react"
 
 interface PageProps {
   params: Promise<{ projectId: string }>
@@ -52,7 +52,10 @@ export default async function ProjectPage({ params }: PageProps) {
         <Link href={`/dashboard/${projectId}/research-description`}>
           <Card className="hover:bg-accent transition-colors">
             <CardHeader>
-              <CardTitle>Research Description</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Research Description</CardTitle>
+                <FileText className="h-5 w-5 text-muted-foreground" />
+              </div>
               <CardDescription>
                 Upload and manage your research descriptions
               </CardDescription>
@@ -63,7 +66,10 @@ export default async function ProjectPage({ params }: PageProps) {
         <Link href={`/dashboard/${projectId}/scientific-figures`}>
           <Card className="hover:bg-accent transition-colors">
             <CardHeader>
-              <CardTitle>Scientific Figures</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Scientific Figures</CardTitle>
+                <Image className="h-5 w-5 text-muted-foreground" />
+              </div>
               <CardDescription>
                 Manage your scientific figures and captions
               </CardDescription>
@@ -74,9 +80,26 @@ export default async function ProjectPage({ params }: PageProps) {
         <Link href={`/dashboard/${projectId}/chalk-talk`}>
           <Card className="hover:bg-accent transition-colors">
             <CardHeader>
-              <CardTitle>Chalk Talk</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Chalk Talk</CardTitle>
+                <PresentationIcon className="h-5 w-5 text-muted-foreground" />
+              </div>
               <CardDescription>
                 Upload and manage your chalk talk presentations
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        
+        <Link href={`/dashboard/${projectId}/funding-opportunities`}>
+          <Card className="hover:bg-accent transition-colors">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Funding Opportunities</CardTitle>
+                <Search className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <CardDescription>
+                Search and filter funding opportunities for your research
               </CardDescription>
             </CardHeader>
           </Card>
