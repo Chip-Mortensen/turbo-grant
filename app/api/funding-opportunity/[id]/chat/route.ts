@@ -2,20 +2,15 @@ import { createClient } from '@/utils/supabase/server';
 import OpenAI from 'openai';
 import { getPineconeClient } from '@/lib/vectorization/pinecone';
 import { generateEmbeddings } from '@/lib/vectorization/openai';
+import { NextRequest } from 'next/server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
 export async function POST(
-  request: Request,
-  { params }: RouteContext
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const { messages } = await request.json();
