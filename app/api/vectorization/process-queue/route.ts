@@ -5,7 +5,9 @@ import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/ve
 import { ResearchDescriptionProcessor } from '../processors/research-description-processor';
 import { ScientificFigureProcessor } from '../processors/scientific-figure-processor';
 import { FOAProcessor } from '../processors/foa-processor';
+import { ChalkTalkProcessor } from '../processors/chalk-talk-processor';
 import { Database } from '@/types/supabase';
+import { PostgrestError } from '@supabase/supabase-js';
 
 // Use the Database type but define a simpler type for our processing logic
 type QueueItem = {
@@ -20,55 +22,105 @@ type QueueItem = {
 const BATCH_SIZE = 5; // Number of items to process in each batch
 
 async function processContent(
-  content: any,
-  contentType: 'research_description' | 'scientific_figure' | 'chalk_talk' | 'foa',
-  projectId: string | null,
-  supabase: SupabaseClient
-): Promise<void> {
-  console.log(`Processing content of type: ${contentType}, project ID: ${projectId || 'NULL'}`);
-  console.log('Content data:', JSON.stringify(content, null, 2).substring(0, 200) + '...');
-  
-  let processor: ContentProcessor;
+  item: QueueItem,
+  supabase: SupabaseClient<Database>
+): Promise<ProcessingResult> {
+  console.log('Processing content:', item);
 
-  switch (contentType) {
+  // Get the content from the appropriate table
+  const tableName = getTableName(item.content_type);
+  
+  // Type-safe fetch based on content type
+  let content: any;
+  let error: PostgrestError | null = null;
+  
+  if (item.content_type === 'research_description') {
+    const result = await supabase
+      .from('research_descriptions')
+      .select('*')
+      .eq('id', item.content_id)
+      .single();
+    content = result.data;
+    error = result.error;
+  } else if (item.content_type === 'chalk_talk') {
+    const result = await supabase
+      .from('chalk_talks')
+      .select('*')
+      .eq('id', item.content_id)
+      .single();
+    content = result.data;
+    error = result.error;
+  } else if (item.content_type === 'scientific_figure') {
+    const result = await supabase
+      .from('scientific_figures')
+      .select('*')
+      .eq('id', item.content_id)
+      .single();
+    content = result.data;
+    error = result.error;
+  } else if (item.content_type === 'foa') {
+    const result = await supabase
+      .from('foas')
+      .select('*')
+      .eq('id', item.content_id)
+      .single();
+    content = result.data;
+    error = result.error;
+  } else {
+    throw new Error(`Unknown content type: ${item.content_type}`);
+  }
+
+  if (error) {
+    console.error('Error fetching content:', error);
+    throw new Error(`Failed to fetch ${item.content_type}: ${error.message}`);
+  }
+
+  if (!content) {
+    throw new Error(`${item.content_type} with ID ${item.content_id} not found`);
+  }
+
+  // Process based on content type
+  let processor: ContentProcessor;
+  switch (item.content_type) {
     case 'research_description':
-      console.log('Creating ResearchDescriptionProcessor');
-      if (!projectId) {
-        throw new Error('Project ID is required for research descriptions');
-      }
-      processor = new ResearchDescriptionProcessor(content, projectId, supabase);
-      break;
-    case 'scientific_figure':
-      console.log('Creating ScientificFigureProcessor');
-      if (!projectId) {
-        throw new Error('Project ID is required for scientific figures');
-      }
-      processor = new ScientificFigureProcessor(content, projectId, supabase);
+      processor = new ResearchDescriptionProcessor(
+        content,
+        item.project_id || '',
+        supabase
+      );
       break;
     case 'chalk_talk':
-      // TODO: Implement ChalkTalkProcessor
-      throw new Error('Chalk talk processing not implemented yet');
+      processor = new ChalkTalkProcessor(
+        content,
+        item.project_id || '',
+        supabase
+      );
+      break;
+    case 'scientific_figure':
+      processor = new ScientificFigureProcessor(
+        content,
+        item.project_id || '',
+        supabase
+      );
+      break;
     case 'foa':
-      console.log('Creating FOAProcessor');
-      processor = new FOAProcessor(content, projectId, supabase);
+      processor = new FOAProcessor(
+        content,
+        item.project_id || '',
+        supabase
+      );
       break;
     default:
-      throw new Error(`Unknown content type: ${contentType}`);
+      throw new Error(`Processor not implemented for content type: ${item.content_type}`);
   }
 
-  // Validate content before processing
-  console.log('Validating content');
+  // Validate and process
   const isValid = await processor.validate(content);
   if (!isValid) {
-    console.error('Content validation failed');
-    throw new Error(`Invalid content for type: ${contentType}`);
+    throw new Error(`Content validation failed for ${item.content_type} ${item.content_id}`);
   }
-  console.log('Content validation successful');
 
-  // Process the content
-  console.log('Starting content processing');
-  const result = await processor.process(content);
-  console.log('Content processing completed successfully', result);
+  return await processor.process(content);
 }
 
 export async function POST(request: Request) {
@@ -148,22 +200,9 @@ export async function POST(request: Request) {
           }
           console.log('Marked item as processing');
 
-          // Get the content based on type
-          const { data: content, error: contentError } = await supabase
-            .from(getTableName(item.content_type))
-            .select('*')
-            .eq('id', item.content_id)
-            .single();
-
-          if (contentError || !content) {
-            console.error('Error fetching content:', contentError);
-            throw new Error(contentError?.message || 'Content not found');
-          }
-          console.log('Retrieved content for processing');
-
-          // Process the content based on its type
-          await processContent(content, item.content_type, item.project_id, supabase);
-          console.log('Successfully processed content');
+          // Process the content
+          const result = await processContent(item, supabase);
+          console.log('Content processing completed successfully', result);
 
           // Mark queue item as completed
           const { error: completeError } = await supabase
