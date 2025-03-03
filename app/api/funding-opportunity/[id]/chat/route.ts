@@ -7,9 +7,18 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
+export async function POST(
+  request: Request,
+  { params }: RouteContext
+) {
   try {
-    const { messages } = await req.json();
+    const { messages } = await request.json();
     const id = params.id;
     
     console.log('Chat API called with FOA ID:', id);
