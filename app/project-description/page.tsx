@@ -1,9 +1,10 @@
 import { Metadata } from "next"
-import { getResearchDescriptionVectors, getScientificFigureVectors, getChalkTalkVectors, getFOAVectors } from "@/lib/vectorization/query"
+import { getResearchDescriptionVectors, getScientificFigureVectors, getChalkTalkVectors, getFOAVectors } from "@/lib/project-document-processing/query"
+import { generateProjectOutline, generateFullProjectContent } from "@/lib/project-document-processing/project-description-processor"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const PROJECT_ID = "989fbeb7-9b38-4a05-85d1-6b510e816728"
-const FOA_ID = "56c1763f-7095-4b21-b6a5-af9e872c1aa3"
+const FOA_ID = "b1805f73-ba74-4d02-bdc2-8a0d3a263b95"
 
 export const metadata: Metadata = {
   title: "Project Description",
@@ -11,12 +12,14 @@ export const metadata: Metadata = {
 }
 
 export default async function ProjectDescriptionPage() {
-  // Fetch all vectors in parallel
-  const [researchDescriptions, scientificFigures, chalkTalks, foaContent] = await Promise.all([
+  // Fetch all vectors, outline, and full content in parallel
+  const [researchDescriptions, scientificFigures, chalkTalks, foaContent, outline, fullContent] = await Promise.all([
     getResearchDescriptionVectors(PROJECT_ID),
     getScientificFigureVectors(PROJECT_ID),
     getChalkTalkVectors(PROJECT_ID),
-    getFOAVectors(FOA_ID)
+    getFOAVectors(FOA_ID),
+    generateProjectOutline(PROJECT_ID, FOA_ID),
+    generateFullProjectContent(PROJECT_ID, FOA_ID)
   ]);
 
   return (
@@ -133,14 +136,51 @@ export default async function ProjectDescriptionPage() {
         </TabsContent>
 
         <TabsContent value="outline">
-          <div className="border rounded-lg p-4">
-            <p className="text-gray-500">Outline section coming soon...</p>
+          <div className="border rounded-lg p-6">
+            {outline.error ? (
+              <p className="text-red-500">{outline.error}</p>
+            ) : outline.items.length > 0 ? (
+              <div className="space-y-6">
+                {outline.items.map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <h3 className="text-xl font-semibold">{item.heading}</h3>
+                    <p className="text-gray-600">{item.description}</p>
+                    <p className="text-sm text-gray-500">Recommended length: {item.percentage}% of total report</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No outline generated yet.</p>
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="full">
-          <div className="border rounded-lg p-4">
-            <p className="text-gray-500">Full section coming soon...</p>
+          <div className="border rounded-lg p-6">
+            {fullContent.error ? (
+              <p className="text-red-500">{fullContent.error}</p>
+            ) : fullContent.sections.length > 0 ? (
+              <div className="space-y-8">
+                {fullContent.sections.map((section, index) => (
+                  <section key={index} className="space-y-4">
+                    <h2 className="text-2xl font-semibold">{section.heading}</h2>
+                    <div className="text-sm text-gray-500 mb-2">
+                      Target length: {Math.round(section.targetWordCount / 750 * 10) / 10} pages 
+                      ({section.targetWordCount} words)
+                    </div>
+                    <div className="prose max-w-none">
+                      {section.content.split('\n').map((paragraph, i) => (
+                        <p key={i} className="text-gray-700">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No content generated yet.</p>
+            )}
           </div>
         </TabsContent>
       </Tabs>

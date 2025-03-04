@@ -1,4 +1,4 @@
-import { getPineconeClient } from './pinecone';
+import { getPineconeClient } from '../vectorization/pinecone';
 import { ScoredPineconeRecord, RecordMetadata } from '@pinecone-database/pinecone';
 
 interface QueryResult {
