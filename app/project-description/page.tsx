@@ -3,7 +3,7 @@ import { getResearchDescriptionVectors, getScientificFigureVectors, getChalkTalk
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const PROJECT_ID = "989fbeb7-9b38-4a05-85d1-6b510e816728"
-const FOA_ID = "b1805f73-ba74-4d02-bdc2-8a0d3a263b95"
+const FOA_ID = "56c1763f-7095-4b21-b6a5-af9e872c1aa3"
 
 export const metadata: Metadata = {
   title: "Project Description",

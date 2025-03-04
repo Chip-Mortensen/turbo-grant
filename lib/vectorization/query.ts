@@ -7,7 +7,7 @@ interface QueryResult {
 }
 
 /**
- * Get all research description vectors for a project
+ * Get all research description vectors for a project, ordered by chunk index
  */
 export async function getResearchDescriptionVectors(projectId: string): Promise<QueryResult> {
   try {
@@ -21,11 +21,18 @@ export async function getResearchDescriptionVectors(projectId: string): Promise<
       },
       topK: 1000,
       includeMetadata: true,
-      vector: Array(3072).fill(0) // Required by Pinecone but won't affect results
+      vector: Array(3072).fill(0)
+    });
+
+    // Sort by chunkIndex if available
+    const sortedMatches = queryResponse.matches.sort((a, b) => {
+      const aIndex = a.metadata?.chunkIndex as number || 0;
+      const bIndex = b.metadata?.chunkIndex as number || 0;
+      return aIndex - bIndex;
     });
 
     return {
-      matches: queryResponse.matches
+      matches: sortedMatches
     };
   } catch (error) {
     console.error('Error fetching research description vectors:', error);
@@ -37,7 +44,7 @@ export async function getResearchDescriptionVectors(projectId: string): Promise<
 }
 
 /**
- * Get all scientific figure vectors for a project
+ * Get all scientific figure vectors for a project (no chunking)
  */
 export async function getScientificFigureVectors(projectId: string): Promise<QueryResult> {
   try {
@@ -67,7 +74,7 @@ export async function getScientificFigureVectors(projectId: string): Promise<Que
 }
 
 /**
- * Get all chalk talk vectors for a project
+ * Get all chalk talk vectors for a project, ordered by chunk index
  */
 export async function getChalkTalkVectors(projectId: string): Promise<QueryResult> {
   try {
@@ -84,8 +91,15 @@ export async function getChalkTalkVectors(projectId: string): Promise<QueryResul
       vector: Array(3072).fill(0)
     });
 
+    // Sort by chunkIndex if available
+    const sortedMatches = queryResponse.matches.sort((a, b) => {
+      const aIndex = a.metadata?.chunkIndex as number || 0;
+      const bIndex = b.metadata?.chunkIndex as number || 0;
+      return aIndex - bIndex;
+    });
+
     return {
-      matches: queryResponse.matches
+      matches: sortedMatches
     };
   } catch (error) {
     console.error('Error fetching chalk talk vectors:', error);
@@ -97,7 +111,7 @@ export async function getChalkTalkVectors(projectId: string): Promise<QueryResul
 }
 
 /**
- * Get all FOA vectors for a specific FOA
+ * Get all FOA vectors for a specific FOA, ordered by chunk index
  */
 export async function getFOAVectors(foaId: string): Promise<QueryResult> {
   try {
@@ -114,8 +128,15 @@ export async function getFOAVectors(foaId: string): Promise<QueryResult> {
       vector: Array(3072).fill(0)
     });
 
+    // Sort by chunkIndex if available
+    const sortedMatches = queryResponse.matches.sort((a, b) => {
+      const aIndex = a.metadata?.chunkIndex as number || 0;
+      const bIndex = b.metadata?.chunkIndex as number || 0;
+      return aIndex - bIndex;
+    });
+
     return {
-      matches: queryResponse.matches
+      matches: sortedMatches
     };
   } catch (error) {
     console.error('Error fetching FOA vectors:', error);
