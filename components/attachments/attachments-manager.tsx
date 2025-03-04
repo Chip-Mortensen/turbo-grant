@@ -24,6 +24,12 @@ interface AttachmentsManagerProps {
   projectId: string;
 }
 
+// Define filter type
+interface FOAFilters {
+  agency?: string;
+  grantType?: string;
+}
+
 export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,7 +103,19 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
     }
   };
 
-  const fetchDocuments = async (foaDetails: {agency?: string; grantType?: string}, applyFilter: boolean = true) => {
+  // Filter documents based on FOA criteria
+  const filterDocuments = (docs: Document[], filters: FOAFilters, applyFilter: boolean = true) => {
+    if (!applyFilter) return docs;
+    
+    return docs.filter(doc => {
+      return (!filters.agency || !doc.agency || doc.agency === filters.agency) &&
+             (!filters.grantType || !doc.grant_types || 
+              doc.grant_types.length === 0 || 
+              doc.grant_types.includes(filters.grantType));
+    });
+  };
+
+  const fetchDocuments = async (foaDetails: FOAFilters, applyFilter: boolean = true) => {
     try {
       setLoading(true);
       setFilterApplied(applyFilter);
@@ -117,90 +135,58 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
       
       // If we have stored documents, use them
       if (storedDocuments.length > 0) {
-        let filteredDocuments = [...storedDocuments];
-        
-        if (applyFilter) {
-          if (foaDetails.agency) {
-            filteredDocuments = filteredDocuments.filter(doc => 
-              !doc.agency || doc.agency === foaDetails.agency
-            );
-          }
-          
-          if (foaDetails.grantType) {
-            filteredDocuments = filteredDocuments.filter(doc => 
-              !doc.grant_types || 
-              doc.grant_types.length === 0 || 
-              doc.grant_types.includes(foaDetails.grantType!)
-            );
-          }
-        }
+        let filteredDocuments = filterDocuments(storedDocuments, foaDetails, applyFilter);
         
         // If no documents match the filter criteria, show all documents
         if (filteredDocuments.length === 0 && applyFilter) {
-          setDocuments(storedDocuments);
+          console.log('No documents match filter criteria, showing all documents');
+          filteredDocuments = storedDocuments;
           setFilterApplied(false);
-        } else {
-          setDocuments(filteredDocuments);
         }
         
+        setDocuments(filteredDocuments);
         setLoading(false);
         return;
       }
       
-      // If no stored documents, fetch from the database
-      const { data, error } = await supabase
-        .from('documents')
-        .select('*');
+      // If no stored documents, fetch from the documents table
+      const query = supabase.from('documents').select('*');
       
-      if (error) {
-        console.error('Error fetching documents:', error);
-        throw new Error(`Failed to fetch documents: ${error.message}`);
-      }
-      
-      console.log('Fetched all documents:', data?.length || 0, data);
-      
-      if (!data || data.length === 0) {
-        console.log('No documents found in the database');
-        setDocuments([]);
-        setLoading(false);
-        return;
-      }
-      
-      // Filter documents based on agency and grant type if applyFilter is true
-      let filteredDocuments = [...data];
-      
+      // Apply database filters directly to the query when possible
       if (applyFilter) {
         if (foaDetails.agency) {
-          filteredDocuments = filteredDocuments.filter(doc => 
-            // Include documents with matching agency or no agency specified
-            !doc.agency || doc.agency === foaDetails.agency
-          );
-          console.log(`Filtered by agency (${foaDetails.agency}):`, filteredDocuments.length);
+          query.eq('agency', foaDetails.agency);
         }
         
-        if (foaDetails.grantType) {
-          filteredDocuments = filteredDocuments.filter(doc => 
-            // Document applies to all grant types (empty or null grant_types array)
-            !doc.grant_types || doc.grant_types.length === 0 ||
-            // Or document specifically includes this grant type
-            doc.grant_types.includes(foaDetails.grantType!)
-          );
-          console.log(`Filtered by grant type (${foaDetails.grantType}):`, filteredDocuments.length);
-        }
+        // Note: We can't filter by grant_types at the database level because it's an array
+        // That filtering will still be done on the client side
       }
       
-      // If no documents match the filter criteria, fall back to showing all documents
-      if (filteredDocuments.length === 0 && applyFilter) {
-        console.log('No documents match the filter criteria, showing all documents');
-        setDocuments(data);
+      const { data, error } = await query;
+      
+      if (error) {
+        throw new Error(`Error fetching documents: ${error.message}`);
+      }
+      
+      let filteredData = data || [];
+      
+      // Apply grant_type filtering on the client side
+      if (applyFilter && foaDetails.grantType) {
+        filteredData = filterDocuments(filteredData, { grantType: foaDetails.grantType });
+      }
+      
+      // If no documents match the filter criteria, show all documents
+      if (filteredData.length === 0 && applyFilter) {
+        console.log('No documents match filter criteria, showing all documents from DB');
+        const { data: allData } = await supabase.from('documents').select('*');
+        filteredData = allData || [];
         setFilterApplied(false);
-      } else {
-        setDocuments(filteredDocuments);
       }
       
-    } catch (error: any) {
-      console.error('Error in fetchDocuments:', error);
-      setError(`Failed to load documents: ${error.message || 'Unknown error'}`);
+      setDocuments(filteredData);
+    } catch (err) {
+      console.error('Error fetching documents:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -394,22 +380,8 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
                       size="sm" 
                       className="flex-1"
                       onClick={() => {
-                        // Log document details before navigating
-                        console.log('Document details:', document);
-                        console.log('Has fields array:', Array.isArray(document.fields));
-                        console.log('Fields count:', document.fields?.length || 0);
-                        
-                        // Store the document in local storage to make it available to the details page
-                        if (document) {
-                          try {
-                            localStorage.setItem('current-document', JSON.stringify(document));
-                          } catch (e) {
-                            console.error('Error storing document in local storage:', e);
-                          }
-                        }
-                        
-                        // Navigate to document details page
-                        window.location.href = `/dashboard/${projectId}/attachments/${encodeURIComponent(document.name)}`;
+                        // Navigate to document details page using document ID
+                        router.push(`/dashboard/${projectId}/attachments/${document.id}`);
                       }}
                     >
                       <ExternalLink className="h-4 w-4 mr-2" />

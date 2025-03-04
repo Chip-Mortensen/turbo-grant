@@ -32,9 +32,9 @@ interface AttachmentState {
 export default function DocumentQuestionsPage({ 
   params 
 }: { 
-  params: Promise<{ projectId: string; documentName: string }> 
+  params: Promise<{ projectId: string; documentId: string }> 
 }) {
-  const { projectId, documentName } = use(params);
+  const { projectId, documentId } = use(params);
   const router = useRouter();
   const [document, setDocument] = useState<Document | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,31 +44,12 @@ export default function DocumentQuestionsPage({
 
   useEffect(() => {
     fetchDocument();
-  }, [documentName]);
+  }, [documentId]);
 
   const fetchDocument = async () => {
     setIsLoading(true);
     try {
-      // First, check if the document is in localStorage (from attachments page)
-      let documentData = null;
-      try {
-        const storedDocument = localStorage.getItem('current-document');
-        if (storedDocument) {
-          documentData = JSON.parse(storedDocument);
-          console.log('Found document in localStorage:', documentData);
-          
-          // Verify this is the right document
-          if (documentData && documentData.name === decodeURIComponent(documentName)) {
-            setDocument(documentData);
-            setIsLoading(false);
-            return;
-          }
-        }
-      } catch (e) {
-        console.error('Error retrieving document from localStorage:', e);
-      }
-      
-      // Second, try to find the document in project's attachments
+      // First, try to find the document in project's attachments (primary source)
       const { data: project } = await supabase
         .from('research_projects')
         .select('attachments')
@@ -76,11 +57,13 @@ export default function DocumentQuestionsPage({
         .single();
       
       if (project?.attachments) {
-        console.log('Checking project attachments:', project.attachments);
+        console.log('Checking project attachments');
         
-        // Look through all attachments to find the document by name
-        for (const [docId, attachment] of Object.entries(project.attachments as Record<string, AttachmentState>)) {
-          if (attachment.document && attachment.document.name === decodeURIComponent(documentName)) {
+        // Check if the document exists directly by ID in the attachments
+        if (project.attachments[documentId]) {
+          const attachment = project.attachments[documentId] as AttachmentState;
+          
+          if (attachment.document) {
             console.log('Found document in project attachments:', attachment.document);
             
             // Convert to full Document by adding missing props if needed
@@ -103,11 +86,12 @@ export default function DocumentQuestionsPage({
         }
       }
       
-      // Finally, fallback to searching the documents table
+      // Fallback to searching the documents table by ID
+      console.log('Document not found in attachments, fetching from documents table');
       const { data, error: fetchError } = await supabase
         .from('documents')
         .select('*')
-        .eq('name', decodeURIComponent(documentName))
+        .eq('id', documentId)
         .maybeSingle();
       
       if (fetchError) {

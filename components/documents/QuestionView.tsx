@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Document, DocumentField } from '@/types/documents';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,17 +15,34 @@ interface QuestionViewProps {
 
 export default function QuestionView({ document, onUpdateAnswers }: QuestionViewProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>(
-    document.fields.reduce((acc, field, index) => {
-      acc[index] = field.answer || '';
-      return acc;
-    }, {} as Record<number, string>)
-  );
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const currentField = document.fields[currentQuestionIndex];
-  const totalQuestions = document.fields.length;
+  // Ensure document.fields exists and is an array
+  const fields = Array.isArray(document.fields) ? document.fields : [];
+  
+  // Initialize answers when document changes or fields are loaded
+  useEffect(() => {
+    if (fields.length > 0) {
+      setAnswers(
+        fields.reduce((acc, field, index) => {
+          acc[index] = field.answer || '';
+          return acc;
+        }, {} as Record<number, string>)
+      );
+    }
+  }, [document, fields]);
+  
+  // Ensure current index is valid when fields change
+  useEffect(() => {
+    if (currentQuestionIndex >= fields.length && fields.length > 0) {
+      setCurrentQuestionIndex(fields.length - 1);
+    }
+  }, [fields, currentQuestionIndex]);
+
+  const currentField = fields[currentQuestionIndex];
+  const totalQuestions = fields.length;
   const isFirstQuestion = currentQuestionIndex === 0;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
 
@@ -53,7 +70,7 @@ export default function QuestionView({ document, onUpdateAnswers }: QuestionView
     setSaving(true);
     try {
       // Create a copy of the document fields with updated answers
-      const updatedFields = document.fields.map((field, index) => ({
+      const updatedFields = fields.map((field, index) => ({
         ...field,
         answer: answers[index] || ''
       }));
@@ -68,6 +85,8 @@ export default function QuestionView({ document, onUpdateAnswers }: QuestionView
   };
 
   const renderFieldInput = () => {
+    if (!currentField) return null;
+    
     switch (currentField.type) {
       case 'textarea':
         return (
@@ -99,6 +118,21 @@ export default function QuestionView({ document, onUpdateAnswers }: QuestionView
     }
   };
 
+  // If there are no fields, show a message
+  if (fields.length === 0) {
+    return (
+      <Card className="w-full max-w-3xl mx-auto">
+        <CardHeader>
+          <CardTitle>{document.name}</CardTitle>
+          <CardDescription>No questions available</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>This document does not have any questions to answer.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
@@ -109,10 +143,16 @@ export default function QuestionView({ document, onUpdateAnswers }: QuestionView
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium mb-1">{currentField.label}</h3>
-          <div className="mt-4">
-            {renderFieldInput()}
-          </div>
+          {currentField ? (
+            <>
+              <h3 className="text-lg font-medium mb-1">{currentField.label}</h3>
+              <div className="mt-4">
+                {renderFieldInput()}
+              </div>
+            </>
+          ) : (
+            <p>Question not available. Please try refreshing the page.</p>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
@@ -120,7 +160,7 @@ export default function QuestionView({ document, onUpdateAnswers }: QuestionView
           <Button 
             variant="outline" 
             onClick={goToPrevious} 
-            disabled={isFirstQuestion}
+            disabled={isFirstQuestion || !currentField}
             className="mr-2"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -129,7 +169,7 @@ export default function QuestionView({ document, onUpdateAnswers }: QuestionView
           <Button 
             variant="outline" 
             onClick={goToNext} 
-            disabled={isLastQuestion}
+            disabled={isLastQuestion || !currentField}
           >
             Next
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -144,7 +184,7 @@ export default function QuestionView({ document, onUpdateAnswers }: QuestionView
           )}
           <Button 
             onClick={saveAnswers} 
-            disabled={saving}
+            disabled={saving || !currentField}
           >
             <Save className="mr-2 h-4 w-4" />
             Save Answers
