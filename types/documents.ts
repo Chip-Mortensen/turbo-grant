@@ -15,6 +15,7 @@ export interface Document {
   sources: DocumentSourceType[];
   agency: AgencyType;
   grant_types: string[];
+  custom_processor?: string;
   created_at: string;
   updated_at: string;
 } 
