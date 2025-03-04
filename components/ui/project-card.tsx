@@ -9,6 +9,7 @@ interface ProjectCardProps {
   href: string;
   icon: LucideIcon;
   isComplete?: boolean;
+  disabled?: boolean;
 }
 
 export function ProjectCard({ title, description, href, icon: Icon, isComplete }: ProjectCardProps) {

@@ -8,7 +8,8 @@ export function useProjectCompletion(projectId: string) {
     description: false,
     figures: false,
     chalkTalk: false,
-    foa: false
+    foa: false,
+    attachments: false
   });
 
   useEffect(() => {
@@ -16,10 +17,11 @@ export function useProjectCompletion(projectId: string) {
       const supabase = createClient();
       
       // Fetch all statuses in parallel
-      const [descriptionRes, figuresRes, chalkTalkRes, projectRes] = await Promise.all([
+      const [descriptionRes, figuresRes, chalkTalkRes, attachmentsRes, projectRes] = await Promise.all([
         supabase.from('research_descriptions').select('id').eq('project_id', projectId).limit(1),
         supabase.from('scientific_figures').select('id').eq('project_id', projectId).limit(1),
         supabase.from('chalk_talks').select('id').eq('project_id', projectId).limit(1),
+        supabase.from('attachments').select('id').eq('project_id', projectId).limit(1),
         supabase.from('research_projects').select('foa').eq('id', projectId).single()
       ]);
 
@@ -27,6 +29,7 @@ export function useProjectCompletion(projectId: string) {
         description: Boolean(descriptionRes.data && descriptionRes.data.length > 0),
         figures: Boolean(figuresRes.data && figuresRes.data.length > 0),
         chalkTalk: Boolean(chalkTalkRes.data && chalkTalkRes.data.length > 0),
+        attachments: Boolean(attachmentsRes.data && attachmentsRes.data.length > 0),
         foa: Boolean(projectRes.data?.foa)
       });
     };
