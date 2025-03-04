@@ -93,9 +93,13 @@ export default async function AuthButton() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/grants" className="cursor-pointer w-full flex items-center">
-              <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+            <Link href="/grants" className="cursor-pointer w-full">
               Grants
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/documents" className="cursor-pointer w-full">
+              Documents
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
