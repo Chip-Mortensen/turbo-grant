@@ -1,110 +1,54 @@
-import { createClient } from "@/utils/supabase/server"
-import { redirect } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
-import { formatDate } from "@/lib/utils"
-import { Sparkles, FileText, Image, PresentationIcon, Search } from "lucide-react"
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { formatDate } from "@/lib/utils";
+import { FileText, Image, Video, DollarSign, ArrowLeft } from "lucide-react";
+import { ProjectCards } from "@/components/projects/project-cards";
+import { Button } from "@/components/ui/button";
 
 interface PageProps {
-  params: Promise<{ projectId: string }>
+  params: Promise<{ projectId: string }>;
 }
 
 export default async function ProjectPage({ params }: PageProps) {
-  const { projectId } = await params
-  const supabase = await createClient()
+  const { projectId } = await params;
+  const supabase = await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect("/sign-in")
+    return redirect("/sign-in");
   }
 
   const { data: project } = await supabase
     .from("research_projects")
     .select("*")
     .eq("id", projectId)
-    .single()
+    .single();
 
   if (!project) {
-    return redirect("/dashboard")
+    return redirect("/dashboard");
   }
 
   return (
     <div className="flex-1 w-full flex flex-col gap-6 px-4 py-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-semibold">{project.title}</h1>
-          <p className="text-sm text-muted-foreground">
-            Created {formatDate(project.created_at)}
-          </p>
-        </div>
-        <Link
-          href="/dashboard"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
+      <Link href="/dashboard" passHref>
+        <Button variant="outline" className="gap-2">
+          <ArrowLeft className="h-4 w-4" />
           Back to Projects
-        </Link>
+        </Button>
+      </Link>
+
+      <div>
+        <h1 className="text-2xl font-semibold">{project.title}</h1>
+        <p className="text-sm text-muted-foreground">
+          Created {formatDate(project.created_at)}
+        </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Link href={`/dashboard/${projectId}/research-description`}>
-          <Card className="hover:bg-accent transition-colors">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Research Description</CardTitle>
-                <FileText className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <CardDescription>
-                Upload and manage your research descriptions
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
-
-        <Link href={`/dashboard/${projectId}/scientific-figures`}>
-          <Card className="hover:bg-accent transition-colors">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Scientific Figures</CardTitle>
-                <Image className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <CardDescription>
-                Manage your scientific figures and captions
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
-
-        <Link href={`/dashboard/${projectId}/chalk-talk`}>
-          <Card className="hover:bg-accent transition-colors">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Chalk Talk</CardTitle>
-                <PresentationIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <CardDescription>
-                Upload and manage your chalk talk presentations
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
-        
-        <Link href={`/dashboard/${projectId}/funding-opportunities`}>
-          <Card className="hover:bg-accent transition-colors">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Funding Opportunities</CardTitle>
-                <Search className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <CardDescription>
-                Search and filter funding opportunities for your research
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
-      </div>
+      <ProjectCards projectId={projectId} />
     </div>
-  )
+  );
 } 

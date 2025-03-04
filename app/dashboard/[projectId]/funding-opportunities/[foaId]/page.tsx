@@ -15,10 +15,12 @@ import {
   ExternalLink, 
   Check,
   X,
-  MessageSquare
+  MessageSquare,
+  CheckCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { SelectFoaDialog } from '@/components/grants/select-foa-dialog';
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 
@@ -65,6 +67,15 @@ const page = async ({ params }: PageProps) => {
     notFound();
   }
   
+  // Fetch project data to check if this FOA is already selected
+  const { data: project } = await supabase
+    .from('research_projects')
+    .select('foa')
+    .eq('id', projectId)
+    .single();
+  
+  const isSelected = project?.foa === foaId;
+  
   console.log('FOA Data:', JSON.stringify(foa, null, 2));
   
   return (
@@ -76,13 +87,21 @@ const page = async ({ params }: PageProps) => {
             Back to Funding Opportunities
           </Button>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
             <Link href={`/dashboard/${projectId}/funding-opportunities/${foaId}/chat`} className="flex items-center gap-1">
               <MessageSquare className="h-3 w-3" />
               Chat with Funding Opportunity
             </Link>
           </Button>
+          {isSelected ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              Selected Opportunity
+            </div>
+          ) : (
+            <SelectFoaDialog projectId={projectId} foa={foa} />
+          )}
         </div>
       </div>
       

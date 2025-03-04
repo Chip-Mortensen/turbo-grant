@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link"
 import { UploadDescription } from "@/components/projects/upload-description"
 import { DescriptionList } from "@/components/projects/description-list"
-import { Info } from "lucide-react"
+import { Info, ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface PageProps {
   params: Promise<{ projectId: string }>
@@ -40,19 +41,18 @@ export default async function ResearchDescriptionPage({ params }: PageProps) {
 
   return (
     <div className="flex-1 w-full flex flex-col gap-6 px-4 py-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-semibold">Research Description</h1>
-          <p className="text-sm text-muted-foreground">
-            Upload and manage your research description
-          </p>
-        </div>
-        <Link
-          href={`/dashboard/${projectId}`}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
+      <Link href={`/dashboard/${projectId}`} passHref>
+        <Button variant="outline" className="gap-2">
+          <ArrowLeft className="h-4 w-4" />
           Back to Project
-        </Link>
+        </Button>
+      </Link>
+
+      <div>
+        <h1 className="text-2xl font-semibold">Research Description</h1>
+        <p className="text-sm text-muted-foreground">
+          Upload and manage your research description
+        </p>
       </div>
 
       <Card>
