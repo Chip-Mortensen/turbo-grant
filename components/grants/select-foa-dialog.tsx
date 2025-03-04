@@ -35,9 +35,69 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
     try {
       const supabase = createClient();
+      
+      // 1. Fetch all documents applicable to this FOA's agency and grant type
+      const { data: documents, error: docsError } = await supabase
+        .from('documents')
+        .select('*');
+      
+      if (docsError) {
+        console.error('Error fetching documents:', docsError);
+        throw docsError;
+      }
+      
+      // 2. Filter documents by agency and grant type
+      let applicableDocuments = documents || [];
+      
+      if (foa.agency) {
+        applicableDocuments = applicableDocuments.filter(doc => 
+          !doc.agency || doc.agency === foa.agency
+        );
+      }
+      
+      if (foa.grant_type) {
+        applicableDocuments = applicableDocuments.filter(doc => 
+          !doc.grant_types || 
+          doc.grant_types.length === 0 || 
+          doc.grant_types.includes(foa.grant_type!)
+        );
+      }
+      
+      console.log(`Found ${applicableDocuments.length} applicable documents for FOA:`, 
+        { agency: foa.agency, grantType: foa.grant_type });
+      
+      // 3. Create the initial attachments object with complete document data
+      const initialAttachments: Record<string, any> = {};
+      
+      // Store complete document information along with status
+      for (const doc of applicableDocuments) {
+        initialAttachments[doc.id] = {
+          // Document status information
+          completed: false,
+          updatedAt: new Date().toISOString(),
+          
+          // Store complete document information
+          document: {
+            id: doc.id,
+            name: doc.name,
+            fields: doc.fields || [],
+            sources: doc.sources || [],
+            agency: doc.agency,
+            grant_types: doc.grant_types || [],
+            custom_processor: doc.custom_processor
+          }
+        };
+      }
+      
+      console.log('Saving attachments data:', initialAttachments);
+      
+      // 4. Update the project with the FOA and attachments
       const { error } = await supabase
         .from('research_projects')
-        .update({ foa: foa.id })
+        .update({ 
+          foa: foa.id,
+          attachments: initialAttachments
+        })
         .eq('id', projectId);
 
       if (error) throw error;
@@ -73,6 +133,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
             <ul className="list-disc pl-5 space-y-2 text-sm">
               <li>Generate required document templates based on the FOA&apos;s requirements</li>
               <li>Link this project to the FOA for tracking and compliance</li>
+              <li>Initialize your documents checklist with all required attachments</li>
               <li>If you change your mind later, you&apos;ll need to create a new project</li>
             </ul>
 
