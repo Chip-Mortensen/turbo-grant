@@ -1,13 +1,16 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Get a specific attachment by ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+// Handle attachment operations using query params instead of dynamic routes
+export async function GET(request: NextRequest) {
   try {
-    const id = params.id;
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+    
     const supabase = await createClient();
     
     const { data, error } = await supabase
@@ -33,12 +36,15 @@ export async function GET(
 }
 
 // Update a specific attachment
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest) {
   try {
-    const id = params.id;
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+    
     const supabase = await createClient();
     const { data: user } = await supabase.auth.getUser();
     
@@ -74,12 +80,15 @@ export async function PATCH(
 }
 
 // Delete a specific attachment
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
-    const id = params.id;
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+    
     const supabase = await createClient();
     const { data: user } = await supabase.auth.getUser();
     

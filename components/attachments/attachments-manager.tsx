@@ -104,6 +104,35 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this attachment?')) {
+      return;
+    }
+    
+    try {
+      setError(null);
+      
+      const response = await fetch(`/api/attachment-by-id?id=${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete attachment');
+      }
+      
+      // Update local state to remove the deleted document
+      setCompleted(prev => {
+        const newState = { ...prev };
+        delete newState[id];
+        return newState;
+      });
+      
+    } catch (error) {
+      console.error('Error deleting attachment:', error);
+      setError('Failed to delete attachment');
+    }
+  };
+
   const getDocumentIcon = (document: Document) => {
     return <FileText className="h-5 w-5" />;
   };
