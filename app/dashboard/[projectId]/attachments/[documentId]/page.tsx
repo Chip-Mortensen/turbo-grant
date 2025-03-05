@@ -276,7 +276,7 @@ function ProcessedContent({
         }
 
         // If no saved version, generate new content
-        const response = await fetch('/api/documents/processors/project-description/process', {
+        const response = await fetch('/api/documents/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ documentId, projectId })
@@ -474,7 +474,13 @@ export default function DocumentQuestionsPage({
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showProcessedContent, setShowProcessedContent] = useState(false);
   const supabase = createClient();
+
+  // Add function to check if all questions are answered
+  const areAllQuestionsAnswered = (fields: DocumentField[]) => {
+    return fields.every(field => field.answer && field.answer.trim() !== '');
+  };
 
   const handleNavigateAway = () => {
     if (hasUnsavedChanges) {
@@ -559,107 +565,94 @@ export default function DocumentQuestionsPage({
     setSaveStatus('saving');
     
     try {
-      // First update the documents table if we're using that source
-      // This might not be necessary long-term if we're only storing in attachments
-      const { error } = await supabase
-        .from('documents')
-        .update({ fields: updatedFields })
-        .eq('id', document.id);
-
-      if (error) {
-        console.error('Error updating document in documents table:', error);
-        // We'll continue with updating the attachments even if this fails
-      }
-
-      // Update the local state with the new fields
-      setDocument(prev => prev ? { ...prev, fields: updatedFields } : null);
+      // Update the document in the project's attachments
+      // First, get the current attachments data
+      const { data: project, error: fetchError } = await supabase
+        .from('research_projects')
+        .select('attachments')
+        .eq('id', projectId)
+        .single();
       
-      // Update the document in the project's attachments - this is the critical part
-      if (document.id) {
-        // First, get the current attachments data
-        const { data: project, error: fetchError } = await supabase
-          .from('research_projects')
-          .select('attachments')
-          .eq('id', projectId)
-          .single();
-        
-        if (fetchError) {
-          throw new Error(`Failed to fetch project attachments: ${fetchError.message}`);
-        }
-        
-        if (!project?.attachments) {
-          throw new Error('Project attachments not found');
-        }
-        
-        // Create a copy of the attachments to work with
-        const updatedAttachments = { ...project.attachments };
-        
-        // Make sure the document exists in attachments
-        if (!updatedAttachments[document.id]) {
-          console.log('Document not found in attachments, creating it now');
-          // Initialize the attachment if it doesn't exist
-          updatedAttachments[document.id] = {
-            completed: false,
-            updatedAt: new Date().toISOString(),
-            document: {
-              id: document.id,
-              name: document.name,
-              fields: [],
-              sources: document.sources || [],
-              agency: document.agency,
-              grant_types: document.grant_types || [],
-              custom_processor: document.custom_processor
-            }
+      if (fetchError) {
+        throw new Error(`Failed to fetch project attachments: ${fetchError.message}`);
+      }
+      
+      if (!project?.attachments) {
+        throw new Error('Project attachments not found');
+      }
+      
+      // Create a copy of the attachments to work with
+      const updatedAttachments = { ...project.attachments };
+      
+      // Make sure the document exists in attachments
+      if (!updatedAttachments[document.id]) {
+        console.log('Document not found in attachments, creating it now');
+        // Initialize the attachment if it doesn't exist
+        updatedAttachments[document.id] = {
+          completed: false,
+          updatedAt: new Date().toISOString(),
+          document: {
+            id: document.id,
+            name: document.name,
+            fields: updatedFields,
+            sources: document.sources || [],
+            agency: document.agency,
+            grant_types: document.grant_types || [],
+            custom_processor: document.custom_processor
+          }
+        };
+      } else {
+        // Update the existing document fields in the attachment
+        if (!updatedAttachments[document.id].document) {
+          updatedAttachments[document.id].document = {
+            id: document.id,
+            name: document.name,
+            fields: updatedFields,
+            sources: document.sources || [],
+            agency: document.agency,
+            grant_types: document.grant_types || [],
+            custom_processor: document.custom_processor
+          };
+        } else {
+          // Update just the fields in the existing document
+          updatedAttachments[document.id].document = {
+            ...updatedAttachments[document.id].document,
+            fields: updatedFields
           };
         }
-        
-        // Update the document fields in the attachment
-        if (updatedAttachments[document.id]) {
-          // Make sure the document property exists
-          if (!updatedAttachments[document.id].document) {
-            updatedAttachments[document.id].document = {
-              id: document.id,
-              name: document.name,
-              fields: updatedFields,
-              sources: document.sources || [],
-              agency: document.agency,
-              grant_types: document.grant_types || [],
-              custom_processor: document.custom_processor
-            };
-          } else {
-            // Update the existing document fields
-            updatedAttachments[document.id].document = {
-              ...updatedAttachments[document.id].document,
-              fields: updatedFields
-            };
-          }
-          
-          // Update the timestamp
-          updatedAttachments[document.id].updatedAt = new Date().toISOString();
-          
-          // Check if all fields have answers to mark as completed
-          const allFieldsAnswered = updatedFields.every(field => field.answer && field.answer.trim() !== '');
-          if (allFieldsAnswered) {
-            updatedAttachments[document.id].completed = true;
-          }
-          
-          console.log('Updating attachments with new fields:', updatedAttachments[document.id]);
-          
-          // Update the research_projects table with the updated attachments
-          const { error: updateError } = await supabase
-            .from('research_projects')
-            .update({ attachments: updatedAttachments })
-            .eq('id', projectId);
-          
-          if (updateError) {
-            throw new Error(`Failed to update project attachments: ${updateError.message}`);
-          }
-          
-          setSaveStatus('success');
-          // Set a timeout to reset the status after 2 seconds
-          setTimeout(() => setSaveStatus('idle'), 2000);
-        }
       }
+      
+      // Update the timestamp
+      updatedAttachments[document.id].updatedAt = new Date().toISOString();
+      
+      // Remove auto-completion logic and keep the existing completion status
+      console.log('Updating attachments with new fields:', updatedAttachments[document.id]);
+      
+      // Update the research_projects table with the updated attachments
+      const { error: updateError } = await supabase
+        .from('research_projects')
+        .update({ attachments: updatedAttachments })
+        .eq('id', projectId);
+      
+      if (updateError) {
+        throw new Error(`Failed to update project attachments: ${updateError.message}`);
+      }
+      
+      // Update the local state with the new fields
+      setDocument(prev => prev ? {
+        ...prev,
+        fields: updatedFields
+      } : null);
+      
+      setSaveStatus('success');
+      // Set a timeout to reset the status after 2 seconds
+      setTimeout(() => setSaveStatus('idle'), 2000);
+
+      // Check if all questions are answered and show processed content
+      if (areAllQuestionsAnswered(updatedFields)) {
+        setShowProcessedContent(true);
+      }
+      
     } catch (err) {
       console.error('Error updating document:', err);
       setSaveStatus('error');
@@ -704,8 +697,8 @@ export default function DocumentQuestionsPage({
     );
   }
 
-  // Check for project-description processor
-  if (document.custom_processor === 'project-description') {
+  // Check for project-description processor or if all questions are answered
+  if (document.custom_processor === 'project-description' || showProcessedContent) {
     return (
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <Button 

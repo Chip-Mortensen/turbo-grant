@@ -24,12 +24,6 @@ interface AttachmentsManagerProps {
   projectId: string;
 }
 
-// Define filter type
-interface FOAFilters {
-  agency?: string;
-  grantType?: string;
-}
-
 export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +36,6 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
     title?: string;
     id?: string;
   }>({});
-  const [filterApplied, setFilterApplied] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -77,24 +70,18 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
         console.log('No attachments data found in project');
       }
       
-      if (!project?.foa) {
-        console.log('Project has no associated FOA, showing all documents');
-        setProjectFOA({});
-        fetchDocuments({}, false);
-        return;
+      if (project?.foa) {
+        const foaDetails = {
+          id: project.foa.id,
+          agency: project.foa.agency,
+          grantType: project.foa.grant_type,
+          title: project.foa.title
+        };
+        setProjectFOA(foaDetails);
       }
       
-      // FOA data should already be included in the join
-      const foaDetails = {
-        id: project.foa.id,
-        agency: project.foa.agency,
-        grantType: project.foa.grant_type,
-        title: project.foa.title
-      };
-      
-      console.log('Found FOA details:', foaDetails);
-      setProjectFOA(foaDetails);
-      fetchDocuments(foaDetails, true);
+      // Fetch documents after loading FOA details
+      fetchDocuments();
       
     } catch (error: any) {
       console.error('Error in fetchProjectFOA:', error);
@@ -103,87 +90,60 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
     }
   };
 
-  // Filter documents based on FOA criteria
-  const filterDocuments = (docs: Document[], filters: FOAFilters, applyFilter: boolean = true) => {
-    if (!applyFilter) return docs;
-    
-    return docs.filter(doc => {
-      return (!filters.agency || !doc.agency || doc.agency === filters.agency) &&
-             (!filters.grantType || !doc.grant_types || 
-              doc.grant_types.length === 0 || 
-              doc.grant_types.includes(filters.grantType));
-    });
-  };
-
-  const fetchDocuments = async (foaDetails: FOAFilters, applyFilter: boolean = true) => {
+  const fetchDocuments = async () => {
     try {
       setLoading(true);
-      setFilterApplied(applyFilter);
       
-      console.log('Fetching documents with filters:', foaDetails, 'Apply filter:', applyFilter);
+      // Get the project's attachments first
+      const { data: project, error: projectError } = await supabase
+        .from('research_projects')
+        .select('attachments')
+        .eq('id', projectId)
+        .single();
       
-      // If we have attachments with document data, use that data first
-      const storedDocuments: Document[] = [];
-      
-      for (const [docId, attachment] of Object.entries(attachmentsData)) {
-        if (attachment.document) {
-          storedDocuments.push(attachment.document);
-        }
+      if (projectError) {
+        throw new Error(`Error fetching project attachments: ${projectError.message}`);
       }
       
-      console.log('Documents from attachments data:', storedDocuments.length);
-      
-      // If we have stored documents, use them
-      if (storedDocuments.length > 0) {
-        let filteredDocuments = filterDocuments(storedDocuments, foaDetails, applyFilter);
-        
-        // If no documents match the filter criteria, show all documents
-        if (filteredDocuments.length === 0 && applyFilter) {
-          console.log('No documents match filter criteria, showing all documents');
-          filteredDocuments = storedDocuments;
-          setFilterApplied(false);
-        }
-        
-        setDocuments(filteredDocuments);
-        setLoading(false);
+      if (!project?.attachments) {
+        console.log('No attachments found for project');
+        setDocuments([]);
         return;
       }
       
-      // If no stored documents, fetch from the documents table
-      const query = supabase.from('documents').select('*');
+      // Get the document IDs from the attachments
+      const documentIds = Object.keys(project.attachments);
       
-      // Apply database filters directly to the query when possible
-      if (applyFilter) {
-        if (foaDetails.agency) {
-          query.eq('agency', foaDetails.agency);
+      if (documentIds.length === 0) {
+        console.log('No document IDs found in attachments');
+        setDocuments([]);
+        return;
+      }
+      
+      // Fetch all documents that are referenced in the attachments
+      const { data: documentsData, error: documentsError } = await supabase
+        .from('documents')
+        .select('*')
+        .in('id', documentIds);
+      
+      if (documentsError) {
+        throw new Error(`Error fetching documents: ${documentsError.message}`);
+      }
+      
+      // Store the document data in the attachments state
+      const updatedAttachments = { ...project.attachments };
+      documentsData?.forEach(doc => {
+        if (updatedAttachments[doc.id]) {
+          updatedAttachments[doc.id] = {
+            ...updatedAttachments[doc.id],
+            document: doc
+          };
         }
-        
-        // Note: We can't filter by grant_types at the database level because it's an array
-        // That filtering will still be done on the client side
-      }
+      });
       
-      const { data, error } = await query;
+      setAttachmentsData(updatedAttachments);
+      setDocuments(documentsData || []);
       
-      if (error) {
-        throw new Error(`Error fetching documents: ${error.message}`);
-      }
-      
-      let filteredData = data || [];
-      
-      // Apply grant_type filtering on the client side
-      if (applyFilter && foaDetails.grantType) {
-        filteredData = filterDocuments(filteredData, { grantType: foaDetails.grantType });
-      }
-      
-      // If no documents match the filter criteria, show all documents
-      if (filteredData.length === 0 && applyFilter) {
-        console.log('No documents match filter criteria, showing all documents from DB');
-        const { data: allData } = await supabase.from('documents').select('*');
-        filteredData = allData || [];
-        setFilterApplied(false);
-      }
-      
-      setDocuments(filteredData);
     } catch (err) {
       console.error('Error fetching documents:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -260,62 +220,11 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
   
   const completionPercentage = calculateCompletionPercentage();
 
-  // Function to show all documents (remove filter)
-  const handleShowAllDocuments = () => {
-    fetchDocuments({}, false);
-  };
-
   return (
     <div className="space-y-6">
       {error && (
         <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
           {error}
-        </div>
-      )}
-      
-      {/* Display FOA details if available */}
-      {(projectFOA.agency || projectFOA.grantType || projectFOA.title) && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center mb-2">
-            <FileText className="h-5 w-5 text-blue-600 mr-2" />
-            <h3 className="text-lg font-medium text-blue-700">Funding Opportunity Details</h3>
-          </div>
-          <div className="space-y-1 text-sm">
-            {projectFOA.title && (
-              <div className="flex items-start mb-2">
-                <span className="font-medium text-blue-800 w-24">Title:</span>
-                <span className="text-blue-700 flex-1">{projectFOA.title}</span>
-              </div>
-            )}
-            {projectFOA.agency && (
-              <div className="flex items-center">
-                <span className="font-medium text-blue-800 w-24">Agency:</span>
-                <span className="text-blue-700">{projectFOA.agency}</span>
-              </div>
-            )}
-            {projectFOA.grantType && (
-              <div className="flex items-center">
-                <span className="font-medium text-blue-800 w-24">Grant Type:</span>
-                <span className="text-blue-700">{projectFOA.grantType}</span>
-              </div>
-            )}
-            {filterApplied ? (
-              <p className="text-blue-600 mt-2 text-xs">
-                Documents are filtered based on these criteria. 
-                <Button 
-                  variant="link" 
-                  className="text-xs p-0 h-auto ml-1" 
-                  onClick={handleShowAllDocuments}
-                >
-                  Show all documents
-                </Button>
-              </p>
-            ) : (
-              <p className="text-blue-600 mt-2 text-xs">
-                Showing all documents. Filters are disabled.
-              </p>
-            )}
-          </div>
         </div>
       )}
       
@@ -334,9 +243,6 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
             <p className="text-sm text-amber-600 mb-4">
               No document requirements found for this funding opportunity.
             </p>
-            <Button onClick={handleShowAllDocuments} variant="outline">
-              Show All Available Documents
-            </Button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -373,20 +279,26 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
                         Completed on {format(new Date(attachmentState.updatedAt), 'MMM d, yyyy')}
                       </p>
                     )}
+                    {(!document.fields?.length && !document.custom_processor) && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        This document is for reference only. Online editing is not currently supported.
+                      </p>
+                    )}
                   </CardContent>
                   <CardFooter className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => {
-                        // Navigate to document details page using document ID
-                        router.push(`/dashboard/${projectId}/attachments/${document.id}`);
-                      }}
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
+                    {(document.fields?.length > 0 || document.custom_processor) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => {
+                          router.push(`/dashboard/${projectId}/attachments/${document.id}`);
+                        }}
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Details
+                      </Button>
+                    )}
                     {attachmentState?.attachmentUrl && (
                       <Button 
                         variant="outline" 
@@ -439,31 +351,6 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Debug section - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mt-8 p-4 border rounded bg-gray-50">
-          <h3 className="text-sm font-bold mb-2">Debug Info:</h3>
-          <details>
-            <summary className="text-xs cursor-pointer">FOA Details</summary>
-            <pre className="text-xs mt-2 overflow-auto max-h-60">
-              {JSON.stringify(projectFOA, null, 2)}
-            </pre>
-          </details>
-          <details className="mt-2">
-            <summary className="text-xs cursor-pointer">Documents</summary>
-            <pre className="text-xs mt-2 overflow-auto max-h-60">
-              {JSON.stringify(documents, null, 2)}
-            </pre>
-          </details>
-          <details className="mt-2">
-            <summary className="text-xs cursor-pointer">Attachments Data Structure</summary>
-            <pre className="text-xs mt-2 overflow-auto max-h-60">
-              {JSON.stringify(attachmentsData, null, 2)}
-            </pre>
-          </details>
-        </div>
-      )}
     </div>
   );
 } 

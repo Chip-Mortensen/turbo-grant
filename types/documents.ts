@@ -16,6 +16,7 @@ export interface Document {
   agency: AgencyType;
   grant_types: string[];
   custom_processor?: string;
+  prompt?: string;
   created_at: string;
   updated_at: string;
 } 

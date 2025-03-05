@@ -93,6 +93,7 @@ export default function DocumentForm({
   const [agency, setAgency] = useState<AgencyType>(initialDocument?.agency ?? 'NIH');
   const [grantTypes, setGrantTypes] = useState<string[]>(initialDocument?.grant_types ?? []);
   const [customProcessor, setCustomProcessor] = useState(initialDocument?.custom_processor ?? '');
+  const [prompt, setPrompt] = useState(initialDocument?.prompt ?? '');
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -110,6 +111,7 @@ export default function DocumentForm({
       agency,
       grant_types: grantTypes,
       custom_processor: customProcessor || undefined,
+      prompt: prompt || undefined,
     });
   };
 
@@ -163,18 +165,22 @@ export default function DocumentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Document Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          required
-        />
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-medium text-gray-900">Document Name</h3>
+        </div>
+        <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
+          <div className="p-4">
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-6">
@@ -300,6 +306,25 @@ export default function DocumentForm({
               </svg>
               Add Field
             </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-medium text-gray-900">Generation Prompt</h3>
+          <p className="text-sm text-gray-500 mt-1">Provide detailed instructions for generating this document. Include key points, formatting requirements, and any specific content that should be included.</p>
+        </div>
+        <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
+          <div className="p-4">
+            <textarea
+              id="prompt"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={6}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Enter instructions for generating this document..."
+            />
           </div>
         </div>
       </div>
