@@ -94,7 +94,8 @@ export default function DocumentForm({
       grant_types: [],
       custom_processor: undefined,
       prompt: undefined,
-      page_limit: undefined
+      page_limit: undefined,
+      optional: false
     }
   );
 
@@ -177,19 +178,43 @@ export default function DocumentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-medium text-gray-900">Document Name</h3>
-        </div>
-        <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
-          <div className="p-4">
-            <input
-              type="text"
-              id="name"
-              value={document.name || ''}
-              onChange={(e) => setDocument({ ...document, name: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
+        <div className="grid grid-cols-4 gap-6">
+          <div className="col-span-3 space-y-4">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900">Document Name</h3>
+            </div>
+            <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
+              <div className="p-4">
+                <input
+                  type="text"
+                  id="name"
+                  value={document.name || ''}
+                  onChange={(e) => setDocument({ ...document, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900">Optional</h3>
+            </div>
+            <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
+              <div className="p-4 flex items-center">
+                <input
+                  type="checkbox"
+                  id="optional"
+                  checked={document.optional || false}
+                  onChange={(e) => setDocument({ ...document, optional: e.target.checked })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="optional" className="ml-2 block text-sm text-gray-900">
+                  Optional Document
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -217,7 +242,7 @@ export default function DocumentForm({
           <div className="col-span-2 space-y-4">
             <div>
               <h3 className="text-lg font-medium text-gray-900">Grant Types</h3>
-              <p className="text-sm text-gray-500 mt-1">If no grant types are specified, this document will apply to all grants for the selected agency.</p>
+              <p className="text-sm text-gray-500 mt-1">If grant types are specified, this document will only apply to grants for the listed types.</p>
             </div>
             <div className="space-y-4 bg-gray-50 rounded-lg overflow-hidden shadow-sm">
               <div className="p-4">

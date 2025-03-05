@@ -19,13 +19,10 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
               Agency
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Grant Types
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Fields
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Sources
+              Optional
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Actions
@@ -45,11 +42,6 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
                   {document.agency}
                 </div>
               </td>
-              <td className="px-6 py-4">
-                <div className="text-sm text-gray-900">
-                  {document.grant_types.join(', ')}
-                </div>
-              </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-500">
                   {document.fields.length} fields
@@ -57,11 +49,7 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-500">
-                  {document.sources.map(source => 
-                    source.split('_').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ')
-                  ).join(', ')}
+                  {document.optional ? 'Yes' : 'No'}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">

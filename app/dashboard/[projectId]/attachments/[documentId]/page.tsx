@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Document, DocumentField, AgencyType } from '@/types/documents';
+import { Document, DocumentField, AgencyType, DocumentSourceType } from '@/types/documents';
 import { use } from 'react';
 import QuestionView from '@/components/documents/QuestionView';
 import { Button } from '@/components/ui/button';
@@ -518,13 +518,14 @@ export default function DocumentQuestionsPage({
             const docWithDefaults: Document = {
               id: attachment.document.id,
               name: attachment.document.name,
-              fields: attachment.document.fields,
-              sources: (attachment.document.sources as any[]) || [],
+              fields: attachment.document.fields || [],
+              sources: (attachment.document.sources as DocumentSourceType[]) || [],
               agency: (attachment.document.agency as AgencyType) || 'NIH',
               grant_types: attachment.document.grant_types || [],
               custom_processor: attachment.document.custom_processor,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
+              optional: false, // Default to false for existing documents
+              created_at: new Date().toISOString(), // Set current timestamp for existing documents
+              updated_at: new Date().toISOString() // Set current timestamp for existing documents
             };
             
             setDocument(docWithDefaults);
