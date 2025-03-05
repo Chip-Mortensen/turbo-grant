@@ -1,7 +1,7 @@
 'use client';
 
 import { ProjectCard } from "@/components/ui/project-card";
-import { FileText, Image, Video, DollarSign, Paperclip } from "lucide-react";
+import { FileText, Image, Video, DollarSign, Paperclip, Wrench } from "lucide-react";
 import { useProjectCompletion } from "@/hooks/use-project-completion";
 import { cn } from "@/lib/utils";
 
@@ -45,6 +45,15 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           href={`/dashboard/${projectId}/funding-opportunities`}
           icon={DollarSign}
           isComplete={completionStatus.foa}
+        />
+      )}
+      {completionStatus.foa && (
+        <ProjectCard
+          title="Equipment"
+          description="Manage equipment for your project"
+          href={`/dashboard/${projectId}/equipment`}
+          icon={Wrench}
+          isComplete={completionStatus.equipment || false}
         />
       )}
       {completionStatus.foa && (

@@ -27,6 +27,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [analysisStatus, setAnalysisStatus] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSelect = async () => {
@@ -102,6 +103,48 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
       if (error) throw error;
 
+      // 5. Trigger automatic equipment analysis in the background
+      try {
+        console.log('Triggering automatic equipment analysis...');
+        setAnalysisStatus('Initializing equipment analysis...');
+        
+        // We'll still use a non-blocking approach but with better handling
+        fetch('/api/analyze-equipment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ projectId }),
+        }).then(async response => {
+          if (response.ok) {
+            const result = await response.json();
+            console.log('Equipment analysis response:', result);
+            
+            if (result.status === 'success') {
+              setAnalysisStatus(`Equipment analysis successful. Generated ${result.count} recommendations.`);
+              console.log(`Equipment analysis successful. Generated ${result.count} recommendations.`);
+            } else if (result.status === 'existing') {
+              setAnalysisStatus('Equipment recommendations already exist for this project.');
+              console.log('Equipment recommendations already exist for this project.');
+            } else if (result.status === 'warning') {
+              setAnalysisStatus(`Equipment analysis completed with warnings: ${result.message}`);
+              console.warn('Equipment analysis completed with warnings:', result.message);
+            }
+          } else {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            setAnalysisStatus(`Equipment analysis failed: ${errorData.error || response.statusText}`);
+            console.error('Failed to trigger equipment analysis:', errorData.error || response.statusText);
+          }
+        }).catch(err => {
+          setAnalysisStatus(`Error: ${err.message || 'Unknown error during equipment analysis'}`);
+          console.error('Error communicating with equipment analysis API:', err);
+        });
+      } catch (analysisErr) {
+        // Log the error but don't fail the entire operation
+        setAnalysisStatus(`Setup error: ${(analysisErr as Error).message}`);
+        console.error('Error setting up equipment analysis:', analysisErr);
+      }
+
       // Close dialog and redirect to project home page
       setIsOpen(false);
       router.push(`/dashboard/${projectId}`);
@@ -134,6 +177,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
               <li>Generate required document templates based on the FOA&apos;s requirements</li>
               <li>Link this project to the FOA for tracking and compliance</li>
               <li>Initialize your documents checklist with all required attachments</li>
+              <li>Automatically analyze the equipment catalog to recommend relevant equipment for your project</li>
               <li>If you change your mind later, you&apos;ll need to create a new project</li>
             </ul>
 
@@ -141,6 +185,17 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            {analysisStatus && (
+              <Alert variant="default" className="bg-blue-50 text-blue-800 border-blue-200">
+                <div className="flex items-center">
+                  <div className="animate-pulse mr-2">
+                    <div className="h-2 w-2 bg-blue-600 rounded-full"></div>
+                  </div>
+                  <AlertDescription>{analysisStatus}</AlertDescription>
+                </div>
               </Alert>
             )}
           </div>

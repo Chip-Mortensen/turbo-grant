@@ -1,0 +1,3389 @@
+Liquid Transfers
+Solid Transfers
+Organic Synthesis
+Separations
+Spectroscopy
+Mass Spectrometry
+Bioassays
+Cell Culture
+Crystallography
+Sample Preparation
+Handling Environment
+Sample Transport
+Storage Conditions
+Property Measurement
+Water Sources
+Coming Soon
+Under Development
+Future Roadmap
+Liquid Transfers
+ExperimentSamplePreparation
+Base Package
+Example applications include: Robotic Liquid Handling, Manual Liquid Handling, Sample Heating, Sample Chilling, Sample Mixing, Sample Centrifugation, Magnetic Bead Separation, Positive Pressure Filtration, Solid Phase Extraction, Absorbance Measurement, Fluorescence Measurement, Luminescence Measurement
+Robotic Sample Preparation Workcell
+Robotic Sample Preparation Workcell
+Workcell Integrated Micro Liquid Handler
+Large Capacity Deck
+4x heater/shaker plate positions
+heating up to 105°C
+shaking up to 2,500 RPM
+4x heater/cooler plate positions
+heating up to 110°C
+cooling down to 0°C
+12x SBS plate positions (including any deep well or microtiter plates)
+12x 50 mL conical tube positions
+64x microcentrifuge tube or CE/HPLC vial positions
+Compatible with a wide variety of tubes (including opaque tubes for light sensitive samples)
+Robotic arm for movement of plates, lids, and racks around the deck and to/from integrations
+8x Independent Single Channel Pipettes
+1 μL to 1 mL volume (± 1%)
+0.4 to 250 μL/sec aspirate/dispense rate
+10 μL, 50 μL, 300 μL, 1,000 μL regular, widebore, and filtered disposable polypropylene tips
+Pre-aspiration/post-dispense mixing
+Fine-grained pipette tip aspiration and dispense position control
+Tip movement and speed control
+1x Multichannel Pipette (96 Channels)
+Capable of any simultaneous rectangular pipetting up to dimensions 8x12
+1 μL to 1 mL volume (± 2%)
+0.4 to 250 μL/sec aspirate/dispense rate
+10 μL, 50 μL, 300 μL, 1,000 μL regular, widebore, and filtered disposable polypropylene tips
+Pre-aspiration/post-dispense mixing
+Fine-grained pipette tip aspiration and dispense position control
+Tip movement and speed control
+Hamilton Star
+Workcell Integrated Positive Pressure Filter
+0 to 40 PSI independent pressure sources for each well
+Filter through SBS filter plates
+Collects in SBS shallow plates
+Hamilton Mpe2
+Workcell Integrated Plate Reader
+Supports absorbance, fluorescence, and luminescence reads
+Absorbance
+CCD detector
+220 to 1,000 nm wavelength selection
+Excitation
+Xenon flash lamp
+1 to 100 flashes per well
+320 to 740 nm excitation monochromator (8 nm bandpass)
+680 nm laser (AlphaScreen)
+Emission
+High voltage PMT detector
+320 to 850 nm emission monochromator (8 nm bandpass)
+Sample Injection
+2x 500 µL injection syringes per batch
+50 µL dead volumes, 0.5 µL precision
+25 mL/min maximum injection speed
+2 mL microcentrifuge tubes, 15 mL conical tubes, or 50 mL conical tube sources
+Sample Chamber
+Room temperature (25°C ± 0.45°C (1 sigma)) to 45°C incubation
+Mix by shaking before read options
+1x microtiter plate (6 to 96 well) per batch
+Clariostar
+Workcell Integrated Centrifuge
+3,000 RPM maximum speed (1,000 x g at Rmax)
+250 x g maximum payload per bucket
+10 g maximum imbalance
+2 SBS plate footprint buckets
+48.3 mm max plate height
+Agilent Microplate Centrifuge
+ExperimentAcousticLiquidHandling
+Base Package
+Example applications include: Small Volume Transfer, Nanoliter Transfer, Acoustic Droplet Ejection, Contactless Liquid Transfer
+Acoustic Liquid Handler
+Contact-free tipless liquid transfer
+2.5 nL to 5 µL volume (± 10%)
+Dispense from 384-well Echo Qualified plates into any 96- or 384- shallow well SBS-format plates
+Fine-grained dispense position control allowing multiple distinct droplets per well
+Dispenses up to 200 droplets (500 nL) per second
+Rapid high-precision dispensing of small volumes of liquids
+Capable of handling high-viscosity aqueous solutions
+Labcyte Echo
+ExperimentTransfer
+ExperimentAliquot
+ExperimentResuspend
+ExperimentDilute
+ExperimentSerialDilute
+Base Package
+Example applications include: Creating Standard Curves, Serial Dilutions, and Aliquots
+Micropipettes
+Reverse pipetting available
+Aspiration dispense mixing (slurry transfers)
+Gravimetric transfers
+Liquids can be transferred by weight (gravimetrically), from µg to kg, in both sterile and non-sterile environments
+Temperature controlled transfers
+Temperature-sensitive source/destination samples can be marked to be chilled (-86 to 10°C) or heated (30 to 105°C) during transport (for more information, see Sample Transport section)
+Single-channel pipettes
+0.1 to 2.5 µL
+2 to 20 µL
+20 to 200 µL
+100 to 1,000 µL
+0.5 to 5 mL
+Compatible tip types
+10 μL reach tips, sterile
+20 μL barrier tips, sterile
+200 μL gel loading tips
+200 μL tips, non-sterile
+200 μL tips, sterile
+200 μL wide-bore tips, non-sterile
+1,000 μL wide-bore tips, non-sterile
+1,000 μL reach tips, sterile
+1,000 μL tips, non-sterile
+5,000 μL tips, non-sterile
+Single Channel PipettesTips
+Positive Displacement Pipettes
+Reverse pipetting available
+Aspiration dispense mixing (slurry transfers)
+Gravimetric transfers
+Temperature controlled transfers
+Temperature-sensitive source/destination samples can be marked to be chilled (4ºC) or heated (30 to 105ºC) during transfers (for more information, see Sample Transport section)
+Positive-Displacement Pipette MR-100
+Min volume: 10 µL
+Max volume: 100 µL
+Positive-Displacement Pipette MR-1000
+Min volume: 100 µL
+Max volume: 1 mL
+Compatible and supported tips
+100 µL positive displacement tips, sterile
+1,000 µL positive displacement tips, sterile
+Rainin Pos DZero Dead Volume Tips
+Serological Pipette
+Aspiration dispense mixing (slurry transfers)
+Gravimetric transfers
+Liquids can be transferred by weight (gravimetrically), from µg to kg, in both sterile and non-sterile environments
+Temperature controlled transfers
+Temperature-sensitive source/destination samples can be marked to be chilled (4ºC) or heated (30 to 105ºC) during transfers (for more information, see Sample Transport section)
+Variable dispense/aspirate speed (8 settings)
+15 hours of continuous operation before recharging
+Compatible plastic serological pipette tips
+2 mL plastic barrier serological pipettes, sterile
+5 mL plastic barrier serological pipettes, sterile
+10 mL plastic barrier serological pipettes, sterile
+25 mL plastic barrier serological pipettes, sterile
+50 mL plastic barrier serological pipettes, sterile
+Compatible glass serological pipette tips
+1 mL glass barrier serological pipettes, sterile
+2 mL glass barrier serological pipettes, sterile
+5 mL glass barrier serological pipettes, sterile
+10 mL glass barrier serological pipettes, sterile
+25 mL glass barrier serological pipettes, sterile
+50 mL glass barrier serological pipettes, sterile
+S1 Pipette FillerPlastic TipsGlass Tips
+Syringes
+1 to 60 mL max volume
+2 different connection types: Luer-Lok and Luer-Slip
+Polyethylene barrel and polypropylene plunger syringes
+Luer-Slip
+1 mL disposable syringe
+50 mL disposable Luer-Slip syringe
+Luer-Lok
+3 mL sterile disposable syringe
+5 mL sterile disposable syringe
+10 mL Luer-Lok syringe
+20 mL disposable Luer-Lok syringe
+60 mL sterile disposable syringe
+Needles
+21 G x 1 in stainless steel single-use needle
+18 G x 4 in reusable stainless steel non-coring needle
+18 G x 6 in reusable stainless steel non-coring needle
+18 G x 12 in reusable stainless steel non-coring needle
+SyringesNeedles
+Graduated Cylinders
+Transfers of liquids and slurries
+Optional overhead mixing/heating during addition
+Cylinders
+10 mL glass
+25 mL polypropylene
+50 mL polypropylene
+100 mL polypropylene
+250 mL polypropylene
+500 mL polypropylene
+1 L polypropylene
+2 L polypropylene
+4 L polypropylene
+Graduated Cylinders
+Ampoule Handling
+1 to 2 mL
+5 to 15 mL
+20 to 30 mL
+Ampoule Breaker
+Cell Aspirators
+Handheld vacuum-aspirator with interchangeable adapter heads
+Pressure-sensitive button controls amount of vacuum applied to aspirate sample
+Adapter heads accept single-use, disposable tips and contain ejectors to exchange tips
+All parts may be autoclaved
+Available adapter heads
+8-channel head compatible with 200 µL pipette tips
+Single channel head compatible with disposable 2 mL aspirating pipettes
+
+Solid Transfers
+ExperimentTransfer
+Base Package
+Example applications include: Creating Standard Curves, Dilutions, and Aliquots
+Microbalance
+1 µg to 6 g (± 1 µg)
+Mettler Toledo Xp6
+Analytical Balance
+100 µg to 220 g (± 100 µg)
+Ohaus Pioneer PA224 & PA124 Analytical Balance
+Macro Balance
+120 g to 6.2 kg (± 10 mg)
+Ohaus EX6202
+Bulk Balance
+5 to 50 kg (± 10 g)
+Ohaus Defender
+Scoops, Spatulas, and Funnels
+Scoops/Spatulas
+Solid and powder transfer on mg/g/kg scale
+Spatulas
+Micro spatulas with color-coded handles
+Blade widths: 0.1, 0.3, 0.5, and 1.0 mm
+Used for handling solids on the milligram scale
+Disposable polypropylene, single-use
+14 cm, 21 cm, and 31 cm
+Flat-round stainless steel
+Flat-spoon stainless steel
+Funnels
+Sizes ranging from 85mm, 105mm, and 180mm
+Compatible with
+38-430 (4 L amber glass bottle)
+GL-45 (100 mL, 250 mL, 500 mL, 1,000 mL, 2,000 mL, and 5,000 mL glass bottle)
+83B cap carboys (10 L and 20 L carboys)
+Various sized graduated cylinders
+Polypropylene
+ScoopsFunnels
+Paste Handling Transfer Tube
+Used for gravimetric paste transfers in conjunction with an appropriate sized balance
+Polypropylene material
+Capacity per aspiration 4 mL
+20 mm outer diameter, 153 mm length x 6 mm inner diameter
+Spectrum Transfertube
+Tablet Handling
+In-house tablet parameterization including determining samples
+Tablet count
+Tablet weight
+Compatible with a variety of tablet sizes and weights
+Silent Knight Pill Crusher
+Tweezers
+Original wafer tweezers
+Stainless steel and anti-magnetic
+Straight broad flat tips
+One Star Straight Flat Tip Tweezer
+Scissors
+Used for cutting and transferring fabrics by weight
+Scissors
+Chipping Hammer
+Used to break resins/solids into smaller pieces for precise transfers by weight
+
+Organic Synthesis
+ExperimentDNASynthesis
+Base Package
+Example applications include: DNA Synthesis, DNA Modification, DNA, DNA Oligomers, Nucleotide Synthesis, Custom DNA, Bespoke DNA, Oligonucleotide Synthesis
+ExperimentRNASynthesis
+Base Package
+Example applications include: RNA, RNA Synthesis, Oligonucleotide Synthesis, Custom RNA Synthesis, Nucleotide Synthesis, Ribonucleic Acid Synthesis
+Robotic DNA Synthesizer
+Synthesis Columns
+40 nmol, 200 nmol, or 1 μmol scale ABI columns
+Standard or custom columns available
+48x columns per batch
+Reagents
+8x standard phosphoramidate positions (standard or UltraMILD bases)
+6x custom modification positions (any custom solution can be loaded)
+Positive pressure based delivery and draining (argon)
+Synthesis Cycle
+Custom coupling times for each phosphoramidate and modification
+Double coupling after a programmable number of cycles
+Custom volumes and incubation durations available for each step in the cycle
+Cleavage
+Heated or room temperature incubation with any custom cleavage cocktail for any programmable duration
+Purification by filter and washing (with programmable amounts of solvent)
+Optional neutralization and/or speedvacing or lyophilization of product
+Can leave strands uncleaved on support for further solid phase synthesis
+Abi 3900
+ExperimentPeptideSynthesis
+Base Package
+Example applications include: Peptide Synthesis, Custom Peptides, Solid Phase Peptide Synthesis, Solid Phase Synthesis
+ExperimentPNASynthesis
+Base Package
+Example applications include: PNA, Peptide Nucleic Acid, Oligomer Synthesis, PNA Oligomer, Custom PNA
+Robotic Peptide Synthesizer
+Compatible with Fmoc coupling strategies
+Customizable coupling times, reagent amounts, and cycles
+Customizable cleavage conditions
+Customizable reagents and monomers
+Customizable resuspension conditions
+Double coupling after n-monomers available
+Pre-activation available
+5 to 100 μmol scale
+Reaction Vessels
+Pressure push (nitrogen at 5 PSI) for flushing vessels
+24x reaction vessels (12x with optional pre-activation)
+10 mL vessels (~50 to 250 mg of resin) or 45 mL vessels (~50 mg to 1.125 g of resin)
+Reagent Positions
+Driven by nitrogen pressurization of source bottles
+28x 400 mL monomer positions
+8x reagent bottle positions (1 L or 4 L bottles)
+20 L of dimethylformamide (DMF) or other solvent containers
+Symphony X
+ExperimentPCR
+Base Package
+Automated Thermocycler
+Temperature accuracy: ± 0.25°C (between 35.0 and 99.9°C)
+Max block ramp rate: 3.5°C/sec
+Max sample ramp rate: 1.8°C/sec
+Temperature range: 4 to 105°C
+Temperature uniformity: ± 0.50°C (20 sec after reaching 95°C)
+Robotically integrated with the Hamilton STAR liquid handler via ExperimentRoboticCellPreparation
+Sample Constraints
+Plate format: 96-well PCR plate
+Sample volume: 10 to 100 µL
+Automated Thermal Cycler
+ExperimentBioconjugation
+Base Package
+Example applications include: Chemical crosslinking, Protein modification, Antibody modification, Fluorophore conjugated, Biotinylated
+Liquid Handler
+Low-volume chemical linking of biomolecules including microbeads, oligomers, proteins, and antibodies
+Utilizes all available solid transfer, liquid transfer, and mixing instrumentation
+Biomolecule activation can be specified prior to conjugation.
+Reaction quenching can be specified after conjugation
+Product workup including pelleting and filtering can be specified after conjugation
+Hamilton Star
+Separations
+ExperimentSolidPhaseExtraction(Beta)
+Base Package
+Example applications include: Compound Separation, Compound Purification, Mobile Phase, Solid Sorbent, Filtration
+Small Robotic Liquid Handler
+20 PSI pressure push (independent for each vessel)
+0.1 to 100 mL/min flow rates for solvent pushes
+Up to 20 L of wash solvent per batch
+Up to 700 mL of equilibration buffer and elution buffer per batch
+Filter through 3 cc or 6 cc SPE cartridges
+Collects in SBS deep well plates
+Gilson Gx 271
+Positive Pressure Filter
+0 to 40 PSI independent pressure sources for each well
+Filter through SBS filter plates
+Collects in SBS deep well plates
+Hamilton Mpe2
+ExperimentHPLC
+Base Package
+Example applications include: Protein purification, Carbohydrate and oligosaccharides analysis, Polynucleotide separation, trace impurity analysis, Liquid chromatography, Affinity chromatography, Ion-exchange chromatography, Size exclusion chromatography, Reverse phase chromatography, Normal phase chromatography, Chiral chromatography
+Analytical HPLC with Photo Diode Array Detector
+Quaternary Pump
+0.1 to 2.2 mL/min flow rate
+7,000 PSI maximum pressure
+0.01 inch inner diameter PEEK system tubing
+Dynamic mixer
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 5 L buffer source bottles/carboys
+Detectors
+Absorbance diode array (PDA)
+Deuterium lamp
+190 to 500 nm absorbance detection (1.2 nm resolution)
+Quartz flow cell
+10 mm pathlength
+0.5 µL volume
+1,000 PSI maximum pressure
+Column Oven
+20 to 90°C (± 0.1°C) incubation
+Up to 2 columns connected in series per run
+300 mm maximum column length
+15 mm maximum column outer diameter
+Sample Constraints
+75 µL sample loop
+250 µL autosampler syringe
+Sample chamber temperature controlled from 5 to 40°C (± 3°C)
+Up to 48x HPLC/CE vials or 2x SBS style deep well plates per batch
+Waters Acuity H Class
+Analytical HPLC with Fluorescence Detector
+Quaternary Pump
+0.1 to 2.2 mL/min flow rate
+7,000 PSI maximum pressure
+0.01 inch inner diameter PEEK system tubing
+Dynamic mixer
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 5 L buffer source bottles/carboys
+Detectors
+Ultraviolet absorbance
+Deuterium lamp
+190 to 700 nm wavelength range
+Fused silica flow cell with 10 mm pathlength
+0.5 µL volume
+1,000 PSI maximum pressure
+Up to 80 points/second sampling rate
+Fluorescence (FLR)
+13 µL flow cell volume
+Up to 80 points/second sampling rate
+1,000 PSI maximum pressure
+200 to 890 nm for excitation light (xenon arc lamp source)
+210 to 900 nm for emission light
+Column Oven
+20 to 90°C (± 0.1°C) incubation
+Up to 2 columns connected in series per run
+300 mm maximum column length
+15 mm maximum column outer diameter
+Sample Constraints
+75 µL sample loop
+250 µL autosampler syringe
+Sample chamber temperature controlled from 5 to 40°C (± 3°C)
+Up to 48x HPLC/CE vials or 2x SBS style deep well plates per batch
+Waters Acuity H ClassWaters Acuity Flr
+Analytical HPLC with Evaporative Light Scattering Detector
+Quaternary Pump
+0.1 to 2.2 mL/min flow rate
+7,000 PSI maximum pressure
+0.01 inch inner diameter PEEK system tubing
+Dynamic mixer
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 5 L buffer source bottles/carboys
+Detectors
+Ultraviolet absorbance
+Deuterium lamp
+190 to 700 nm wavelength range
+Fused silica flow cell with 10 mm pathlength
+0.5 µL volume
+1,000 PSI maximum pressure
+Up to 80 points/second sampling rate
+Evaporative Light Scattering (ELS)
+Nitrogen sheath gas
+Flow rate between 20 and 60 PSI
+Heatable to varying magnitude
+2 mL/min maximum flow rate
+Up to 80 points/second sampling rate
+Drift tube up to 100°C
+Tungsten halogen light source
+Column Oven
+20 to 90°C (± 0.1°C) incubation
+Up to 2 columns connected in series per run
+300 mm maximum column length
+15 mm maximum column outer diameter
+Sample Constraints
+75 µL sample loop
+250 µL autosampler syringe
+Sample chamber temperature controlled from 5 to 40°C (± 3°C)
+Up to 48x HPLC/CE vials or 2x SBS style deep well plates per batch
+Waters Acuity H ClassWaters Acuity Els
+Semi-Preparative HPLC with UV/Vis Detector
+Quaternary Pump
+0.2 to 8 mL/min flow rate
+300 PSI minimum pressure
+4,000 PSI maximum pressure
+0.01 inch inner diameter PEEK system tubing
+Static mixer
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 20 L buffer source bottles/carboys
+Column Oven
+5 to 80°C (± 0.1°C) incubation
+300 mm maximum column length
+25 mm maximum column outer diameter
+Detectors
+Pump pressure sensor
+Column temperature sensor
+Absorbance diode
+Tungsten deuterium lamp
+190 to 900 nm monochromator
+6 nm bandpass
+Quartz flow cell
+10 mm pathlength
+11 µL volume
+725 PSI maximum pressure
+Fraction Collection
+Absorbance-based fraction collection methods
+Absolute threshold
+Derivative detection
+Time based
+Up to 8x 96-well deep well plate fraction containers per batch
+Sample Constraints
+500 µL sample loop
+500 µL autosampler syringe
+Up to 40x HPLC/CE vials or 2x SBS style deep well plates per batch
+Dionex Ultimate 3000 Variable Detectors
+Semi-Preparative HPLC with Fluorescence Detector
+Quaternary Pump
+0.2 to 8 mL/min flow rate
+300 PSI minimum pressure
+4,000 PSI maximum pressure
+0.01 inch inner diameter PEEK system tubing
+Static mixer
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 20 L buffer source bottles/carboys
+Column Oven
+5 to 80°C (± 0.1°C) incubation
+300 mm maximum column length
+25 mm maximum column outer diameter
+Detectors
+Pump pressure sensor
+Column temperature sensor
+Absorbance diode
+Tungsten deuterium lamp
+190 to 900 nm monochromator
+6 nm bandpass
+Quartz flow cell
+10 mm pathlength
+11 µL volume
+725 PSI maximum pressure
+Fluorescence
+8 µL ﬂow cell volume
+290 PSI maximum pressure
+200 to 880 nm for excitation light (xenon flash lamp source)
+220 to 900 nm for emission light
+Fraction Collection
+Absorbance-based fraction collection methods
+Absolute threshold
+Derivative detection
+Time based
+Up to 8x 96-well deep well plate fraction containers per batch
+Sample Constraints
+500 µL sample loop
+500 µL autosampler syringe
+Up to 40x HPLC/CE vials or 2x SBS style deep well plates per batch
+Dionex Fluorescence DetectorDionex Ultimate 3000
+Semi-Preparative HPLC with pH/Conductivity Detector
+Quaternary Pump
+0.2 to 8 mL/min flow rate
+300 PSI minimum pressure
+4,000 PSI maximum pressure
+0.01 inch inner diameter PEEK system tubing
+Static mixer
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 20 L buffer source bottles/carboys
+Column Oven
+5 to 80°C (± 0.1°C) incubation
+300 mm maximum column length
+25 mm maximum column outer diameter
+Detectors
+Pump pressure sensor
+Column temperature sensor
+Absorbance diode
+Tungsten deuterium lamp
+190 to 900 nm monochromator
+6 nm bandpass
+Quartz flow cell
+10 mm pathlength
+11 µL volume
+725 PSI maximum pressure
+pH
+28 µL ﬂow cell volume
+100 PSI maximum pressure
+2 to 12 pH measurement range
+Operating temperature between 4 and 50°C
+Conductivity
+21 µL ﬂow cell volume
+725 PSI maximum pressure
+1 μS/cm to 1 S/cm conductivity measurement range
+Operating temperature between 4 and 50°C
+Fraction Collection
+Absorbance-based fraction collection methods
+Absolute threshold
+Derivative detection
+Time based
+Up to 8x 96-well deep well plate fraction containers per batch
+Sample Constraints
+500 µL sample loop
+500 µL autosampler syringe
+Up to 40x HPLC/CE vials or 2x SBS style deep well plates per batch
+Dionex Ph Conductivity DetectorDionex Ultimate 3000
+Semi-Preparative HPLC with MALS/DLS Detectors
+Quaternary Pump
+0.2 to 8 mL/min flow rate
+300 PSI minimum pressure
+4,000 PSI maximum pressure
+0.01 inch inner diameter PEEK system tubing
+Static mixer
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 20 L buffer source bottles/carboys
+Column Oven
+5 to 80°C (± 0.1°C) incubation
+300 mm maximum column length
+25 mm maximum column outer diameter
+Detectors
+Pump pressure sensor
+Column temperature sensor
+Absorbance diode
+Tungsten deuterium lamp
+190 to 900 nm monochromator
+6 nm bandpass
+Quartz flow cell
+10 mm pathlength
+11 µL volume
+725 PSI maximum pressure
+Multi-angle light scattering
+Up to 36.6 points/sec sampling rate
+200 Da to 1,000 MDa molar mass range
+0.5 to 500 nm radius of gyration measurement range
+Light scattering detectors at 18 angles
+658 nm laser wavelength
+Operating temperature between -15 and 150°C
+Dynamic light scattering
+Up to 36.6 points/sec sampling rate
+0.5 to 30 nm hydrodynamic radius measurement range
+Fraction Collection
+Absorbance-based fraction collection methods
+Absolute threshold
+Derivative detection
+Time based
+Up to 8x 96-well deep well plate fraction containers per batch
+Sample Constraints
+500 µL sample loop
+500 µL autosampler syringe
+Up to 40x HPLC/CE vials or 2x SBS style deep well plates per batch
+Wyatt DawnDionex Ultimate 3000
+Semi-Preparative HPLC with Refractive Index Detectors
+Quaternary Pump
+0.2 to 8 mL/min flow rate
+300 PSI minimum pressure
+4,000 PSI maximum pressure
+0.01 inch inner diameter PEEK system tubing
+Static mixer
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 20 L buffer source bottles/carboys
+Column Oven
+5 to 80°C (± 0.1°C) incubation
+300 mm maximum column length
+25 mm maximum column outer diameter
+Detectors
+Pump pressure sensor
+Column temperature sensor
+Absorbance diode
+Tungsten deuterium lamp
+190 to 900 nm monochromator
+6 nm bandpass
+Quartz flow cell
+10 mm pathlength
+11 µL volume
+725 PSI maximum pressure
+Refractive Index detector
+7.4 µL flow cell volume
+Absolute Refractive Index (RI) measurement mode and Differential Refractive Index (DRI) measurement mode available
+1.2 to 1.8 RIU Absolute Refractive Index range
+0.002 RIU Absolute Refractive Index sensitivity
+-0.0047 to +0.0047 RIU Differential Refractive Index range
+± 7.5 x 10e-10 RIU Differential Refractive Index sensitivity
+Temperature range 4 and 65°C
+660 nm light source
+Dynamic Range > 16,000,000
+Fraction Collection
+Absorbance-based fraction collection methods
+Absolute threshold
+Derivative detection
+Time based
+Up to 8x 96-well deep well plate fraction containers per batch
+Sample Constraints
+500 µL sample loop
+500 µL autosampler syringe
+Up to 40x HPLC/CE vials or 2x SBS style deep well plates per batch
+Wyatt OptilabDionex Ultimate 3000
+Large Scale Preparative HPLC with UV/Vis Detector
+Binary Pump
+Up to 200 mL/min flow rate
+6,000 PSI maximum pressure
+In-line degasser
+2 to 20 L buffer source bottles/carboys
+Column Selector
+Ambient temperature
+Switchable for up to 6 columns
+Detectors
+Pump pressure sensor
+Ultraviolet-Visible absorbance detector
+Deuterium lamp
+190 to 950 nm wavelength range
+1 nm wavelength bandpass
+Up to 120 samples/second measurement (25 samples/second for dual channel)
+Quartz flow cell 10 mm pathlength
+13 µL volume
+1,740 PSI maximum pressure
+Fraction Collection
+Valve-based fraction collector
+Triggered collection
+Peak threshold
+Time based
+Tube container collection
+Ranging from 2 to 45 mL capacity
+Sample Constraints
+20 mL sample loop
+Up to 16 mL injection volume
+Up to 60x 50 mL conical tubes or 216x 15 mL conical tubes
+
+ExperimentGasChromatography
+Base Package
+Gas Chromatography System
+Flow System
+He carrier gas available
+Inlets available:
+Split/Splitless capillary column inlet
+Multimode temperature-programmable capillary column inlet
+Column head pressure up to 100 PSIG
+Column Oven
+Temperature range: 30 to 450ºC
+Up to 120ºC/min temperature ramp
+Up to 2 capillary columns
+0.53 mm maximum column inner diameter
+Split/Splitless Capillary Inlet
+Suitable for capillary columns up to 0.53 mm inner diameter
+Split ratio up to 7,500:1 to prevent column overload
+Up to 1,250 mL/min total flow of He
+Inlet temperature 30 to 400ºC
+Multimode Capillary Inlet
+Suitable for capillary columns up to 0.53 mm inner diameter
+Split ratio up to 7,500:1 to prevent column overload
+Up to 1,250 mL/min total flow of He
+Inlet temperature 30 to 400ºC
+Temperature programmable with ramp rates up to 900ºC/min
+Mass Spectrometry
+Single quadrupole mass spectrometer
+1.6 to 1,050 m/z mass range
+100 to 200ºC quadrupole temperature
+100 to 300ºC ion source temperature
+100 to 350ºC transfer line temperature
+Scan speeds up to 12,500 m/z per second
+Electron ionization:
+Dual filaments
+Chemical ionization:
+Single filament
+Methane reagent gas
+Positive and negative mode
+Flame Ionization Detector
+Responds to most organic compounds
+Minimum detectable level (for tridecane): < 1.2 pgC/s
+Linear dynamic range: > 10⁷ (± 10%)
+Up to 1,000 points/second data measurement
+Autosampler Rail System
+Vortex mixing up to 2,000 RPM
+Sample incubation 30 to 200ºC
+Liquid, headspace, and solid-phase microextraction sample preparation available
+0.01 to 100 µL injection volumes for liquid injection
+25 to 2,500 µL injection volumes for headspace injection
+Headspace syringe heating 40 to 150ºC
+Agilent 8890 CS System
+ExperimentSupercriticalFluidChromatography
+Base Package
+Example applications include: Carbon dioxide mobile phase, Liquid chromatography, Chiral chromatography, Normal phase chromatography, Analytical chemistry, Convergence chromatography, Pressurized flow path
+Supercritical Fluid Chromatography Instrument with Quadrupole Mass Spec
+Quaternary Pump
+Up to 4 cosolvent solutions
+0.1 to 3.3 mL/min flow rate
+10,000 PSI maximum pressure
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 1 L cosolvent source bottles
+Convergence Manager
+2,000 to 6,000 PSI range for adjustable back pressure
+Makeup Solvent Manager
+Up to 1 mL/min flow rate for makeup solvent
+Detectors
+Pump pressure sensor
+Column temperature sensor
+Absorbance diode array detector
+Deuterium lamp
+Up to 80 points/second sampling rate
+190 to 800 nm absorbance detection (1.2 nm resolution)
+Quartz flow cell
+10 mm pathlength
+1 µL volume
+1,000 PSI maximum pressure
+Mass spectrometer detector
+Single quadrupole
+Electrospray ionization (both positive and negative)
+50 to 1,200 m/z quadrupole mass range
+50 ms scan time per spectra
+25 to 150°C probe temperature range
+120°C source temperature
+0.3 to 1.5 kV capillary voltage
+0.1 to 100 V sampling cone voltage
+Column Selector
+20 to 90°C (± 0.1°C) incubation
+Up to 8 columns, switchable using valves
+300 mm maximum column length
+15 mm maximum column outer diameter
+Sample Constraints
+50 µL sample loop
+250 µL autosampler syringe
+Sample chamber temperature controlled from 5 to 40°C (± 3°C)
+Up to 48x HPLC/CE vials or 2x SBS style deep well plates per batch
+Waters Upc2 System
+ExperimentIonChromatography
+Base Package
+Example applications include: Carbohydrate analysis, Trace ion analysis, Liquid chromatography, ion-exchange chromatography
+Ion Chromatography System
+Pumps
+Dual channel system
+Anion Channel: Isocratic pump with pure water being primary solvent
+Cation Channel: Quaternary pump
+0.1 to 10 mL/min flow rate
+5,000 PSI maximum pressure
+Static mixer
+In-line degasser
+Eluent Generator
+Electrolytic eluent generation for anionic applications
+0.1 to 100 mM concentration
+Dynamically Regenerated Suppressors
+Constant voltage and constant current mode
+Maximum suppressor capabilities:
+Anion channel: 50 μeq/min
+Cation channel: 35 μeq/min
+0.25 to 0.75 mL/min flow rate
+Conductance Detectors
+Passivated 316 stainless steel electrode
+Maximum range up to 15,000 μS conductance measurement
+0.7 µL flow cell volume
+One detector for each channel
+Shared detection oven with 15 to 60ºC (± 0.5ºC) incubation
+Column Oven
+10 to 70°C (± 0.1°C) incubation
+One analytical column for each channel
+Sample Constraints
+10 µL sample loops
+Up to 40x HPLC/CE vials or 2x SBS style deep well plates per batch
+Sample chamber temperature controlled from 4 to 60°C
+
+Ion Chromatography System with Electrochemical Detector
+Quaternary Pump
+Single channel system
+0.1 to 10 mL/min flow rate
+5,000 PSI maximum pressure
+Static mixer
+In-line degasser
+Ultraviolet absorbance detector
+Tungsten and Deuterium lamp
+190 to 900 nm wavelength range (up to four channels)
+6 nm wavelength bandpass
+Up to 100 samples/second measurement
+PEEK flow cell
+10 mm path length
+11 μL flow cell volume
+Electrochemical detector
+< 0.2 μL internal volume
+100 PSI maximum pressure
+Gold, platinum, carbon and silver working electrodes
+pH-Ag/AgCl reference electrode
+Column Oven
+10 to 70°C (± 0.1°C) incubation
+Sample Constraints
+25 μL sample loop
+Up to 40x HPLC/CE vials or 2x SBS style deep well plates per batch
+Sample chamber temperature controlled from 4 to 60°C
+Dionex Electrochemical Detector
+ExperimentFPLC
+Base Package
+Example applications include: Aqueous mobile phase, Protein purification, Biomolecule purification, Fast protein liquid chromatography, Medium-pressure chromatography, Liquid chromatography, Affinity chromatography
+Fast Protein Liquid Chromatography System Medium and High Flow
+System Pump & Mixer
+0.001 to 25 mL/min flow rate (50 mL/min for column packing) for Avant 25
+0.001 to 150 mL/min flow rate (300 mL/min for column packing) for Avant 150
+20 MPa maximum pressure for Avant 25
+5 MPa maximum pressure for Avant 150
+1.4 L mixer volume
+± 0.6% gradient composition accuracy for Avant 25
+± 0.8% gradient composition accuracy for Avant 150
+Detectors
+Pump pressure sensor
+0 to 20 MPa range
+± 0.02 MPa accuracy
+Temperature monitor
+± 1.5°C temperature accuracy
+Conductance sensor
+0.01 mS/cm to 1 S/cm conductance range
+22 µL flow cell volume
+Absorbance monitor
+190 to 700 nm wavelength range in increments of 1 nm wavelength
+Up to 3 simultaneous wavelengths
+UV flow cell
+0.5 mm, 2 mm, or 10 mm pathlengths
+1 μL, 2 μL, or 8 μL volumes
+Noise < 0.08 mAU
+pH monitor
+0 to 14 range
+± 0.1 pH unit (within pH 2 to 12)
+Fraction Collection
+Absorbance-based or conductivity-based fraction collection methods
+Absolute threshold
+Derivative detection
+Time based
+Start collection with sample application or within the gradient
+50 mL container, 15 mL container, or 96-well deep well plate fraction collection
+Sample Constraints
+Autosampler mode
+50 to 10,000 µL sample loop volume
+1,000 to 10,000 µL autosampler syringe
+Up to 168x HPLC/CE vials or 2x SBS style deep well plate per batch
+Up to 12 large sample vials (10 mL) for preparative system
+Flow injection mode
+Up to 50 mL to 4 L sample container volumes
+Up to 5 containers
+Controllable sample introduction rate (up to 150 mL/min)
+Superloop mode
+10 mL loop volume
+Up to 50 mL to 4 L sample container volumes
+Up to 5 containers
+Akta Avant 25 and 150
+Fast Protein Liquid Chromatography System Low Flow
+System Pump & Mixer
+0.1 to 10 mL/min flow rate
+3,500 PSI maximum pressure
+Static mixer
+Titanium pump casing
+250 mL to 5 L buffer source bottles
+Detectors
+Pump pressure sensor
+0 to 20 MPa range
+± 0.02 MPa accuracy
+Conductance sensor
+0.01 mS/cm to 1 S/cm conductance range
+22 µL flow cell volume
+Absorbance Diode
+Mercury lamp
+254 or 280 nm wavelength
+4 nm bandpass
+Quartz flow cell
+2 mm pathlength
+2 µL volume
+580 PSI maximum pressure
+Fraction Collection
+Absorbance based fraction collection methods
+Absolute threshold
+Derivative detection
+Time based
+Up to 4x 96-well deep well plate fraction containers per batch
+Sample Constraints
+1,000 µL sample loop
+1,000 µL autosampler syringe
+Up to 24x HPLC/CE vials or 1x SBS style deep well plate per batch
+Aktapurifier UPC 10AAktapurifier UPC 10B
+ExperimentCapillaryGelElectrophoresisSDS
+Base Package
+Protein Capillary Electrophoresis System
+10 to 270 KDa molecular weight range
+Programmable sample electrokinetic injection and separation
+Up to 20 steps
+0 to 6,500 V
+Sequential analysis on a single capillary
+Samples can be held at 4ºC, 10ºC, 15ºC, or ambient temperature while enqueued for injection
+Detection
+UV absorbance: 220 nm
+Sensitivity: 0.3 µg/mL
+Sample Constraints
+Minimum sample volume: 50 µL
+Up to 48 injections per batch
+Up to 12 injections per sample
+Up to 100 samples per cartridge
+Protein concentration: 0.2 to 2 mg/mL
+Salt concentration: up to 50 mM
+
+ExperimentCapillaryIsoelectricFocusing
+Base Package
+Protein Capillary Electrophoresis System
+2.85 to 10.45 isoelectric point range
+Programmable focusing
+Up to 20 steps
+0 to 5,000 V
+Modular ampholyte and internal standard composition
+Optional onboard mixing for sensitive samples
+Sequential analysis on a single capillary
+Samples can be held at 4ºC, 10ºC, 15ºC, or ambient temperature while enqueued for injection
+Detection
+Whole capillary imaging using a CCD
+Sensitivity
+UV absorbance: 3 µg/mL
+Native fluorescence: 0.7 µg/mL
+Detectors
+UV absorbance: 280 nm
+Native fluorescence:
+Excitation: 280 nm
+Emission: 320 to 405 nm bandpass
+Sample Constraints
+Minimum sample volume: 50 µL
+Up to 100 injections per batch
+Up to 12 injections per sample
+Up to 100 samples per cartridge
+Protein concentration: ~0.2 mg/mL
+Salt concentrations: up to 15 mM
+
+ExperimentFlashChromatography
+Base Package
+Example applications include: Liquid chromatography, Normal phase chromatography, Reverse phase chromatography, Compound separation, Compound purification, Liquid mobile phase, Solid stationary phase
+Flash Chromatography System
+Pumps
+5 to 200 mL/min flow rate
+200 MPa maximum pressure
+2 buffers
+4 L maximum buffer volume each
+± 1% gradient composition accuracy
+Detector
+Absorbance of UV
+200 to 360 nm
+Up to three simultaneous measurements
+Primary wavelength ± 5 nm
+Secondary wavelength ± 5 nm
+Average of a wide range of UV wavelengths
+Flow cell
+0.1 mm path length
+0.1 mL total flow cell volume
+31 µL volume across detection path
+Fraction Collection
+All fractions or just absorbance peaks
+Absorbance peak detection
+Absolute threshold
+Slope-based
+Collect only within specified time window
+15 mL fraction collection tubes
+Sample Constraints
+0.1 to 25 mL
+
+ExperimentPAGE
+ExperimentAgaroseGelElectrophoresis
+Base Package
+Robotic Gel Electrophoresis System
+Polyacrylamide Gel Electrophoresis
+Slab Gels
+4.5% and 10% TBE-Urea gels
+10% TBE gels
+7% and 12% Tris-Glycine gels
+5 mm width lanes
+3 mm depth gels
+Electrophoresis
+0 to 125 V
+1 to 100% duty cycle options
+Fluorescence Imaging
+Post stained gels (stained with any custom solution)
+Excitation filters
+470 nm (70 nm bandpass)
+625 nm (70 nm bandpass)
+Emission filters
+540 nm (40 nm bandpass)
+678 nm (44 nm bandpass)
+Sample Constraints
+Up to 20 µL of sample and loading buffer per lane
+Up to 10 lanes per gel
+Up to 4 gels per batch
+Agarose Gel Electrophoresis
+Gels
+Analytics (no sample recovery) or size selection (targeted recovery of analytes of particular sizes)
+0.5, 1.0, 1.5, 2.0, and 3.0% agarose
+Independent lanes
+Electrophoresis
+100 V
+1 to 100% duty cycle options
+Fluorescence Imaging
+Pre-stained markers ranging from 25 to 20,000 base pairs
+Multiple in-run images
+Excitation filters
+470 nm (70 nm bandpass)
+625 nm (70 nm bandpass)
+Emission filters
+540 nm (40 nm bandpass)
+678 nm (44 nm bandpass)
+Sample Constraints (Size Selection)
+Up to 50 µL of sample and loading buffer per lane
+Up to 12 lanes per gel
+Up to 4 gels per batch
+Sample Constraints (Analytical)
+Up to 8 µL of sample and loading buffer per lane
+Up to 23 lanes per gel
+Up to 4 gels per batch
+Coastal Genomics Ranger
+ExperimentWestern
+ExperimentTotalProteinDetection
+Base Package
+Example applications include: Capillary-based Analytical Assay, Gel Electrophoresis, Capillary Gel Electrophoresis, Total Protein Separation, Total Protein Visualization, Protein Size Characterization, Protein Abundance Comparison
+Capillary Western Blot System
+Capillary Gel Electrophoresis
+2 to 440 kDa molecular weight range
+0 to 500 V separation voltage
+UV capillary crosslinking for protein immobilization
+Secondary Antibodies Available
+Secondary Antibodies Available
+Goat Anti-Rabbit HRP
+Goat Anti-Mouse HRP
+Goat Anti-Human IgG HRP
+Donkey Anti-Goat HRP
+CCD Camera-Based Capillary Imaging
+100 ms to 512 sec exposure times
+Up to picogram sensitivity (depending on the primary antibody sensitivity)
+Capacity
+13 or 25 capillaries per batch
+5 to 8 µL of sample required per capillary
+Proteinsimple Wes
+ExperimentCrossFlowFiltration(beta)
+Base Package
+Example applications include: Ultrafiltration, Microfiltration, Diafiltration, Protein Purification, Tangential Flow Filtration, Buffer Exchange, Desalting
+Tangential Flow Filtration System
+Volume range of 10 mL to 2 L
+Filtration area of 13 to 3,700 cm²
+Digitally controlled peristaltic pump
+Digital pressure monitor
+Automatic backpressure valve
+Digital conductivity monitors
+Repligen Krosflo Kr2I TFF System
+Miniaturized Tangential Flow Filtration System
+Volume range of 3 to 50 mL
+Filtration area of 11 cm²
+Disposable microfluidic chips
+5, 10, 30, 50, 100, and 300 kDa MWCO modified Polyethersulfone membranes
+Diaphragm pump to move liquid across the membrane
+Digital pressure monitor
+Automatic volume tracking
+
+ExperimentDialysis
+Base Package
+Example applications include: Fragile Proteins, Viscous Fluids, Polymer Gels, Equilibrium Dialysis, Small Molecule Binding to Proteins, Purification, Buffer Exchange, Desalting, Protein Purification
+Static Dialysis
+Beakers Available
+250 mL, 600 mL, 1 L, and 2 L
+Incubation range 5 to 45°C (below ambient temperatures available for 250 mL beakers only)
+Buffer mixing available
+Tube-Based Dialysis Kits
+3.5k, 6 to 8k and 12 to 14k molecular weight cutoffs (MWCOs) available
+10 µL to 20 mL sample volume range
+4 to 60°C incubation range
+Up to 9 samples per batch
+Dialysis Tubing
+3.5k, 6 to 8k, and 12 to 14k MWCOs available
+30 to 130 mL sample volume range
+Continuous buffer flow to increase separation efficiency
+1 sample per batch
+Equilibrium Dialysis
+8 MWCO available
+50 to 500 µL sample volume range
+4 to 60°C incubation range
+Up to 48 samples per batch
+Tube Based Dialysis KitsDialysis TubingEquilibrium Dialysis
+Dynamic Dialysis
+3.5k, 6k, and 12k MWCOs available
+30 to 130 mL sample volume range
+Continuous buffer flow to increase separation efficiency
+> 90% protein recovery after dialysis
+1 sample per batch
+Spectraflo Lab System
+ExperimentLiquidLiquidExtraction(Beta)
+Base Package
+Example applications include: Phenol Chloroform Extraction, DNA Purification, RNA Purification, Peptide Purification, Aqueous / Organic Solvent Separation
+Robotic Phase Separator Plate
+Separates aqueous and organic phases via hydrophobic frit (allows organic phase to drain into collection plate)
+Requires denser organic phase compared to the aqueous phase
+Up to 2 mL sample volume per well
+
+Robotic Pipette Extraction
+Removal of aqueous or organic phase via robotic pipettor
+Aqueous / Organic boundary layer approximated via solvent volumes added
+Up to 200 mL sample volume
+Hamilton Star
+ExperimentMagneticBeadSeparation
+Base Package
+Example applications include: Magnetic Cell Separation, Protein Purification, Immunoprecipitation, Nucleic Acid Isolation
+Magnetic Racks
+Robotic Separation
+Performed by a Hamilton liquid handler with the Alpaqua Magnum FLX magnet
+Sample volume constraints
+96-well plate magnet: up to 2 mL
+Manual Separation
+Performed by an operator with the DynaMag magnets
+Sample volume constraints
+96-well plate magnet: up to 0.2 mL
+2 mL tube magnet: up to 2 mL
+15 mL tube magnet: up to 15 mL
+50 mL tube magnet: up to 50 mL
+Hamilton StarAlpaqua Magnum FLX Enhanced Universal Magnet PlateDynamag 2 MagnetDynamag 15 MagnetDynamag 50 MagnetDynamag 96 Side MagnetDynamag 96 Side Skirted Magnet
+Spectroscopy
+ExperimentNMR
+Base Package
+Example applications include: 1D NMR spectra for various nuclei (1H, 13C, 19F, 31P) and Water suppression techniques (WATERGATE, Excitation sculpting, Presaturation)
+ExperimentNMR2D
+Base Package
+Example applications include: Correlation Spectroscopy (COSY), Double Quantum Filtered COSY (DQF-COSY), COSY-β, Total Correlation Spectroscopy (TOCSY), Heteronuclear Multiple Bond Correlation (HMBC), Heteronuclear Single Quantum Coherence (HSQC), HSQC-TOCSY, Heteronuclear Multiple Quantum Coherence (HMQC), HMQC-TOCSY, Nuclear Overhauser Effect Spectroscopy (NOESY), Rotational Frame Nuclear Overhauser Effect Spectroscopy (ROESY)
+500 MHz NMR
+11.74 T Magnet
+500 MHz for ¹H
+126 MHz for ¹³C
+202 MHz for ³¹P
+470 MHz for ¹⁹F
+Probe
+SmartProbe ¹H/¹⁹F/¹³C/³¹P 5 mm probe (-150°C to 150°C)
+Inverse Triple Resonance (TXI) ¹H/¹³C/¹⁹N 5 mm probe (-150°C to 150°C)
+Autosampler
+6 to 51°C incubation temperature
+480 NMR tubes per batch
+Standard NMR tubes hold 600 µL to 1.5 mL
+Micro NMR tubes hold 40 µL
+2D Experiment Types
+Correlation spectroscopy (COSY)
+Double-quantum filtered COSY
+COSY featuring a 45 degree pulse
+Total correlation spectroscopy (TOCSY)
+Heteronuclear single quantum correlation spectroscopy (HSQC, 1H-13C or 1H-15N)
+Heteronuclear multiple quantum correlation spectroscopy (HMQC)
+Heteronuclear multiple-bond correlation spectroscopy (HMBC, 1H-13C or 1H-15N)
+HSQC-TOCSY (1H-13C)
+HMQC-TOCSY (1H-13C)
+Nuclear Overhauser effect spectroscopy (NOESY)
+Rotating-frame Overhauser effect spectroscopy (ROESY)
+Bruker Ascend 500
+ExperimentAbsorbanceSpectroscopy
+Base Package
+Example applications include: Substance quantification, Substance identification, Analytical chemistry, Analytical biochemistry, Organic compound analysis, Thermal melting curves, Nucleic acid melting point measurement
+Microfluidic Spectrometer
+Light Source
+Xenon flash lamp
+Absorbance Detection
+250 to 750 nm wavelength selection
+Microfluidics
+Fixed path length (0.1 or 0.7 mm) allows for quantification
+Extremely low volumes required (2 μL)
+96 samples per batch
+Unchained Labs Lunatic
+UV/Vis Spectrometer with Thermal Controller
+Simultaneously scan a full wavelength range, on 8 channels, in less than a second
+Each pair of cuvettes can be held at a different temperature: Perform 4 different temperature experiments at the same time
+Simultaneously measure standards, samples, and controls under exactly the same conditions
+Measurement modules do not contain any moving parts (permanent optical alignment)
+Sample temperature range -5 to 110ºC
+Absorbance Detection
+Photometric system: Double beam with rear beam access
+Long-life xenon flashlamp source
+250 points per second data collection rate
+190 to 1,100 nm wavelength range (limiting resolution 0.1 nm, wavelength accuracy ± 0.2 nm)
+150,000 nm/min maximum scan rate
+Tightly-controlled beam geometry (< 1.5 mm at sample interface)
+Silicon photodiode detectors for simultaneous measurement of all channels
+8 cuvette positions can be measured simultaneously
+Agilent Cary 3500
+ExperimentFluorescenceSpectroscopy
+Base Package
+Example applications include: Molecular Fluorescence, Fluorescence Properties, Substance Identification, Substance Quantification, Organic Compound Analysis, Analytical Chemistry, Analytical Biochemistry
+ExperimentLuminescenceSpectroscopy
+Base Package
+Example applications include: Protein Structure, Molecular Luminescence, Luminescence Properties, Impurity Detection, Substance Identification, Substance Quantification, Organic Compound Analysis, Analytical Chemistry, Analytical Biochemistry
+Multimode Plate Reader w/ Monochromators
+Excitation
+Xenon flash lamp
+1 to 100 flashes per well
+340 to 740 nm excitation monochromator
+Emission
+High voltage PMT detector
+340 to 740 nm emission monochromator
+Top or bottom of plate read mode
+Sample Chamber
+Room temperature (25°C ± 0.45°C (1 sigma)) to 45°C incubation
+Mix by shaking before read options
+1x microtiter plate (6 to 1,536 well) per batch
+Clariostar
+ExperimentFluorescencePolarization
+Base Package
+Example applications include: Receptor-Ligand Binding, Enzymatic Degradation, DNA Hybridization
+Fluorescence Polarization Plate Reader
+Xenon flash lamp
+1 to 100 flashes per well
+Dual high voltage PMT detectors
+96-well and 384-well plate compatible
+Excitation Emission Filter Pairs
+485 nm, 520 nm
+540 nm, 590 nm
+625 nm, 675 nm
+Polarized Dual Simultaneous Emission Filters
+Pherastar
+ExperimentIRSpectroscopy
+Base Package
+Example applications include: Chemical Composition Analysis, Substance Identification, Organic Chemistry, Inorganic Chemistry, Forensic Analysis, Polymerization Determination, Degradation Monitoring, Semiconductor Microelectronics
+FTIR Spectrometer
+Deuterated TriGlycine Sulphate (DTGS) Detector
+375 cm⁻¹ to 7,500 cm⁻¹ spectral range
+> 1,000:1 signal-to-noise ratio
+> 4 cm⁻¹ spectral resolution
+Sample amounts from 20 to 70 µL or 20 to 70 mg required
+Bruker Alpha
+ExperimentRamanSpectroscopy
+Base Package
+Example applications include: Chemical structure determination, materials chemistry, solid-state physics, crystallographic orientation determination, morphology characterization, phase characterization, intermolecular interaction characterization, polymorphic form determination
+Terahertz Raman Spectrometer
+-10 to -800 cm⁻¹ anti-Stokes spectral range
+10 to 2,800 cm⁻¹ Stokes spectral range
+> 4 cm⁻¹ spectral resolution
+Solids, liquids, and tablets analyzed
+Optics
+2, 4, 10, and 20x objective magnification or FloodLight for broad spot size
+Auto or manual focusing
+785 nm laser wavelength
+400 mW maximum laser power at sample
+Sampling Patterns
+User definable sampling routines for intra-well measurements
+Spiral
+Filled spiral
+Filled square
+Grid
+Rings
+Coordinates
+Single point
+Ondax TR WPS 785
+ExperimentDynamicLightScattering
+Base Package
+Example applications include: Scattered Light Intensity, Brownian Motion, Moving Particles, Particle Size, Polydispersity, Molecular Weight, Isothermal Stability, Colloidal Stability, Attractive Interaction, Repulsive Interaction, Melting Curve, Aggregation Temperature, Melting Temperature
+Multimode Spectrophotometer
+Multimode Spectrophotometer
+Measurement in sealed quartz capillaries requires only 9 μL of sample
+Measure up to 48 samples in one experiment
+Measurable parameters include: Z-average diameter, polydispersity, isothermal stability (including B22, kD, and G22)
+Dynamic Light Scattering
+660 nm laser
+Avalanche photodiode module scattered light detector
+0.3 to 1000 nm hydrodynamic radius range
+< 0.1 polydispersity
+0.05 mg/mL minimum sample concentration
+192 Da to 25 MDa molecular weight range
+Thermodynamics
+Self-contained water-free temperature control system from 15 to 95ºC
+TEC heating/cooling plate temperature control accuracy 1ºC (at < 70ºC) and 1.5ºC (at > 70ºC)
+Unchained Labs Uncle
+DLS Plate Reader
+DLS Plate Reader
+Measurement in standard well plates, requires min. 25 μL of sample
+Measure up to 96 or 384 samples in one experiment
+Acquire images of samples in well plates
+Measurable parameters include: Z-average diameter, polydispersity, isothermal stability (including B22, kD, G22), molecular weight, aggregation temperature, melting temperature
+Dynamic Light Scattering/Static Light Scattering
+830 nm laser
+Linearized avalanche photodiode module scattered light detector, enables both dynamic and static light scattering
+0.5 to 1000 nm hydrodynamic radius range
+0.125 mg/mL minimum sample concentration for dynamic light scattering
+1000 Da to 1 MDa molecular weight range for static light scattering
+Thermodynamics
+Self-contained water-free temperature control system from 4 to 85ºC
+TEC heating/cooling plate temperature control accuracy 0.5ºC (at < 50ºC) and 1.0ºC (at > 50ºC)
+
+ExperimentAbsorbanceKinetics
+ExperimentFluorescenceKinetics
+ExperimentLuminescenceKinetics
+Base Package
+Example applications include: Protein-Protein Interaction, Live Cellular Monitoring, Reaction Kinetics Analysis, Enzyme Kinetic Measurements, Binding and Dissociation Analysis
+ExperimentFluorescencePolarizationKinetics
+Base Package
+Example applications include: Luciferase Reporter Gene Assays, ATP-based Cell Viability Assays, Cytotoxicity Assays, Protein-Protein Interaction, Live Cellular Monitoring, Reaction Kinetics Analysis
+All Readers
+Sample Chamber
+Room temperature (25°C ± 0.45°C (1 sigma)) to 45°C incubation
+Mix by shaking before read options
+1x microtiter plate (6 to 1,536 well) per batch
+Sample Injection
+2x 500 µL injection syringes per batch
+50 µL dead volumes, 0.5 µL precision
+25 mL/min maximum injection speed
+2 mL microcentrifuge tubes, 15 mL conical tubes, or 50 mL conical tube sources
+ClariostarPherastarFluostar Omega
+Multimode Plate Reader w/ Monochromators
+96-well plate compatible
+Excitation
+Xenon flash lamp
+1 to 100 flashes per well
+340 to 740 nm excitation monochromator
+680 nm laser (AlphaScreen)
+Emission
+High voltage PMT detector
+340 to 740 nm emission monochromator
+Top or bottom of plate read mode
+Clariostar
+Multimode Plate Reader w/ Filters
+96-well plate compatible
+Excitation
+Xenon flash lamp
+1 to 100 flashes per well
+355 nm, 410 nm, 485 nm, 544 nm, 584 nm, 650 nm, or 700 nm fixed wavelength excitation filters (5 nm bandpass)
+Emission
+High voltage PMT detector
+420 nm, 460 nm, 520 nm, 590 nm, 620 nm, or 750 nm fixed wavelength emission filters (5 nm bandpass)
+Top or bottom of plate read mode
+Fluostar Omega
+Fluorescence Polarization Plate Reader
+Sample Injection
+2x 500 μL injection syringes per batch
+50 μL dead volumes, 0.5 μL precision
+25 mL/min maximum injection speed
+2 mL microcentrifuge tubes, 15 mL conical tubes, or 50 mL conical tube sources
+Sample Chamber
+Room temperature (25°C ± 0.45°C (1 sigma)) to 45°C incubation
+Mix by shaking before read options
+1x microtiter plate (6 to 1,536-well) per batch
+Optics
+Xenon flash lamp
+1 to 100 flashes per well
+High voltage PMT detector
+Top or bottom read mode
+Polarization Filters
+Excitation (vertical), Emission (vertical), Emission (horizontal)
+485 nm, 520 nm, 520 nm
+540 nm, 590 nm, 590 nm
+625 nm, 675 nm, 675 nm
+Pherastar
+ExperimentNephelometry
+ExperimentNephelometryKinetics
+Base Package
+Nephelometer
+Sample Injection
+2x 500 µL injection syringes
+440 µL/s maximum injection speed
+Sample Chamber
+Room temperature to 65°C incubation
+Actively regulates O2 and CO2 to 0.1-20%
+Mix by shaking before read options
+Optics
+635 ± 10nm 1mW self-monitoring laser diode
+1.5 to 3.5 mm selectable beam width
+Side window photodiode detector
+Detects up to 80° full cone angle
+
+ExperimentCircularDichroism
+Base Package
+Circular Dichroism Plate Reader
+Dual gratings monochromator
+185 to 880 nm wavelength range (2 nm resolution)
+96 well plate format
+2 minute read time for plate (single wavelength)
+1 hour read time for plate (full spectrum)
+0.5 L nitrogen gas/min purge
+45 µL sample volume
+Ekko Cd Microplate Reader
+Mass Spectrometry
+ExperimentMassSpectrometry
+Base Package
+ESI-QToF Mass Spectrometer
+High resolution, high mass accuracy mass spectrometer
+Conventional full-scan MS and MS/MS methods, data-dependent acquisition (DDA), as well as MS(E)
+Electrospray Ionization (ESI) Ion Source
+50 to 4,000 V ESI capillary voltage
+1 to 200 V sampling cone voltage
+60 to 18,000 L/hr cone gas flow rate
+60 to 72,000 L/hr desolvation gas flow rate
+Quadrupole, Time of Flight (QToF) Mass Analyzer
+20 to 100,000 m/z ToF mass range
+20 to 16,000 m/z quadrupole mass range
+1 ppm RMS accuracy
+22,500 FWHM mass resolution
+2.46 kV (-1.8 kV grid) dual stage reflectron
+25.2 µPa high vacuum pressure ToF Tube
+350 V ion guide electrostatic lens
+Up to 30 spectra per second
+Collision Cell
+0 to 255 V collision cell voltage
+Argon collision cell gas
+42.6 mPa high vacuum pressure collision cell
+Sample Constraints
+Direct injection
+Sample volume range: 0.5 to 30 mL
+2 mL HPLC vials or 30 mL reservoir bottles
+Maximum of 20 samples per batch
+Autosampler-aided direct infusion
+75 µL sample loop for analytical flow, 10 µL for micro/nano flow
+Up to 48x HPLC/CE vials or 2x SBS style deep well plates per batch
+Waters Xevo G2 Xs Qtof
+ESI-QQQ Mass Spectrometer
+Standard triple quadrupole functions like MRM, precursor, neutral loss, and product ion scan
+QTRAP functionality allows for MS3 (MS/MS/MS)
+Enhanced scanning modes possible such as enhanced mass scans (EMS), enhanced resolution scans (ER), and enhanced product ion scans (EPI)
+6 orders of magnitude dynamic range
+Electrospray Ionization (ESI) Ion Source
+IonDrive Turbo V Ionization Source (NanoSource optional)
+5 msec polarity switching in MRM and scheduled MRM modes
+Up to 4,500 V ion spray voltage
+Up to 750°C ion source temperature
+Triple Quadrupole Mass Analyzer
+20,000 Da/s scan speed and full scan linear ion trap sensitivity
+5 to 2,000 m/z triple quadrupole mass range
+50 to 2,000 m/z linear ion trap mass range
+Dual stage IonDrive QJet ion guide (non-funnel)
+Nitrogen collision cell for fragmentation
+Low, unit, and high resolution for Q1 and Q3
+Ab Sciex Qtrap 6500%2B
+MALDI-ToF Mass Spectrometer
+Mass resolution up to 2,000 (at m/z of 1,500)
+Sensitivity down to 500 fmol BSA (66 kDa) with < 50 S/N
+Mass accuracy of < 30 ppm (internal calibration)
+Negative or positive ion modes
+Up to 500 kDa mass range
+Laser Ionization Source
+337 nm wavelength
+60 Hz laser frequency
+3 ns pulse width
+9 mW power
+1 to 1,000 shots per well
+Time of Flight (ToF) Mass Analyzer
+75 cm length ToF tube
+2 µBar high vacuum
+Up to 20 kV accelerating voltage
+Up to 20 kV grid voltage
+0.05 to 10 kV electrostatic lens voltage
+Up to 5,000 ns delay time
+Triple Quadrupole Mass Analyzer
+Up to 2 µL of sample per well
+Up to 2 µL of calibrant per well
+96 wells per experiment
+Microflex Lt
+ExperimentLCMS
+Base Package
+Liquid Chromatography Mass Spectrometer
+Liquid Chromatography
+Analytical HPLC
+0.1 to 2.2 mL/min flow rate
+0.01 inch inner diameter PEEK system tubing
+Up to 7,000 psi operating pressure
+In-line degasser
+Photo diode array detector
+190 to 500 nm absorbance
+0.5 μL volume
+5 to 90°C (± 0.1°C) column compartment temperature range
+Up to two columns connected in series up to 300 mm maximum in length (15 mm maximum outer diameter)
+Mass Spectrometry
+QToF
+High resolution, high mass accuracy mass spectrometer
+Conventional full-scan MS and MS/MS methods, data-dependent acquisition (DDA), as well as MS(E) acquisition modes
+20 to 100,000 m/z ToF mass range
+20 to 16,000 m/z quadrupole mass range
+22,500 FWHM mass resolution
+1 ppm RMS accuracy
+Up to 30 spectra per second
+QQQ
+Standard triple quadrupole functions like MRM, precursor, neutral loss, and product ion scan
+QTRAP functionality allows for MS3 (MS/MS/MS)
+6 orders of magnitude dynamic range
+20,000 Da/s scan speed and full scan linear ion trap sensitivity
+5 to 2,000 m/z triple quadrupole mass range
+50 to 2,000 m/z linear ion trap mass range
+Dual stage IonDrive QJet ion guide (non-funnel)
+Nitrogen collision cell for fragmentation
+Low, unit, and high resolution for Q1 and Q3
+Sample Constraints
+75 µL sample loop for analytical LC, 10 µL sample loop for micro/nano LC
+Sample chamber temperature controlled from 5 to 40°C (± 3°C)
+Up to 48x HPLC/CE vials or 2x SBS style deep well plates per batch
+Waters Acquity I ClassWaters Xevo G2 Xs QtofAb Sciex Qtrap 6500%2B
+ExperimentICPMS
+Base Package
+Example applications include: Elemental analysis of any liquid sample with sensitivity down to ppb level, automatically coupled with microwave digestion to prepare any solid or biological sample, including soil, plant, mineral, polymer, etc., for ICP-MS analysis
+ICP Mass Spectrometer
+Sample Introduction
+Makeup solvent available
+Microwave digestion available
+Nebulizer spray chamber
+Mass Analyzer
+4.6 to 245 m/z Quadrupole mass range
+0.3 to 1 m/z mass resolution
+Up to 10,000 scans per second
+Sample Constraints
+Up to 15 mL injection volume
+Accommondates two types of sample vials
+15 mL vials: up to 60
+50 mL vials: up to 8
+
+ExperimentGCMS
+Base Package
+Gas Chromatography Mass Spectrometer
+Flow System
+He carrier gas available
+Inlets available:
+Split/Splitless capillary column inlet
+Multimode temperature-programmable capillary column inlet
+Column head pressure up to 100 PSIG
+Column Oven
+Temperature range: 30 to 450ºC
+Up to 120ºC/min temperature ramp
+Up to 2 capillary columns
+0.53 mm maximum column inner diameter
+Split/Splitless Capillary Inlet
+Suitable for capillary columns up to 0.53 mm inner diameter
+Split ratio up to 7,500:1 to prevent column overload
+Up to 1,250 mL/min total flow of He
+Inlet temperature 30 to 400ºC
+Multimode Capillary Inlet
+Suitable for capillary columns up to 0.53 mm inner diameter
+Split ratio up to 7,500:1 to prevent column overload
+Up to 1,250 mL/min total flow of He
+Inlet temperature 30 to 400ºC
+Temperature programmable with ramp rates up to 900ºC/min
+Mass Spectrometry
+Single quadrupole mass spectrometer
+1.6 to 1,050 m/z mass range
+100 to 200ºC quadrupole temperature
+100 to 300ºC ion source temperature
+100 to 350ºC transfer line temperature
+Scan speeds up to 12,500 m/z per second
+Electron ionization:
+Dual filaments
+Chemical ionization:
+Single filament
+Methane reagent gas
+Positive and negative mode
+Autosampler Rail System
+Vortex mixing up to 2,000 RPM
+Sample incubation 30 to 200ºC
+Liquid, headspace, and solid-phase microextraction sample preparation available
+0.01 to 100 µL injection volumes for liquid injection
+25 to 2,500 µL injection volumes for headspace injection
+Headspace syringe heating 40 to 150ºC
+Agilent 8890 CS System with 5977B MSD
+ExperimentSupercriticalFluidChromatography
+Base Package
+Example applications include: Carbon dioxide mobile phase, Liquid chromatography, Chiral chromatography, Normal phase chromatography, Analytical chemistry, Convergence chromatography, Pressurized flow path
+Supercritical Fluid Chromatography Instrument with Quadrupole Mass Spec
+Quaternary Pump
+Up to 4 cosolvent solutions
+0.1 to 3.3 mL/min flow rate
+10,000 PSI maximum pressure
+In-line degasser
+Titanium pump casing with sapphire pump heads
+250 mL to 1 L cosolvent source bottles
+Convergence Manager
+2,000 to 6,000 PSI range for adjustable back pressure
+Makeup Solvent Manager
+Up to 1 mL/min flow rate for makeup solvent
+Detectors
+Pump pressure sensor
+Column temperature sensor
+Absorbance diode array detector
+Deuterium lamp
+Up to 80 points/second sampling rate
+190 to 800 nm absorbance detection (1.2 nm resolution)
+Quartz flow cell
+10 mm pathlength
+1 µL volume
+1,000 PSI maximum pressure
+Mass spectrometer detector
+Single quadrupole
+Electrospray ionization (both positive and negative)
+50 to 1,200 m/z quadrupole mass range
+50 ms scan time per spectra
+25 to 150°C probe temperature range
+120°C source temperature
+0.3 to 1.5 kV capillary voltage
+0.1 to 100 V sampling cone voltage
+Column Selector
+20 to 90°C (± 0.1°C) incubation
+Up to 8 columns, switchable using valves
+300 mm maximum column length
+15 mm maximum column outer diameter
+Sample Constraints
+50 µL sample loop
+250 µL autosampler syringe
+Sample chamber temperature controlled from 5 to 40°C (± 3°C)
+Up to 48x HPLC/CE vials or 2x SBS style deep well plates per batch
+Waters Upc2 System
+Bioassays
+ExperimentELISA
+Base Package
+Robotic ELISA Device
+Absorbance Detection
+LED Light Source
+8-channel photometer
+340 to 750 nm wavelength selection
+Linear shaking
+0.1 mOD resolution
+< ± 1 % precision
+Incubation
+Heating from room temperature to 80°C
+Shaking from 0 to 1,800 RPM at 0 to 3 mm orbit
+Washing
+8-channel strip washer
+50 to 1,000 µL wash buffer per well
+1 to 9 wash cycles
+Linear sample shaking
+Nimbus Elisa System
+ExperimentCapillaryELISA
+Base Package
+Capillary ELISA Device
+All incubation, washing, and detection steps are automated
+72 samples with 1 analytes, or 32 samples with up to 8 analytes
+Built-in duplicate or triplicate measurement per sample
+25 µL volume required per sample
+4 to 5 logs of dynamic range
+75 minute run time
+Proteinsimple Ella
+ExperimentqPCR
+Base Package
+Example applications include: Gene Expression Analysis, Genotyping, Copy Number Variation Analysis, microRNA Analysis, Pathogen Detection
+qPCR Thermocycler
+Excitation Filters
+470 nm (15 nm bandwidth)
+520 nm (10 nm bandwidth)
+550 nm (10 nm bandwidth)
+580 nm (10 nm bandwidth)
+640 nm (10 nm bandwidth)
+662 nm (10 nm bandwidth)
+Emission Filters
+520 nm (15 nm bandwidth)
+558 nm (12 nm bandwidth)
+587 nm (10 nm bandwidth)
+623 nm (14 nm bandwidth)
+682 nm (14 nm bandwidth)
+711 nm (12 nm bandwidth)
+Halogen Lamp Reaction Conditions
+4 to 100°C temperature range
+204°C/min maximum temperature ramp rate
+Programmable thermal cycle program (up to 100 cycles)
+Reactions in 384-well plates or array cards
+Thermo Fisher Viia 7
+ExperimentWestern
+ExperimentTotalProteinDetection
+Base Package
+Example applications include: Capillary-based Analytical Assay, Gel Electrophoresis, Capillary Gel Electrophoresis, Total Protein Separation, Total Protein Visualization, Protein Size Characterization, Protein Abundance Comparison
+Capillary Western Blot System
+Capillary Gel Electrophoresis
+2 to 440 kDa molecular weight range
+0 to 500 V separation voltage
+UV capillary crosslinking for protein immobilization
+Secondary Antibodies Available
+Secondary Antibodies Available
+Goat Anti-Rabbit HRP
+Goat Anti-Mouse HRP
+Goat Anti-Human IgG HRP
+Donkey Anti-Goat HRP
+CCD Camera-Based Capillary Imaging
+100 ms to 512 sec exposure times
+Up to picogram sensitivity (depending on the primary antibody sensitivity)
+Capacity
+13 or 25 capillaries per batch
+5 to 8 µL of sample required per capillary
+Proteinsimple Wes
+ExperimentAlphaScreen
+Base Package
+Example applications include: Bead-based Interaction Assay, Protein-protein Interaction Screening, Binding Inhibitor Screening, Protease/kinase Inhibitor Screening, Binding And Dissociation Analysis
+Amplified Luminescent Proximity Homogenous Assay Screen (AlphaScreen)
+Bead-based assay
+AlphaScreen laser and filter sets
+Selection of beads with a variety of affinity tags
+Support 96- or 384-well plate format
+10 to 160 µL assay volume
+Assays Available
+Screen Optimization
+Interaction Characterization
+Interaction Inhibitor Screen
+Interaction Inhibitor Dose Response
+Enzyme Activity Characterization
+Enzyme Inhibitor Screen
+Enzyme Inhibitor Dose Response
+Linker Screen
+Sample Quantification
+Hamilton StarClariostar
+ExperimentDNASequencing
+Base Package
+Example applications include: Sanger sequencing, Sequence analysis, Nucleic acid sequence, Fluorescence-based sequencing, Capillary gel electrophoresis, Species identification, Mutagenesis confirmation or mutagenesis identification, Verification of next generation sequencing (NGS) results
+Genetic Analyzer
+Accurate reads of DNA templates up to 900 base pairs by Sanger sequencing
+10 to 100 µL volume
+96-well plate format
+All-in-one capillary cartridge containing universal polymer, anode buffer, and capillaries for easy experimental set-up
+Run times returning high quality reads in as little as 30 minutes
+Seqstudio
+ExperimentFragmentAnalysis(Beta)
+Base Package
+Example applications include: Quality metrics analysis (DQN, RQN), PCR fragment sizing and QC, Quality control of NGS libraries and intermediates, CRISPR Discovery screening of heteroduplex assays, ssDNA assessment, Genomic DNA analysis, Single molecule sequencing, Supercoiled plasmid DNA analysis, Quantitative and qualitative microsatellite/SSR analysis, Genotyping,Restriction digest analysis, Total RNA, IVT-RNA and mRNA analysis, Total RNA degradation analysis
+Multiplexed Capillary Electrophoresis System
+Automated parallel capillary electrophoresis for high throughput and reliable quality control of nucleic acid samples
+Qualitative and quantitative analysis, including DQN and RQN analysis
+Wide size range
+1 to 20,000 bp range for DNA samples
+15 to 6,000 nt range for RNA samples
+Customizable template Analysis Methods optimized based on sample properties
+Capillary Array
+96-capillary array bundle
+Versatile short capillary array (33 cm)
+Sample Constraints
+Up to 96 samples in a 96-well plate format
+2 µL sample volume
+High sensitivity range
+Standard (ng/µL)
+High (pg/µL)
+
+ExperimentBioLayerInterferometry
+Base Package
+Example applications include: Label-free Assay, Surface Immobilization, Biomolecular Interactions, Concentration Quantification, Association And Dissociation Analysis
+Bio-Layer Interferometer (BLI)
+Instrument Details
+8 parallel channels per read
+Sample temperature range: 15 to 40°C
+Orbital flow capacity: Static or 100 to 1,500 RPM
+Uses commercially available bio-probes
+Baseline noise: < 3 pm
+Experiment Types
+Kinetics
+Measure association and dissociation rates
+Up to 12 samples per plate
+Quantitation
+Measure analyte concentration
+Up to 96 samples per plate
+Epitope binning/cross-blocking
+Determine modes of interaction through analyte competition
+Up to 8 samples per plate
+Detection Range
+Analyte molecular weight: > 150 Da
+Affinity range: 1 mM to 10 pM
+Association rate range: 10¹ to 10⁷ M⁻¹s⁻¹
+Dissociation rate range: 10⁻⁶ to 0.1 s⁻¹
+Sample Constraints
+Sample input format: 96-well
+Minimum sample volume: 180 μL
+Recoverable samples/non-destructive analysis
+Sample types:
+Proteins/Peptides
+Small molecules/Fragments
+Oligonucleotides/DNA/RNA
+Virus-like particles
+Antibodies
+Serum containing media
+DMSO containing buffers
+Crude cell lysates
+Octet Red96E
+ExperimentDifferentialScanningCalorimetry
+Base Package
+Differential Scanning Calorimeter
+Capillary based liquid sample cells
+500 to 700 µL sample and reference cell volume
+10°C per hour to 300°C per hour temperature scan rate
+1°C minimum temperature to 140°C maximum temperature (± 0.1°C precision)
+1.25 µCal/°C energy repeatability
+Autosampler
+Sample incubation at 4 to 40°C
+6x SBS plates per batch
+Microcal Vp Capillary
+ExperimentUVMelting
+Base Package
+Example applications include: Thermal melting curves, Nucleic acid melting point measurement
+UV/Vis Spectrometer with Thermal Controller
+Simultaneously scan a full wavelength range, on 8 channels, in less than a second
+Each pair of cuvettes can be held at a different temperature: Perform 4 different temperature experiments at the same time
+Simultaneously measure standards, samples, and controls under exactly the same conditions
+Measurement modules do not contain any moving parts (permanent optical alignment)
+Absorbance Detection
+Photometric system: Double beam with rear beam access
+Long-life xenon flashlamp source
+250 points per second data collection rate
+190 to 1,100 nm wavelength range (limiting resolution 0.1 nm, wavelength accuracy ± 0.2 nm)
+150,000 nm/min maximum scan rate
+Tightly-controlled beam geometry (< 1.5 mm at sample interface)
+Silicon photodiode detectors for simultaneous measurement of all channels
+8 cuvette positions can be measured simultaneously
+Thermodynamics
+Temperature control system is self-contained, integrated, and air-cooled
+Water-free temperature cycling from 0 to 110°C
+Peltier block probe ± 0.5°C temperature accuracy
+Sample probe ± 0.25ºC temperature accuracy
+< ± 0.15°C cell to cell variation
+Maximum ramp rate 40°C/min
+Minimum ramp rate 0.1°C/min
+1, 2, or 4 independently controlled temperature zones
+Agilent Cary 3500
+ExperimentThermalShift
+Base Package
+Example applications include: Multimode Spectrophotometer, Thermal Stability, Conformation Change Detection, Protein Aggregation Detection, Melting Curve Analysis, Aggregation Curve Analysis
+qPCR Thermocycler
+Excitation Filters
+470 nm (15 nm bandwidth)
+520 nm (10 nm bandwidth)
+550 nm (10 nm bandwidth)
+580 nm (10 nm bandwidth)
+640 nm (10 nm bandwidth)
+662 nm (10 nm bandwidth)
+Emission Filters
+520 nm (15 nm bandwidth)
+558 nm (12 nm bandwidth)
+587 nm (10 nm bandwidth)
+623 nm (14 nm bandwidth)
+682 nm (14 nm bandwidth)
+711 nm (12 nm bandwidth)
+Halogen Lamp Reaction Conditions
+4 to 100°C temperature range
+204°C/min maximum temperature ramp rate
+Programmable thermal cycle program (up to 100 cycles)
+Reactions in 384-well plates
+Thermo Fisher Viia 7
+Multimode Spectrophotometer
+Simultaneously measure fluorescence spectra and static light scattering of samples enabling assessment of melting point and aggregation point
+Measurement in sealed quartz capillaries requires only 9 μL of sample
+Measure up to 48 samples in one experiment including standards, samples, and controls
+Fluorescence and Static Light Scattering Detection
+266 nm and 473 nm laser light sources with neutral density filtering available
+CCD spectrometer at full 250 to 750 nm spectral range simultaneously detects fluorescence emission spectra and static light scattering intensity at 266 nm and 473 nm
+Melting point precision < 2% CV
+Static light scattering resolution can detect ~15 kDa change in mean molecular mass
+Thermodynamics
+Temperature control system is self-contained
+Water-free temperature cycling from 15 to 95ºC
+TEC heating/cooling plate temperature control accuracy 1ºC (at < 70ºC) and 1.5ºC (at > 70ºC)
+Maximum ramp rate 10ºC/min
+Minimum ramp rate 0.1ºC/min
+Unchained Labs Uncle
+ExperimentTotalProteinQuantification
+Base Package
+Example applications include: Bradford Assay, Bicinchoninic Acid (BCA) Assay, Quant-iT Fluorescence Quantification Assay, Total Protein Quantification, Protein Concentration Quantification
+Total Protein Quantification
+Absorbance- and fluorescence-based assays
+Customizable excitation and quantification wavelengths
+Protein quantification between 0.025 and 2 mg/mL
+Between 5 and 25 µL of sample required
+Bovine serum albumin or bovine gamma globulin standards
+Instrumentation
+Reagent preparation, plate loading, and mixing performed on Hamilton liquid handler
+Absorbance measured on FLUOstar Omega plate reader
+Fluorescence measured on CLARIOstar plate reader
+Hamilton StarFluostar OmegaClariostar
+ExperimentBioconjugation
+Base Package
+Example applications include: Chemical crosslinking, Protein modification, Antibody modification, Fluorophore conjugated, Biotinylated
+Liquid Handler
+Low-volume chemical linking of biomolecules including microbeads, oligomers, proteins, and antibodies
+Utilizes all available solid transfer, liquid transfer, and mixing instrumentation
+Biomolecule activation can be specified prior to conjugation.
+Reaction quenching can be specified after conjugation
+Product workup including pelleting and filtering can be specified after conjugation
+Hamilton Star
+Cell Culture
+ExperimentCellPreparation(Beta)
+Cell Culture Package
+Example applications include: microbial cell culture, tissue culture, cell growth curve construction, cell counting, cell culture monitoring, cytotoxicity studies, viability assessment, protein localization studies, live-cell morphology analysis, automated colony handling and screening, colony morphology analysis, colony growth monitoring and quantification, antibiotic susceptibility testing, gene expression analysis, strain isolation, viral cultivation, cell viability maintenance, cell health monitoring, protein purification, DNA extraction, RNA extraction, enzyme assays, Western blotting, long-term cryopreservation of cells, cell line maintenance
+Liquid Media Cell Preparation Workcell
+
+Workcell Integrated Micro Liquid Handler
+Large Capacity Deck
+8x SBS plate positions (including any deep well or microtiter plates)
+4 on-deck plate tilt positions with 10° maximum tilt angle (for media aspiration)
+4 on-deck heater/cooler/shakers capable of cooling/heating from 4 °C to 70 °C and shaking at 100-3000 rpm
+4 on-deck heater/coolers capable of cooling/heating from 0 °C to 110 °C
+36x 50mL tube positions
+64x microcentrifuge tube positions
+8 filtered tip rack positions for racks holding 96 10 μL, 50 μL, 300 μL, or 1000 μL tips
+Robotic arm for movement of plates, lids, and racks around the deck and to/from integrations
+8x Independent Single Channel Pipettes
+1uL to 1mL volume (+- 1%)
+0.4 to 250 uL/sec aspirate and dispense rate
+10 μL, 50 μL, 300 μL, 1000 μL regular, wide-bore, and filtered disposable polypropylene tips
+Pre-aspiration/post-dispense mixing
+Fine-grained pipette tip aspiration and dispense position control
+Tip movement and speed control
+1x Multichannel Pipette (96 Channels)
+Capable of any simultaneous rectangular pipetting up to dimensions 8x12
+1 μL to 1 mL volume (± 2%)
+0.4 to 250 μL/sec aspirate/dispense rate
+10 μL, 50 μL, 300 μL, 1,000 μL regular, widebore, and filtered disposable polypropylene tips
+Pre-aspiration/post-dispense mixing
+Fine-grained pipette tip aspiration and dispense position control
+Tip movement and speed control
+Hamilton Star
+Workcell Integrated Incubator
+Simultaneous incubation of up to 20 shallow or deep well plates
+33 °C to 50 °C cell incubation
+Atmosphere Control (Mammalian)
+0% to 10% carbon dioxide concentration
+0% to 100% relative humidity
+Shaking (Microbial)
+25 to 600 RPM shaking rate with 3 mm shaking radius
+
+Workcell Integrated High Speed Centrifuge
+4000 x g rotational forces
+350 g maximum weight (per position)
+50 g maximum imbalance
+2x SBS plate footprint positions
+60 mm max plate height
+
+Workcell Integrated Confocal High Content Imager
+Camera : > 4.7 Megapixel CMOS
+Field of View (10x magnification): 1.96 mm^2
+Speed: Up to 200,000 wells/day
+Objective magnifications: 4x and 10x (air), 20x, 40x and 60x (water immersion)
+Filter Changer: 5 position filter cube changer
+Autofocus: Laser and image autofocus
+Fully automated X-Y and Z stages with resolution better than 100nm
+2048 x 2048 image resolution
+Imaging Modes (Confocal and Widefield)
+Digital phase contrast
+Transmitted light
+Bright-field
+Nine fluorescent channels: DAPI, CFP, FITC, YFP, TRITC, TexasRed, Cy3Cy5FRET, Cy5, Cy7
+Sample Constraints
+Up to 1,536-well plates
+
+Workcell Integrated Positive Pressure Filter
+0 to 40 PSI Independent pressure sources for each well
+Filter through SBS filter plates
+Collects in SBS shallow plates
+Hamilton Mpe2
+Workcell Integrated Plate Reader with ACU
+Supports absorbance, fluorescence, and luminescence reads
+Absorbance
+CCD detector
+220 to 1,000 nm wavelength selection
+Excitation
+Xenon flash lamp
+1 to 100 flashes per well
+320 to 740 nm excitation monochromator (8 nm bandpass)
+680 nm laser (AlphaScreen)
+Emission
+High voltage PMT detector
+320 to 850 nm emission monochromator (8 nm bandpass)
+Sample Injection
+2x 500 µL injection syringes per batch
+50 µL dead volumes, 0.5 µL precision
+25 mL/min maximum injection speed
+2 mL microcentrifuge tubes, 15 mL conical tubes, or 50 mL conical tube sources
+Sample Chamber
+Room temperature (25°C ± 0.45°C (1 sigma)) to 45°C incubation
+Mix by shaking before read options
+1x microtiter plate (6 to 96 well) per batch
+-5 to 110 °C temperature control
+0.1% to 20% range control of oxygen and carbon dioxide concentrations
+Clariostar
+Workcell Integrated Nephelometer with ACU
+Sample Injection
+2x 500 µL injection syringes
+440 µL/s maximum injection speed
+Sample Chamber
+-5 to 110 °C temperature control
+Actively regulates O2 and CO2 to 0.1-20%
+Mix by shaking before read options
+Optics
+635 ± 10nm 1mW self-monitoring laser diode
+1.5 to 3.5 mm selectable beam width
+Side window photodiode detector
+Detects up to 80° full cone angle
+
+Workcell Integrated Automated Thermal Cycler
+Temperature accuracy: +- 0.25 °C(between 35.0 and 99.9 °C)
+Max block ramp rate: 3.5 °C/sec
+Max sample ramp rate: 1.8 °C/sec
+Temperature Range: 4 to 105 °C
+Temperature uniformity: +- 0.50 °C (20 sec after reaching 95 °C)
+Sample Constraints
+Plate format: 96-well PCR plate
+Sample volume: 10 to 100 uL
+Automated Thermal Cycler
+Workcell Integrated Incubator Shakers
+400 to 1800 RPM
+Programmable shaking pattern
+1x deep well or 1x microtiter plate
+Incubation at temperatures between ambient and 80 °C
+
+ExperimentSpreadCells(Beta)
+ExperimentStreakCells(Beta)
+ExperimentPickColonies(Beta)
+ExperimentImageColonies(Beta)
+ExperimentQuantifyColonies(Beta)
+Cell Culture Package
+Example applications include: automated colony handling and screening, colony morphology analysis, colony growth monitoring and quantification, antibiotic susceptibility testing, gene expression analysis
+Solid Media Cell Preparation Workcell
+
+Colony Handler
+Large Capacity Deck
+8x/12x multi-well plate positions for SBS deep well or microtiter plates
+2x imaging plate positions for agar omnitrays
+3x wash bath positions
+Sterilization by interior UV light and halogen drying of pins
+Integrated Imager
+Capable of acquiring Bright-field (trans-illuminated) or fluorescent images to identify colony positions
+377 nm excitation filtering with 447 nm emission filtering (good for DAPI/Hoechst)
+457 nm excitation filtering with 536 nm emission filtering (good for FITC/GFP)
+531 nm excitation filtering with 593 nm emission filtering (good for Cy3/DS Red)
+531 nm excitation filtering with 624 nm emission filtering (good for Rhodamine/Texas Red)
+628 nm excitation filtering with 692 nm emission filtering (good for Cy5)
+Optional blue-white screen filter
+High resolution imaging (5.3 megapixel) with auto-focus and auto-exposure
+Robotic Gantry
+Optimized for multiple taskings including imaging solid media plates, picking colonies from solid media, and plating suspended colonies onto solid media
+10 to 130 microliter pipette transfer with pre-aspiration mixing
+Compatible with various head cassettes for spreading, streaking, and picking
+Agar height sensor for maximum picking efficiency with variable pour volumes
+Organism-specific picking pins
+
+ExperimentMedia(Beta)
+ExperimentPlateMedia(Beta)
+Cell Culture Package
+Example applications include: microbial cell culture, differentiation and isolation of microorganisms, viral cultivation, antibiotic susceptibility testing
+Biosafety Cabinet
+Laminar flow rate of 105 ft/min
+Internal dimensions: 1.74 m x 0.438 m x 0.635 m
+2 vacuum traps for general cell culture aspiration needs
+UV germicidal light for surface disinfection
+30% HEPA filtered exhaust air and 70% recirculated HEPA filtered air
+Equipped with balances for aseptic gravimetric transfers and camera for streaming
+Temperature and relative humidity sensors installed (tracked by ECL Constellation)
+Thermo Scientific 1300
+Autoclave
+Chamber volume: 254 L
+Maximum temperature: 134°C
+Maximum pressure: 45 PSI
+Liquid and dry cycles available
+Programmable cycles (temperature, time)
+BMT Unisteri
+Water Bath
+Room temperature to 100ºC in 0.1ºC increments
+Temperature accuracy of 0.24ºC
+Available for 2 mL tubes to 250 mL glass bottles
+
+ExperimentInoculateLiquidMedia(Beta)
+Cell Culture Package
+Example applications include: microbial cell culture, metabolic studies, strain isolation, vial propagation, cell thawing
+Solid Media Cell Preparation Workcell
+Large Capacity Deck
+8x/12x multi-well plate positions for SBS deep well or microtiter plates
+2x imaging plate positions for agar omnitrays
+3x wash bath positions
+Sterilization by interior UV light and halogen drying of pins
+Integrated Imager
+Capable of acquiring Bright-field (trans-illuminated) or fluorescent images to identify colony positions
+377 nm excitation filtering with 447 nm emission filtering (good for DAPI/Hoechst)
+457 nm excitation filtering with 536 nm emission filtering (good for FITC/GFP)
+531 nm excitation filtering with 593 nm emission filtering (good for Cy3/DS Red)
+531 nm excitation filtering with 624 nm emission filtering (good for Rhodamine/Texas Red)
+628 nm excitation filtering with 692 nm emission filtering (good for Cy5)
+Optional blue-white screen filter
+High resolution imaging (5.3 megapixel) with auto-focus and auto-exposure
+Robotic Gantry
+Optimized for multiple taskings including imaging solid media plates, picking colonies from solid media, and plating suspended colonies onto solid media
+10 to 130 microliter pipette transfer with pre-aspiration mixing
+Compatible with various head cassettes for spreading, streaking, and picking
+Agar height sensor for maximum picking efficiency with variable pour volumes
+Organism-specific picking pins
+
+Liquid Media Cell Preparation Workcell
+Robotic inoculation for liquid media inoculation sources
+Hamilton Star
+Biosafety Cabinet
+Laminar flow rate of 105 ft/min
+Internal dimensions: 1.74 m x 0.438 m x 0.635 m
+2 vacuum traps for general cell culture aspiration needs
+UV germicidal light for surface disinfection
+30% HEPA filtered exhaust air and 70% recirculated HEPA filtered air
+Equipped with balances for aseptic gravimetric transfers and camera for streaming
+Temperature and relative humidity sensors installed (tracked by ECL Constellation)
+Thermo Scientific 1300
+Serological Pipette
+Aspiration dispense mixing (slurry transfers)
+Gravimetric transfers
+Liquids can be transferred by weight (gravimetrically), from µg to kg, in both sterile and non-sterile environments
+Temperature controlled transfers
+Temperature-sensitive source/destination samples can be marked to be chilled (4ºC) or heated (30 to 105ºC) during transfers (for more information, see Sample Transport section)
+Variable dispense/aspirate speed (8 settings)
+15 hours of continuous operation before recharging
+Compatible plastic serological pipette tips
+2 mL plastic barrier serological pipettes, sterile
+5 mL plastic barrier serological pipettes, sterile
+10 mL plastic barrier serological pipettes, sterile
+25 mL plastic barrier serological pipettes, sterile
+50 mL plastic barrier serological pipettes, sterile
+Compatible glass serological pipette tips
+1 mL glass barrier serological pipettes, sterile
+2 mL glass barrier serological pipettes, sterile
+5 mL glass barrier serological pipettes, sterile
+10 mL glass barrier serological pipettes, sterile
+25 mL glass barrier serological pipettes, sterile
+50 mL glass barrier serological pipettes, sterile
+S1 Pipette FillerPlastic TipsGlass Tips
+Micropipettes
+Reverse pipetting available
+Aspiration dispense mixing (slurry transfers)
+Gravimetric transfers
+Liquids can be transferred by weight (gravimetrically), from µg to kg, in a sterile environment
+Temperature controlled transfers
+Temperature-sensitive source/destination samples can be marked to be chilled (-86 to 10°C) or heated (30 to 105°C) during transport (for more information, see Sample Transport section)
+Single-channel pipettes
+0.1 to 2.5 µL
+2 to 20 µL
+20 to 200 µL
+100 to 1,000 µL
+0.5 to 5 mL
+Compatible tip types
+10 μL reach tips, sterile
+20 μL barrier tips, sterile
+200 μL gel loading tips
+200 μL tips, sterile
+1,000 μL reach tips, sterile
+Single Channel PipettesTips
+ExperimentIncubateCells(Beta)
+Cell Culture Package
+Example applications include: microbial cell culture, tissue culture, cell growth curve construction
+Static Plate Incubator
+Dedicated instruments for mammalian, bacterial, and yeast sample incubation
+Simultaneous incubation of up to 210 shallow plates
+Default mammalian incubation condition: 37 °C, 5% CO2, 93% relative humidity
+Default bacterial incubation condition: 37 °C
+Default yeast incubation condition: 30 °C
+
+Shaking Plate Incubator
+Dedicated instruments for bacterial and yeast sample incubation with shaking
+Simultaneous incubation of up to 48 shallow or deep well plates with shaking
+Default shaking rate: 200 RPM with 25.4 mm shaking radius
+Default bacterial incubation condition: 37 °C
+Default yeast incubation condition: 30 °C
+
+Shaking Flask Incubator
+Dedicated instruments for bacterial and yeast sample incubation with shaking
+Simultaneous incubation of up to 6x 1000mL Erlenmeyer flasks, 8x 250mL Erlenmeyer flasks, and 11x 125mL Erlenmeyer flasks with shaking
+Default shaking rate: 200 RPM with 25.4 mm shaking radius
+Default bacterial incubation condition: 37 °C
+Default yeast incubation condition: 30 °C
+
+Custom Shaking Plate Incubator
+Simultaneous incubation of up to 20 shallow or deep well plates with shaking
+25 °C to 80 °C cell incubation
+0% to 20% carbon dioxide concentration
+20% to 85% relative humidity
+50 to 1000 RPM shaking rate with 3 mm shaking radius
+
+Custom Shaking Flask Incubator
+Simultaneous incubation of up to 6x 1000mL Erlenmeyer flasks, 8x 500mL Erlenmeyer flasks, and 10x 250mL Erlenmeyer flasks with shaking
+25 °C to 80 °C cell incubation
+0% to 20% carbon dioxide concentration
+20% to 85% relative humidity
+20 to 400 RPM shaking rate with 25 mm shaking radius
+
+Robotic Incubator with Humidity Control
+Integrated with Hamilton bioSTAR robotic liquid handler for mammalian sample incubation
+Simultaneous incubation of up to 20 shallow or deep well plates
+33 °C to 50 °C cell incubation
+0% to 10% carbon dioxide concentration
+0% to 100% relative humidity
+
+Robotic Shaking Incubator
+Integrated with Hamilton bioSTAR robotic liquid handler for bacterial and/or yeast sample incubation
+Simultaneous incubation of up to 16 shallow or deep well plates with shaking
+33 °C to 50 °C cell incubation
+25 to 600 RPM shaking rate with 3 mm shaking radius
+
+ExperimentImageCells
+Cell Culture Package
+Example applications include: cell counting, viability assessment, protein localization studies, live-cell morphology analysis
+Confocal Imager
+Camera: > 4.7 Megapixel CMOS
+Field of View (10x magnification): 1.96 mm^2
+Speed: Up to 200,000 wells/day
+Objective magnifications: 4x and 10x (air), 20x, 40x and 60x (water immersion)
+Filter Changer: 5 position filter cube changer
+Autofocus: Laser and image autofocus
+Fully automated X-Y and Z stages with resolution better than 100nm
+2048 x 2048 image resolution
+Imaging Modes (Confocal and Widefield)
+Digital phase contrast
+Transmitted light
+Bright-field
+Nine fluorescent channels: DAPI, CFP, FITC, YFP, TRITC, TexasRed, Cy3Cy5FRET, Cy5, Cy7
+Sample Constraints
+Up to 1,536-well plates
+
+Inverted Microscope
+Possible Imaging Modalities
+Epifluorescence
+Bright-field
+Phase contrast (requires additional attachments)
+Differential Interference Contrast (requires additional attachments)
+Total Internal Reflection Fluorescence (requires additional attachments)
+Specs
+Motorized control of stage
+Objectives on rotation turret
+Customizable objectives, based on Excitation wavelength and Emission wavelength: DAPI - Excitation 350 nm, Emission 460 nm; FITC - Excitation 470 nm, Emission 525 nm; TRITC - Excitation 545 nm, Emission 620 nm
+Stable time-lapse imaging with automatic focus correction system
+Compatible with plastic dishes and well plates
+Modular illumination system
+1392 x 1040 image resolution
+Objective magnifications: 4x,10x, 20x, and 40x (air)
+
+ExperimentQuantifyCells(Beta)
+Cell Culture Package
+Example applications include: growth curve construction, cell culture monitoring, cytotoxicity studies
+UV/Vis Spectrometer with Thermal Controller
+Simultaneously scan a full wavelength range, on 8 channels, in less than a second
+Each pair of cuvettes can be held at a different temperature: Perform 4 different temperature experiments at the same time
+Simultaneously measure standards, samples, and controls under exactly the same conditions
+Measurement modules do not contain any moving parts (permanent optical alignment)
+Sample temperature range -5 to 110ºC
+Absorbance Detection
+Photometric system: Double beam with rear beam access
+Long-life xenon flashlamp source
+250 points per second data collection rate
+190 to 1,100 nm wavelength range (limiting resolution 0.1 nm, wavelength accuracy ± 0.2 nm)
+150,000 nm/min maximum scan rate
+Tightly-controlled beam geometry (< 1.5 mm at sample interface)
+Silicon photodiode detectors for simultaneous measurement of all channels
+8 cuvette positions can be measured simultaneously
+Agilent Cary 3500
+Multimode Plate Reader with ACU
+96-well plate compatible
+-5 to 110 °C temperature control
+0.1% to 20% range control of oxygen and carbon dioxide concentrations
+Excitation
+Xenon flash lamp
+1 to 100 flashes per well
+340 to 740 nm excitation monochromator
+680 nm laser (AlphaScreen)
+Emission
+High voltage PMT detector
+340 to 740 nm emission monochromator
+Top or bottom of plate read mode
+Clariostar
+Multimode Plate Reader w/ Filters
+96-well plate compatible
+Excitation
+Xenon flash lamp
+1 to 100 flashes per well
+355 nm, 410 nm, 485 nm, 544 nm, 584 nm, 650 nm, or 700 nm fixed wavelength excitation filters (5 nm bandpass)
+Emission
+High voltage PMT detector
+420 nm, 460 nm, 520 nm, 590 nm, 620 nm, or 750 nm fixed wavelength emission filters (5 nm bandpass)
+Top or bottom of plate read mode
+Fluostar Omega
+Fluorescence Polarization Plate Reader
+Xenon flash lamp
+1 to 100 flashes per well
+Dual high voltage PMT detectors
+96-well and 384-well plate compatible
+Excitation Emission Filter Pairs
+485 nm, 520 nm
+540 nm, 590 nm
+625 nm, 675 nm
+Polarized Dual Simultaneous Emission Filters
+Pherastar
+Nephelometer with ACU
+Sample Injection
+2x 500 µL injection syringes
+440 µL/s maximum injection speed
+Sample Chamber
+-5 to 110 °C temperature control
+0.1% to 20% range control of oxygen and carbon dioxide concentrations
+Mix by shaking before read options
+Optics
+635 ± 10nm 1mW self-monitoring laser diode
+1.5 to 3.5 mm selectable beam width
+Side window photodiode detector
+Detects up to 80° full cone angle
+
+ExperimentCoulterCount
+Cell Culture Package
+Example applications include: Particle sizes, particle counts, particle characterization, cell count and sizes, hematology
+Coulter Counter
+Aperture tubes available with nominal diameters from 10 µm to 2000 µm
+Particle size ranges from 0.2 µm to 1600 µm
+Particle size and count precision accurate up to 0.5%
+Particles are generally mixed and suspended with conductive electrolyte solutions non-intrusive
+Supports both aqueous and non-aqueous solutions
+25 mL, 100 mL, 200 mL, and 400 mL vessel sizes
+Can stir the measurement vessels from 1 to 60 RPM
+
+ExperimentWashCells(Beta)
+Cell Culture Package
+Example applications include: cell viability maintenance, cell health monitoring, cytotoxicity testing, growth rate control
+Liquid Media Cell Preparation Workcell
+Robotic inoculation for liquid media inoculation sources
+Hamilton Star
+High Speed Centrifuge
+Up to 4000 x g rotational forces
+Up to 350 grams per bucket for dual position rotor
+Up to 61 mm plate height
+Compatible with ANSI/SBS plates, PCR plates
+Integrated with Hamilton bioSTAR robotic liquid handler
+
+Incubator Shaker
+25 to 80 °C incubation
+400 to 1800 RPM shaking rate
+
+Heater Shaker
+4 to 70 °C cooling or incubation
+100 to 3000 RPM shaking rate
+
+Heater Cooler
+4x heater/cooler plate positions
+heating up to 110 °C
+cooling down to 0 °C
+
+ExperimentLyseCells(Beta)
+Cell Culture Package
+Example applications include: protein purification, DNA extraction, RNA extraction, enzyme assays, Western blotting
+Liquid Media Cell Preparation Workcell
+Robotic inoculation for liquid media inoculation sources
+Hamilton Star
+High Speed Centrifuge
+Up to 4000 x g rotational forces
+Up to 350 grams per bucket for dual position rotor
+Up to 61 mm plate height
+Compatible with ANSI/SBS plates, PCR plates
+Integrated with Hamilton bioSTAR robotic liquid handler
+
+Incubator Shaker
+25 to 80 °C incubation
+400 to 1800 RPM shaking rate
+
+Heater Shaker
+4 to 70 °C cooling or incubation
+100 to 3000 RPM shaking rate
+
+Heater Cooler
+4x heater/cooler plate positions
+heating up to 110 °C
+cooling down to 0 °C
+
+ExperimentFreezeCells(Beta)
+Cell Culture Package
+Example applications include: long-term cryopreservation of cells, cell line maintenance
+Controlled Rate Freezer
+Electronically controlled, programmable temperature profiles
+Simultaneous cooling of up to 48 samples in 1.2-2 mL cryogenic vials
+No coolant required
+Up to 2 °C/Min cooling rate
+
+2 mL Insulated Cooler
+Constant cooling at approximately 1 °C/Min when using isopropyl alcohol coolant in a -80 °C static temperature freezer
+Simultaneous cooling of up to 18 samples per batch in 1.2-2 mL cryogenic vials
+
+5 mL Insulated Cooler
+Constant cooling at approximately 1 °C/Min when using isopropyl alcohol coolant in a -80 °C static temperature freezer
+Simultaneous cooling of up to 12 samples per batch in 3.6-5 mL cryogenic vials
+
+Crystallography
+ExperimentPowderXRD
+Base Package
+Example applications include: Diffractograms of powder samples
+Cryo X-Ray Diffractometer
+X-Ray Generation
+Copper rotating anode source
+1,200 W X-ray beam (1.5406 Å wavelength)
+Detection
+Hybrid Photon Counting detector
+Detector distance from X-ray source controllable from 30 to 180 mm
+Detector rotation relative to X-ray source controllable from -50 to +81 degrees
+Sampling
+Powder sampling in X-ray transparent plate
+Up to 96 samples per batch
+Sample rotation relative to X-ray source controllable from -17 to +17 degrees
+Rotation of sample and detector during data collection
+Powder and single-crystal sampling on loop
+Temperature range from -190 to 126ºC
+Rotation of detector and sample along multiple axes during data collection
+Rigaku Synergy R
+ExperimentGrowCrystal
+Base Package
+Example applications include: High-throughput crystal screening for macromolecules or small molecules, optimization of crystallization conditions, cocrystallization of drug substances
+Liquid Handler
+Proficient in automated setup of precise nanoliter-scale and microliter-scale crystallization conditions
+Compatible with a wide variety of SBS format crystallization plates, up to 576 unique crystallization conditions per plate
+Compatible with Vapor Diffusion and Microbatch techniques
+Hamilton StarLabcyte Echo
+Crystal Imager
+Capable of storing and monitoring 190 SBS format plates
+Precise temperature control
+Capable of multiple Imaging Modes: Visible Light Imaging, Cross Polarized Imaging, UV imaging
+Capable of auto focusing and focus stacking
+
+Sample Preparation
+ExperimentMix
+ExperimentIncubate
+Base Package
+Example applications include: Mix until Dissolved (Homogeneous), Mix while Heating/Cooling, Tissue Homogenization/Sonication
+Overhead Mixer
+Stainless IKA steel stirrers
+50 to 1,000 RPM stir rate
+Room temperature (22°C ± 0.45°C (1 sigma)) to 500ºC temperature control
+Available for 100 mL glass bottles to 20 L carboys volume ranges
+Ministar 40
+Acoustic Mixer
+Mixing and processing any combination of
+Solutions with difficult solubility
+Viscous solutions
+Slurry materials
+Solids/powder mixing
+Height-adjustable holder accepts many vessel types
+Available for 2 mL tubes to 250 mL bottles
+Up to 1,000 gram maximum loading (including vessel)
+Mixing Force from 0 to 100 Gs
+
+Tube Vortex
+Tube compatible
+600 to 3,200 RPM
+Available for 1 to 50 mL volume ranges
+Holds 6x 50 mL tube, 12x microcentrifuge tube, 6x 15 mL tube
+Holds 4x 50 mL tubes, 4x 15 mL tubes
+Holds 4x 100 mL glass bottles
+Vortex Genie
+Plate Vortex
+Microplate compatible
+100 to 3,200 RPM
+Holds 4x microplates
+22ºC (room temperature) to 70ºC in 0.1ºC increments
+Heated lid to prevent condensation
+Multi Multiplate GenieBenchmark Incu Mixer
+Rollers
+Tube Roller
+1 to 80 RPM roller rate
+22ºC (room temperature) to 75ºC
+Available for
+2 mL, 15 mL, and 50 mL tubes
+10 L and 20 L carboys
+1 L, 2 L, and 5 L bottles
+Drum Roller
+40 RPM stir rate
+Available for 5 to 10 L carboys
+Medium Bottle Roller
+5 to 80 RPM stir rate
+Available for 100 mL to 2 L bottles
+Roller 6Enviro GenieMorse Drum Roller
+Hot Plate
+22ºC (room temperature) to 500ºC
+Available for 100 mL glass bottle to 20 L carboy volume ranges
+C Mag HS 7 Hot Plate
+Heat Bath
+Heating
+22ºC (room temperature) to 150°C
+Container capacity per batch
+150x microcentrifuge tubes
+2x SBS plates
+12x 15 mL tubes
+5x 50 mL tubes
+2x 250 mL bottles
+2x 500 mL bottles
+Cooling
+22ºC (room temperature) to -20°C
+Container capacity per batch
+340x microcentrifuge tubes
+2x SBS plates
+30x 15 mL tubes
+16x 50 mL tubes
+4x 250 mL bottles
+2x 500 mL bottles
+Thermal Lok 2510 1104Ahp 1200Cpv
+Heater Shaker
+35 to 1,000 RPM shake rate
+Available for 1 mL to 1 L volume ranges
+Room temperature (25°C ± 0.45°C (1 sigma)) to 75ºC temperature control
+Genie Temp Shaker 300
+Water Bath
+Room temperature to 100ºC in 0.1ºC increments
+Temperature accuracy of 0.24ºC
+Available for 2 mL tubes to 250 mL glass bottles
+
+Bath Sonicator
+40 kHz frequency
+22 to 69ºC heated water bath
+Delivers unwavering cavitation
+Available for 2 mL to 5 L volume ranges
+High-temp safety alarm indicator
+High/low power control for normal to delicate applications
+Tabletop cleaner
+Branson 1510Branson 3800
+Homogenizer
+550 W at 20 kHz
+22 to 100ºC temperature control
+Available for 0.2 to 1,000 mL volume ranges
+Specialized accessories/tools to meet application requirements. 3 different horn/tip types allow us to process samples from 0.2 to 1,000 mL
+Branson SPX550
+Plate Sonicator
+Up to 700 watts power
+Can mix and perform cell lysis
+Holds 1x microplate
+Temperature range 5 to 45°C with recirculating chiller
+Pulse widths adjustable from 1 second to 24 hours
+Qsonica 700
+Cell Disruptor
+Available for 1.5 mL and 2 mL tubes
+1,000 to 3,000 RPM
+0.1 mm or 0.5 mm disruptor beads
+1 to 75ºC
+
+Wrist Action Shaker
+10 lb max load
+385 oscillations per minute
+Up to 8x 250 mL flasks or smaller vessels
+
+Nutator
+2 to 60 RPM
+Available for 2 mL, 15 mL, 50 mL tubes, microplates, culture flasks, and dishes
+5 to 40ºC
+
+ExperimentCentrifuge
+Base Package
+Example applications include: Particle separation, Filtration, Pelleting, Density gradient centrifugation
+Microcentrifuge
+10 to 14,800 RPM (16,166 g at Rmax)
+36x tubes per batch
+Temperature range: -10 to 40ºC
+Beckman Coulter MicrofugeBeckman Coulter Microfuge 20R
+Centrifuge
+15 mL conical tubes
+Up to 4,811 x g
+Up to 56 tubes per batch
+50 mL conical tubes
+Up to 4,811 x g
+Up to 16 tubes per batch
+SBS format plates
+Up to 3,877 x g
+Up to 24 regular plates per batch
+Up to 8 deepwell plates per batch
+Up to 116 mm plate loading height
+Temperature range: -10 to 40ºC
+Array cards
+Up to 193 x g
+Up to 12 array cards per batch
+Temperature range: -10 to 40°C
+Avanti J 15Eppendorf 5920R
+Ultracentrifuge
+Max rotation rate: 80,000 RPM
+Max force: 802,000 x g
+Speed control: ± 2 RPM of set speed (above 1,000 RPM)
+Max time: 999 hr 59 min
+Temperature control
+Solid state refrigeration
+Temperature range: 0 to 40°C in 1°C increment
+Rotors
+Fixed-Angle Rotors
+Type 45 Ti Titanium Rotor
+94 mL UltraClear tubes
+Up to 45,000RPM
+Up to 6 tubes per batch
+Type 70 Ti Titanium Rotor
+32.4 mL OptiSeal tubes
+Up to 70,000RPM
+Up to 8 tubes per batch
+Type 70.1 Ti Titanium Rotor
+8.9 mL OptiSeal tubes
+Up to 70,000RPM
+Up to 12 tubes per batch
+Swing-Bucket Rotor
+SW 32 Ti Rotor
+32.4 mL OptiSeal tubes
+Up to 32,000RPM
+Up to 6 tubes per batch
+
+ExperimentPellet
+Base Package
+Microcentrifuge
+10 to 14,800 RPM (16,166 g at Rmax)
+36x tubes per batch
+Temperature range: -10 to 40ºC
+Beckman Coulter MicrofugeBeckman Coulter Microfuge 20R
+Centrifuge
+15 mL conical tubes
+Up to 4,811 x g
+Up to 56 tubes per batch
+50 mL conical tubes
+Up to 4,811 x g
+Up to 16 tubes per batch
+SBS format plates
+Up to 3,877 x g
+Up to 24 regular plates per batch
+Up to 8 deepwell plates per batch
+Up to 116 mm plate loading height
+Temperature range: -10 to 40ºC
+Avanti J 15Eppendorf 5920R
+ExperimentFilter
+Base Package
+Example applications include: Remove particulate matter, Separate and collect filtrate and retentate separately, Sterilize solutions, Centrifuge filtration, Syringe filtration, Peristaltic pump filtration, Positive air pressure filtration, Vacuum filtration, Büchner funnel filtration
+Filter Membrane Housing with Peristaltic Pump
+100 mL/min to 2.5 L/min peristaltic pump
+4 to 20 L sample volume required
+Mdi Filter Membrane HousingVwr Pp 3400
+Positive Pressure Filter
+0 to 40 PSI independent pressure sources for each well
+Filter though SBS filter plates
+Collects in SBS deep well plates
+Hamilton Mpe2
+Filter Block with Vacuum Pump
+26.4 inHg vacuum pressure
+0.5 to 2 mL sample volume required
+Vacuum Manifold For 96 Well Plates
+Filter Tops and Assemblies with Vacuum Pump
+26.4 inHg vacuum pressure
+50 mL to 1 L sample volume required
+Welch 2030B 01Millipore Sigma Stericup And Steritop Vacuum Filtration
+Centrifugal Filtration
+Concentrate proteins, DNA, or other macromolecules
+Molecular weight cut-off (MWCO): 3,000 to 100,000 Da
+0.25 to 0.45 µm pore size
+0.5 to 15 mL sample volume required
+Amicon Centricon
+Syringe Filters
+28 mL/min max flow rate
+0.1 to 60 mL sample volume required
+Syringe Filters
+ExperimentEvaporate
+Base Package
+Example applications include: Concentrate samples, Dry samples, Remove high boiling point solvents, Reduce bumping on rotary evaporator (rotovap)
+Rotovap
+~1,000 mBar to ~10 mBar vacuum pressures
+6.97 L water bath for 20 to 100°C incubation
+300 RPM rotation
+50 mL to 3 L round bottom flasks available for evaporation
+2 L trap capacity
+-20°C recirculating condenser, with -105°C supplemental cold finger
+Ika Rv 10
+Speedvac
+Vacuum Centrifuge
+5.1 Torr minimum pressure
+5 available vacuum ramp rates between 5 Torr/min and 70 Torr/min
+Vacuum pump displacement of 36 L/min
+-50°C integrated cold trap
+Ambient or 35 to 80°C incubation in 5°C increments
+Sample constraints: 8x SBS style plates per batch
+Genevac
+375 mTorr minimum pressure
+-35°C integrated cold trap
+2,150 RPM max rotation rate
+Ambient or 35 to 80°C incubation in 5°C increments
+Sample Constraints
+48x 2 mL microcentrifuge Tubes
+12x 15 mL conical Tubes
+12x 50 mL conical Tubes
+4x SBS style plates per batch
+Thermo Fisher SavantSp Scientific Ez2 Elite
+Needle Dryer
+1x SBS style deep well plate per batch
+96 stainless steel needles
+Adjustable needle height for precise gas flow delivery
+25 to 100°C incubation range
+25 L/min maximum nitrogen flow rate
+Vwr 099A Ev9612S
+Nitrogen Evaporator
+48 nitrogen delivery nozzles
+3.5 L/min maximum flow rate per nozzle
+25 to 90°C bath temperature control range
+± 2°C temperature accuracy
+Sample constraints:
+48x 2 mL tubes per batch
+48x 15 mL tubes or test tubes per batch
+24x 50 mL tubes per batch
+Biotage Turbovap
+ExperimentLyophilize
+Base Package
+Lyophilizer
+< 150 mTorr minimum pressure
+-55 to 60°C shelf temperature control range
+-85°C lowest condenser temperature
+Temperature uniformity of ± 1°C
+4 L ice condensing capacity in 24 hours
+Sample constraints
+384x microcentrifuge tubes per batch
+8x SBS style plates per batch
+Sp Scientific Advantage
+ExperimentAutoclave
+Base Package
+Example applications include: Sterilize instruments, media, and equipment, Steam sterilization, Sterilize biohazardous waste, Selectable autoclave program
+Autoclave
+Chamber volume: 254 L
+Maximum temperature: 134°C
+Maximum pressure: 45 PSI
+Liquid and dry cycles available
+Programmable cycles (temperature, time)
+BMT Unisteri
+ExperimentMicrowaveDigestion
+Base Package
+Example applications include: Digest samples with caustic or oxidizing digestion agents, Prepare samples for elemental composition analysis via Ion Coupled Plasma Mass Spectrometry (ICP-MS), Atomic Emission Spectroscopy (AES), or Atomic Absorption Spectroscopy (AAS), Pressurized microwave reactions, Heat samples with microwave irradiation, Decompose samples, Solubilize heavy metals
+Automated Microwave Digestion System
+Fully digest organic and inorganic samples for elemental analysis
+Up to 20 mL of prepared sample in digestion mixture in 80 mL reaction vessels
+Heat samples up to 300 Celsius and pressurize up to 500 PSI, with specified venting parameters
+Autosampler can load up to 24 samples in one run
+Cem Discover SP D 80
+ExperimentDegas
+Base Package
+Example applications include: Organic Synthesis Reactions, Organometallic Reactions, IR Spectroscopy, HPLC, Ion Chromatography, Mass Spectrometry, Cyclic Voltammetry
+Freeze-Pump-Thaw Apparatus
+Flash freezing in liquid nitrogen
+Vacuum pump pressure: 1x10-4 Torr
+Water bath for thawing: 22ºC (room temperature) to 180ºC
+Headspace gas replacement using nitrogen, argon, or helium
+Available for up to 50 mL volume ranges
+Wilmad Labglass Dewar Flasks
+Sparging Apparatus
+Gas options
+Nitrogen
+Argon
+Helium
+Glass gas dispersion tube
+Impeller stir bar
+Gas flow rate: between 20 to 100 mL/min
+Available for 50 mL to 4 L volume ranges
+
+Vacuum Sonicate Apparatus
+Vacuum pump pressure: controllable between 1.5 to 770 Torr
+Sonicator: 40 KHz frequency, 2.5 gallon capacity
+Headspace gas replacement using nitrogen, argon, or helium
+Available for 10 mL to 3 L volume ranges
+
+ExperimentFlashFreeze
+Base Package
+Example applications include: Cell Storage, Tissue Storage, Lyophilization Preparation, Nucleation, Atmospheric Science
+Liquid Nitrogen Submersion
+Flash freezing samples in liquid nitrogen to -196ºC
+Available for up to 50 mL volumes
+Automated liquid nitrogen dispenser for easy dewar filling
+Wilmad Labglass Dewar FlasksChart Industries Ultradoser 150
+ExperimentAdjustpH
+Base Package
+Immersion pH Meters
+pH range 0 to 14 pH (± 0.02)
+50 µL minimum sample size (consumes no volume)
+Measures and records pH over time
+Temperature correction
+Inlab MicroInlab Reach 225Mettler Toledo Sevenexcellence
+ExperimentStockSolution
+ExperimentFillToVolume
+Base Package
+Example applications include: Stock Solution Preparation, Media Preparation, Stock Solution Incubation/Mixing, Stock Solution Filtering, Stock Solution pH Adjustment, Stock Solution Autoclaving
+Solution Preparation
+Transfer solids and liquids together
+Mix and/or heat solution
+Adjust pH of solution
+Filter solution
+Autoclave solution
+Ministar 40Mdi Filter Membrane HousingVwr Pp 3400Inlab MicroInlab Reach 225Mettler Toledo SevenexcellenceBMT Unisteri
+Volumetric Flasks
+Provides accurate volume measurements during liquid/slurry transfers
+Composed of borosilicate 3.3 expansion glass
+Volumetric Flasks
+25 mL
+100 mL
+250 mL
+500 mL
+1 L
+2 L glass
+Volumetric Flasks
+ExperimentDesiccate
+Base Package
+Example applications include: Desiccate, desiccation, desiccant, drying, dehydrating, dehydration, desiccator, moisture removal, drying agent, humidity control, vacuum drying, dry environment, humidity chamber, drying cabinet, hygroscopic material, silica gel, drying oven
+Desiccator
+Drying solid samples using a bell jar desiccator
+Solid or liquid desiccant
+Under vacuum or at atmospheric pressure
+
+ExperimentGrind
+Base Package
+Example applications include: Grinder, grinding, laboratory grinder, laboratory mill, lab mill, sample preparation, milling, particle size reduction, homogenization, pulverization, grinding mill, mortar and pestle, ball mill, knife mill, automated mortar grinder
+Ball Mill
+Mixer Mill MM400
+Grinding rate of 180 to 1,800 RPM
+0.2 to 50 mL conical tubes or steel jars
+Maximum feed fineness of 8 mm
+Final fineness of 5 µm
+BeadBug3
+Grinding rate of 2,800 to 4,000 RPM
+2 mL microcentrifuges
+Maximum feed fineness of 1 to 2 mm
+Bead Genie
+Grinding rate of 250 to 2,400 RPM
+1.5 to 50 mL conical tubes
+Maximum feed fineness of 1 to 2 mm
+
+Mortar Grinder
+Automated Mortar Grinder
+Grinding rate of 20 to 90 RPM
+5” agate mortar (150 mL)
+Maximum feed fineness of 2 mm
+
+Knife Mill
+Tube Mill Control
+Grinding rate of 5,000 to 25,000 RPM
+Disposable 40 mL chambers
+Maximum feed fineness of 10 mm
+Final fineness of 1 to 100 µm
+
+Handling Environment
+Transfer procedures can be carried out in a variety of atmospheric environments.
+ExperimentTransfer
+Base Package
+Example applications include: Creating Standard Curves, Dilutions, and Aliquots
+Biosafety Cabinet
+Laminar flow rate of 105 ft/min
+Internal dimensions: 1.74 m x 0.438 m x 0.635 m
+Has 2 vacuum traps for general cell culture aspiration needs
+UV germicidal light for surface disinfection
+30% HEPA filtered exhaust air and 70% recirculated HEPA filtered air
+Will have analytical balances inside for gravimetric transfers
+Temperature and relative humidity sensors installed (tracked by ECL Constellation)
+Thermo Scientific 1300
+Fume Hood
+Airflow velocity readout that is tracked by ECL Constellation: 60 to 100 ft/min
+Internal dimensions: 1.8288 m x 0.9220 m x 0.5906 m
+Supplied with nitrogen via in-house plumbing
+Vacuum plumbing capabilities
+pH, temperature, relative humidity, pressure sensors installed (tracked by ECL Constellation)
+Equipped with analytical balances for gravimetric transfers
+Labconco Rediship Premier
+Glove Box
+Constant H₂O, O₂, and pressure monitoring
+<1 ppm H₂O
+<1 ppm O₂
+Attached -35ºC freezer
+No-downtime cartridge-based purifiers
+Automatic antechamber cycle control
+Nextgen Glovebox
+Hermetic Transfers (Cannulation)
+Backfill of hermetic container with nitrogen or argon gas
+Compatible with a wide range of needles and syringes to support a wide variety of hermetic containers
+Hermetic transfers only happen in the fume hoods
+Capable of anhydrous transfers
+Hermetic Transfer
+RNase Free
+Optional RNase Away treatment for all materials and work surfaces
+Rnase Away
+Sterile Transfers
+Optional 70% Ethanol treatment of all materials and work surfaces
+Hot/Cold Transfers
+Samples can be transferred in warmed (30 to 105°C) and chilled (10 to -86ºC) conditions
+Temperature immersion probe or IR probe for temperature verification during the transfer
+Benchmark Scientific MyblockDisonIcecoStirling UltracoldLab Repco Portable Freezer
+Sample Transport
+Base Package
+Samples can be transported around the lab between their storage conditions and usage on instruments using a variety of temperature control systems.
+Transport Warmed
+Temperature-sensitive samples can be marked for transportation in warmed (30 to 105°C) conditions when being moved around the lab during protocol execution
+Applies only to samples in transit
+Available dimensions up to 93.1 x 146.3 x 82.3 mm
+Benchmark Scientific Myblock
+Transport Chilled
+Temperature-sensitive samples can be marked for transportation in chilled (-86 to 10°C) conditions when being moved around the lab during protocol execution
+Applies only to samples in transit
+Available dimensions up to 171 x 95 x 76 mm
+DisonIcecoStirling UltracoldLab Repco Portable Freezer
+Storage Conditions
+StoreSamples
+Base Package
+Room Temperature Sample Storage
+27 trays
+Max tray payload capacity: 551 lb/250 kg
+Tray dimensions: 98.42 x 33.74 in
+Throughput: up to 120 trays/hr
+Conditions
+25°C ± 0.45°C (1 sigma)
+Sample Constraints
+Can store any size container from microcentrifuge tubes to 20 L carboys.
+Max height of stored materials: 27.36 in
+Vlm
+5°C Sample Storage
+25 trays
+Max tray payload capacity: 551 lb/250 kg
+Tray dimensions: 74.8 x 25.75 in
+Throughput: up to 120 trays/hr
+Conditions
+4°C storage (± 1°C)
+Sample Constraints
+Can store any size container up to 5 L bottles
+Max height of stored materials: 27.36 in
+-20°C Sample Storage
+Conditions
+-22°C storage (± 2°C)
+Sample Constraints
+Can store microcentrifuge tubes, SBS format plates, 15 mL conical tubes, 50 mL conical tubes, and reagent bottles up to 500 mL
+Frigidaire
+-80°C Sample Storage
+Conditions
+-80°C storage (± 0.5°C)
+Sample Constraints
+Can store microcentrifuge tubes, SBS plates, 15 mL conical tubes, and 50 mL conical tubes
+Stirling Ultracold Su780Ue
+Cryostorage
+Conditions
+-165°C storage (± 1°C)
+Sample Constraints
+Can store microcentrifuge tubes and cryotubes
+Custom Biogenics
+Flammable Cabinet Sample Storage
+Conditions
+25°C ± 0.45°C (1 sigma)
+Sample Constraints
+Capable of storing flammable reagents such as solvents
+Can store any size container from microcentrifuge tubes to 20 L drums
+Global Industrial
+Desiccated Sample Storage
+Room temperature (25°C ± 0.45°C (1 sigma)) and refrigerated (5°C) available
+Vacuum desiccation available (at room temperature) for ultra high sensitivity needs
+Bel Art 45LBel Art 102LCole Parmer 59L
+Environmental Stability Chambers
+5 to 70°C temperature range
+0.1°C temperature control resolution
+Temperature uniformity of ± 0.3°C
+20 to 95% relative humidity range
+2% humidity control resolution
+
+Photostability Chamber
+Average UVA light intensity is 2 to 36 W/m²
+Average VIS light intensity is 2 to 29 klux
+10 to 35°C temperature range (lights on)
+0.2°C temperature control resolution
+Temperature uniformity of ± 2.5°C (lights on)
+40 to 70% relative humidity range
+3% humidity control resolution
+
+Property Measurement
+ExperimentImageSample
+Base Package
+Example applications include: Sample appearance, identifying precipitate formation, visualizing color change, verifying sample integrity
+Plate Imager Robotics
+Overhead Imaging (Multiwell Plates)
+5 megapixel close-up images on a per-well basis
+Fields of view: 22 mm and 35 mm
+Lighting: Top or bottom LED illumination, or ambient
+Imaging interval: 9 sec
+Camera travel speed: Up to 5 m/min
+Edge AM751MTZL
+Large Sample Camera
+Side-on Imaging (Bottles and Other Vessels)
+Canon Rebel Ti EOS 750D
+24.2 megapixel images
+18, 24, and 55 mm focal lengths to accommodate containers ranging from 8 mm glass vials up to 20 L carboys
+Lighting: Top, bottom, or side (trans-) LED illumination, or ambient
+Top Imaging (Bottles and Other Vessels)
+14 megapixel images
+12 mm fixed focal length lens
+Lighting: Top, bottom (trans-), or side LED illumination, or ambient
+Canon Rebel
+ExperimentVisualInspection
+Base Package
+Example applications include: Quality control, insoluble particulate detection
+Sample Inspector
+Visual detection of insoluble particulates in solution samples
+Color videos of samples containing a color calibration chart
+Sample compatibility: liquid samples in 2 mL or 50 mL transparent glass vials
+Lighting: Top, Front, Back
+Temperature: Chilled (~4°C) or ambient
+Sample Mixing Rate: Up to 6,000 RPM
+
+ExperimentMeasureVolume
+Base Package
+Example applications include: Quantification of liquid samples, gravimetric volume measurement, ultrasonic volume measurement, non-contact volume detection, liquid-level detection, measure sample meniscus height
+Ultrasonic Detectors
+Ultrasonic Sensor Methods Available
+Compatible with any parameterized container
+Microcentrifuge tubes or SBS style plate wells (including 24-, 48-, 96-, and 384-well plates; ± 125 µL)
+15 mL conical tubes (± 55 µL)
+50 mL conical tubes (± 230 µL)
+250 mL bottles (± 5 mL)
+500 mL bottles (± 5 mL)
+1 L bottles (± 10 mL)
+2 L bottles (± 10 mL)
+4 L jugs (± 20 mL)
+5 L bottles (± 20 mL)
+10 L carboys (± 100 mL)
+20 L carboys (± 100 mL)
+Volumecheck 50 100 384Volume Sensors
+Balances
+Gravimetric Volume Measurement Available
+Requires samples with known densities in single sample containers
+1 µg to 60 kg measurement range to determine volume
+ExperimentMeasureCount
+Base Package
+Example applications include: Tablet weight, tablet mass, average tablet mass, sample count
+Balances
+100 µg to 220 g (± 100 µg)
+Ohaus Pioneer PA224 & PA124 Analytical Balance
+ExperimentMeasureWeight
+Base Package
+Example applications include: Determine sample mass, microanalytical balance, analytical balance, macro balance, bulk scale, accurate mass, reproducible mass
+Microbalance
+1 µg to 6 g (± 1 µg)
+Mettler Toledo Xp6
+Analytical Balance
+100 µg to 220 g (± 100 µg)
+Ohaus Pioneer PA224 & PA124 Analytical Balance
+Macrobalance
+120 g to 6.2 kg (± 10 mg)
+30 cm x 40 cm measurement platform
+Ohaus EX6202
+Bulk Balance
+5 to 50 kg (± 10 g)
+75 kg max mass tolerance
+42 cm x 55 cm measurement platform
+Ohaus Defender
+ExperimentMeasurepH
+Base Package
+Example applications include: pH measurement, buffer pH, solution pH, acidity measurement, basicity measurement
+Immersion pH Meters
+pH range 0 to 14 pH (± 0.02)
+50 µL minimum sample size (consumes no volume)
+Measures and records pH over time
+Temperature correction
+Inlab MicroInlab Reach 225Mettler Toledo Sevenexcellence
+ExperimentMeasureConductivity
+Base Package
+Example applications include: Conductivity measurement, buffer conductivity, solution conductivity, solution resistivity, buffer resistivity, salinity measurement, total dissolved solids measurement, TDS measurement
+Conductivity Meter
+0.001 µS/cm to 2,000 mS/cm conductivity measuring range
+0.001 µS conductivity resolution
+± 0.5% conductivity accuracy
+Built-in temperature sensor for temperature correction
+Linear, non-linear and pure water temperature compensation algorithms
+150 µL minimum sample volume
+Mettler Toledo Sevenexcellence
+ExperimentMeasureDensity
+Base Package
+Example applications include: Physical property measurement, density measurement, solution density, buffer density, density meter
+Density Meter
+U-tube Oscillation Measurement Method
+0 to 3 g/cm³ density measurement range
+7x10⁻⁶ g/cm³ density measurement accuracy
+Reproducibility of 5x10⁻⁷ g/cm³
+5 to 100°C temperature control range
+0.01°C temperature accuracy
+Automatic viscosity and temperature correction
+1.5 mL minimum sampling volume
+No restrictions on containers
+Fixed Volume Weight Measurement Method
+50 μL to 1.5 mL sampling volume per measurement
+1 μg to 5 g (± 0.8 μg) weight range
+No restrictions on sample volume or containers
+Anton Paar DM5000
+ExperimentMeasureRefractiveIndex
+Base Package
+Example applications include: Quality assurance in the pharmaceutical, chemical, food, beverage industries as well as in the production of flavors, perfumes, and essential oils or in the petrochemical, and metalwork, and automotive industries
+Refractometer
+1.26 to 1.72 Refractive Index (RI) scale measurement range
+1x10⁻⁶ RI measurement resolution
+± 2x10⁻⁵ RI measurement accuracy
+4 to 125°C temperature measurement range
+0.01°C temperature resolution
+± 0.03°C temperature measurement accuracy
+± 0.002°C temperature stability
+Sapphire optical measurement plate
+Sample Compatibility
+All sample containers are compatible
+~120 µL sample measurement volume
+
+ExperimentMeasureViscosity
+Base Package
+Example applications include: Viscosity measurement, shear stress measurement, shear rate measurement, deformation resistance measurement, shear stress response
+Robotic Viscometer
+Viscosity measurable from 0.3 to 1,000 mPaS (± 2% accuracy)
+Shear rate range 40 to 125,000 1/s
+4 to 70ºC measurement temperature range
+Minimum 26 μL sample volume
+Sample constraints:
+Up to 40 HPLC/CE vials
+1x 96-well PCR plate
+Rheosense Vroc Initium
+ExperimentMeasureSurfaceTension
+Base Package
+Example applications include: CMC (critical micelle concentration), surfactant
+Tensiometer
+8 DyneProbes simultaneously measure in 96-well plate
+Self-cleaned in electrical furnace
+Customizable cleaning solution
+Amendable to robotic handling
+Minimum 50 μL sample volume
+Surface tension measurable from 10 to 100 mN/m (0.2 mN/m resolution)
+Balance resolution at 0.050 μg
+Plate measured every 3 minutes
+Delta 8
+ExperimentDynamicFoamAnalysis
+Base Package
+Example applications include: Foam behavior, foam stability, foamability, foam dynamics, foam structure
+Dynamic Foam Analyzer
+0.2 to 1 L/min sparging flow rate of air or nitrogen
+Up to 8,000 RPM stir rate
+Double-jacketed columns for temperature control: 4 to 70ºC
+Visible (460 nm) and infrared (850 nm) wavelengths
+Electrodes with 10 Ω to 2 MΩ detection range
+Camera with 2 fps at 1280 x 1024 pixels
+
+ExperimentCoulterCount
+Base Package
+Example applications include: Particle sizes, particle counts, particle characterization, cell count and sizes, hematology
+Coulter Counter
+Aperture tubes available with nominal diameters from 10 µm to 2000 µm
+Particle size ranges from 0.2 µm to 1600 µm
+Particle size and count precision accurate up to 0.5%
+Particles are generally mixed and suspended with conductive electrolyte solutions non-intrusive
+Supports both aqueous and non-aqueous solutions
+25 mL, 100 mL, 200 mL, and 400 mL vessel sizes
+Can stir the measurement vessels from 1 to 60 RPM
+
+ExperimentCountLiquidParticles
+Base Package
+Example applications include: Particle sizes, count liquid particles, particle size distributions, particle contamination
+Liquid Particle Counter
+HRLD series light obscuration liquid particle counting sensors
+Particle size ranges from 1 to 100 µm
+Particle size precision is 0.1 µm
+Temperature range from 0 to 80 ºC
+Mixing by a magnetic stir bar during data collection
+50 to 350 RPM
+Sample amounts are varied with experiment setup, generally requires at least ~0.5 mL
+
+ExperimentCyclicVoltammetry
+Base Package
+Example applications include: Redox (reduction and oxidation) process, electrochemistry, electrochemical analysis, chemical reactions, catalysis
+Electrochemical Reactor
+Cyclic voltammetry electrodes
+Glassy carbon 3 mm disc
+Platinum plated
+Ag, Ag/AgCl, Ag/Ag+ reference electrode options
+Pro-Seal vial caps available for reactions requiring controlled atmosphere
+Supports both aqueous and non-aqueous solutions
+5 mL, 10 mL, and 20 mL vial sizes
+Large potential window: ± 2.5 V
+CV voltage reading accurate to ± 1 mV
+CV current reading accurate to ± 1 µA
+Can stir reaction vessels from 50 to 1,500 RPM
+
+ExperimentMeasureDissolvedOxygen
+Base Package
+Example applications include: Water quality, degas efficiency, biological reactions
+Dissolved Oxygen Meter
+0 to 50.00 mg/L dissolved oxygen measuring range
+0.01 mg/L dissolved oxygen resolution
+Built-in temperature and barometric pressure sensor for correction
+25 mL minimum sample volume
+Oakton Do 2700 Benchtop Dissolved Oxygen Meter
+ExperimentMeasureOsmolality
+Base Package
+Example applications include: Vapor pressure osmometry, formulation development, quality control, polymer analysis, serum osmolality, urine osmolality
+Osmometer
+Vapor Pressure Osmometry Method
+20 to 3,200 mmol/kg osmolality measurement range
+1 mmol/kg osmolality resolution
+± 1% accuracy within 100 to 1,000 mmol/kg calibrated range
+± 5% accuracy outside of calibrated range
+Reproducibility of 2 mmol/kg standard deviation
+10 μL sample volume
+Aqueous samples
+Vapro 5600
+ExperimentMeasureContactAngle
+Base Package
+Example applications include: Wettability of single fiber, contact angle measurement
+Tensiometer
+Requires single fiber samples with > 5 µm in diameter
+0 to 6 g force sensor weight range
+0.1 µg force sensor weight resolution
+0 to 110 mm sample stage position range
+0.1 µm sample stage position resolution
+
+ExperimentMeasureMeltingPoint
+Base Package
+Example applications include: Melting point, melting point determination, melting point analysis, melting point apparatus, melting point analysis, solid-state characterization, thermal analysis, capillary method, differential scanning calorimetry (DSC), thermogravimetric analysis (TGA), hot stage microscopy, capillary melting point, melting point standards, melting point range, eutectic point, phase transition temperature
+Melting Point Apparatus
+Measures the melting point of solid substances by capillary method
+Needs a small amount of sample
+Capable of measuring melting points from ambient temperature up to 400 °C
+Automatically determines the melting temperature
+provides video footage of the entire melting process
+Capable of measuring Pharmacopeia and Thermodynamic temperatures
+Simultaneous analysis of up to 6 capillaries
+
+Water Sources
+Base Package
+Water Purifier
+Elix
+Distribution flow rate: up to 2 L/min from POD
+Flow rate: 15 L/hour
+Product water resistivity at 25 °C: > 5 MΩ·cm (Typically 10 to 15 MΩ·cm)
+Product water TOC: < 30 ppb
+Voltage: 100 to 230 V/50 to 60 Hz
+MilliQ
+Feed water nature: potable tap water
+Flow rate: 3 L/hour
+Product water volume: 60L/day
+Product water conductivity: 0.056 uS/cm
+Product water resistivity:
+Ultrapure water: 18.2 MΩ·cm
+Pure water: > 5 MΩ·cm
+Product water TOC: < 5 ppb
+Voltage: 100 to 240 V/50 to 60 Hz
+
+Under Development
+Cell Culture
+ExperimentChangeMedia
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentSplitCells
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentDissociateCells
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentTransformCells
+Liquid Media Cell Preparation Workcell
+Water Bath
+ExperimentQuantifyPlaques
+Robotic Colony Handler
+ExperimentExtractPlasmidDNA
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentExtractProtein
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentExtractRNA
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentExtractGenomicDNA
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentHarvestVirus
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentHarvestProtein
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentHarvestMedia
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentTreatCells
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentTransfectCells
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentTransduceCells
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentAliquotCells
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentFixCells
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+ExperimentStainCells
+Liquid Media Cell Preparation Workcell
+Biosafety Cabinet
+
+Future Roadmap
+Organic Synthesis
+ExperimentSynthesis
+Robotic Milligram Scale Parallel Reactors
+Gram Scale Jacketed Reactor
+Gram Scale Cryo Reactor
+Gram Scale High Pressure Reactor
+ExperimentThinLayerChromatography
+High Performance TLC System (HPTLC)
+ExperimentFlowSynthesis
+Flow Reactor
+ExperimentMicrowaveSynthesis
+Microwave Reactor
+ExperimentElectrochemicalSynthesis
+Electrochemical Reactor
+ExperimentPhotoChemicalSynthesis
+Photo Reactor
+ExperimentReactionCalorimetry
+Reaction Calorimeter
+ExperimentSolidPhaseSynthesis
+Small Robotic Liquid Handler
+ExperimentDistillation
+Automated Distillation Apparatus
+ExperimentCrystallization
+Gram Scale Jacketed Reactor
+Bioassays
+ExperimentMultiplexELISA
+Multiplexing ELISA Screening Device
+ExperimentSurfacePlasmonResonance
+Surface Plasmon Resonance System
+Advanced Cell Culture
+ExperimentElectroporation
+Plate Based Electroporator
+ExperimentFlowCytometry
+Flow Cytometer
+ExperimentFACS
+Fluorescence Activated Cell Sorter
+ExperimentBioreactor
+Robotic Multi-Parallel Bioreactors
+Large Lab Bioreactor
+Sample Transport
+Cryo-Transport
+Storage Conditions
+StoreSamples
+Solvent Still
+Glassware Oven
+Crystallography
+ExperimentSingleCrystalXRD
+Crystal Imager
