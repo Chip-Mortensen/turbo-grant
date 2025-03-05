@@ -71,17 +71,17 @@ Guidelines for this section:
 
 IMPORTANT FORMATTING REQUIREMENTS:
 - Use plain text only
-- DO NOT use any markdown formatting (no *, #, -, _, [], etc.)
-- DO NOT use any special characters for formatting
 - Use regular paragraph breaks with single newlines
-- DO NOT include bullet points or numbered lists
-- DO NOT include any headers or subheaders
 - Write in continuous prose with clear paragraph transitions
-- Citations or references should be written in plain text (e.g., "Smith et al., 2023" not "[Smith et al., 2023]")
+- Citations or references should be written in plain text (e.g., "Smith et al., 2023")
+- DO NOT include any special characters or formatting
+- DO NOT include any headers or subheaders
+- DO NOT include bullet points or numbered lists
+- DO NOT include any markdown formatting
 
 Format your response as a JSON object with a single "content" field containing the plain text content.
 The content should use only newline characters to separate paragraphs.
-Do not include the section heading or any metadata - just the content text.`;
+Do not include the section heading - just the content text.`;
 
 /**
  * Generates a project description outline using the gpt-4o-mini model

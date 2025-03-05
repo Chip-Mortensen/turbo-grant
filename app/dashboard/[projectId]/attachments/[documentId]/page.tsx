@@ -6,9 +6,19 @@ import { Document, DocumentField, AgencyType } from '@/types/documents';
 import { use } from 'react';
 import QuestionView from '@/components/documents/QuestionView';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2, Bold, Italic, List, Heading } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // Define the stored document type that matches what's in attachments
 interface StoredDocument {
@@ -29,6 +39,242 @@ interface AttachmentState {
   document: StoredDocument;
 }
 
+function Toolbar({ editor }: { editor: any }) {
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <div className="sticky top-[57px] z-50 border-b border-gray-200 p-2 bg-white flex gap-2 flex-wrap">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        className={editor.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}
+      >
+        <Heading className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        className={editor.isActive('bold') ? 'bg-gray-200' : ''}
+      >
+        <Bold className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        className={editor.isActive('italic') ? 'bg-gray-200' : ''}
+      >
+        <Italic className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        className={editor.isActive('bulletList') ? 'bg-gray-200' : ''}
+      >
+        <List className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}
+
+function ProcessedContent({ 
+  documentId, 
+  projectId, 
+  document,
+  onChangesSaved,
+  onContentChanged
+}: { 
+  documentId: string; 
+  projectId: string;
+  document: Document;
+  onChangesSaved: () => void;
+  onContentChanged: () => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [initialContent, setInitialContent] = useState<string | null>(null);
+  const supabase = createClient();
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit
+    ],
+    editorProps: {
+      attributes: {
+        class: 'prose prose-slate prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl max-w-none focus:outline-none min-h-[500px] p-4'
+      }
+    },
+    onUpdate: ({ editor }) => {
+      // Compare current content with initial content
+      const currentContent = editor.getHTML();
+      if (currentContent !== initialContent) {
+        onContentChanged();
+      }
+    }
+  });
+
+  // Add beforeunload event listener
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (initialContent !== editor?.getHTML()) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [initialContent, editor]);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        // First check if we have a saved version
+        const { data: existingDoc } = await supabase
+          .from('completed_documents')
+          .select('content')
+          .eq('document_id', documentId)
+          .eq('project_id', projectId)
+          .single();
+
+        if (existingDoc?.content) {
+          editor?.commands.setContent(existingDoc.content);
+          setInitialContent(existingDoc.content);
+          setLoading(false);
+          return;
+        }
+
+        // If no saved version, generate new content
+        const response = await fetch('/api/documents/processors/project-description/process', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ documentId, projectId })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch processed content');
+        }
+
+        const data = await response.json();
+        editor?.commands.setContent(data.content);
+        setInitialContent(data.content);
+        onContentChanged(); // Set to true for newly generated content
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (editor) {
+      fetchContent();
+    }
+  }, [documentId, projectId, editor]);
+
+  const handleSave = async () => {
+    if (!editor) return;
+    
+    setSaving(true);
+    setSaveError(null);
+    
+    try {
+      const content = editor.getHTML();
+
+      // Check if record exists
+      const { data: existingDoc } = await supabase
+        .from('completed_documents')
+        .select('content')
+        .eq('document_id', documentId)
+        .eq('project_id', projectId)
+        .single();
+
+      if (existingDoc) {
+        // Update existing record
+        const { error } = await supabase
+          .from('completed_documents')
+          .update({ content })
+          .eq('document_id', documentId)
+          .eq('project_id', projectId);
+
+        if (error) throw error;
+      } else {
+        // Insert new record
+        const { error } = await supabase
+          .from('completed_documents')
+          .insert({
+            document_id: documentId,
+            project_id: projectId,
+            content
+          });
+
+        if (error) throw error;
+      }
+
+      setInitialContent(content);
+      onChangesSaved();
+    } catch (err) {
+      console.error('Error saving document:', err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save document');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold">{document.name}</h1>
+        <div className="flex items-center gap-4">
+          <Button 
+            onClick={handleSave} 
+            disabled={saving || loading}
+            variant="default"
+          >
+            {saving ? (
+              <>
+                <span className="mr-2">Saving...</span>
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </>
+            ) : (
+              'Save Document'
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {saveError && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+          {saveError}
+        </div>
+      )}
+
+      <div className="border">
+        <Toolbar editor={editor} />
+        {loading ? (
+          <div className="animate-pulse space-y-4 p-4">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+          </div>
+        ) : error ? (
+          <div className="text-red-500 p-4">Error loading content: {error}</div>
+        ) : (
+          <EditorContent editor={editor} />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function DocumentQuestionsPage({ 
   params 
 }: { 
@@ -40,7 +286,17 @@ export default function DocumentQuestionsPage({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const supabase = createClient();
+
+  const handleNavigateAway = () => {
+    if (hasUnsavedChanges) {
+      setShowExitDialog(true);
+    } else {
+      router.push(`/dashboard/${projectId}/attachments`);
+    }
+  };
 
   useEffect(() => {
     fetchDocument();
@@ -257,6 +513,67 @@ export default function DocumentQuestionsPage({
               Back to Attachments
             </Link>
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check for project-description processor
+  if (document.custom_processor === 'project-description') {
+    return (
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <Button 
+          asChild={!hasUnsavedChanges} 
+          variant="outline" 
+          className="mb-4"
+          onClick={hasUnsavedChanges ? handleNavigateAway : undefined}
+        >
+          {hasUnsavedChanges ? (
+            <div className="flex items-center">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Attachments
+            </div>
+          ) : (
+            <Link href={`/dashboard/${projectId}/attachments`}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Attachments
+            </Link>
+          )}
+        </Button>
+
+        <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Unsaved Changes</DialogTitle>
+              <DialogDescription>
+                You have unsaved changes. Are you sure you want to leave? Your changes will be lost.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-4">
+              <Button variant="outline" onClick={() => setShowExitDialog(false)}>
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  setShowExitDialog(false);
+                  router.push(`/dashboard/${projectId}/attachments`);
+                }}
+              >
+                Leave Without Saving
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <div>
+          <ProcessedContent 
+            documentId={documentId} 
+            projectId={projectId}
+            document={document}
+            onChangesSaved={() => setHasUnsavedChanges(false)}
+            onContentChanged={() => setHasUnsavedChanges(true)}
+          />
         </div>
       </div>
     );
