@@ -6,7 +6,7 @@ import { Document, DocumentField, AgencyType } from '@/types/documents';
 import { use } from 'react';
 import QuestionView from '@/components/documents/QuestionView';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Bold, Italic, List, Heading } from 'lucide-react';
+import { ArrowLeft, Loader2, Bold, Italic, List, Heading, Download, Save, FileOutput } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Define the stored document type that matches what's in attachments
 interface StoredDocument {
@@ -37,6 +38,108 @@ interface AttachmentState {
   updatedAt: string;
   attachmentUrl?: string;
   document: StoredDocument;
+}
+
+type FileType = 'pdf' | 'docx';
+
+interface ExportDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onExport: (format: FileType) => Promise<string | undefined>;
+  isGenerating: boolean;
+  existingFileType?: FileType;
+  fileUrl?: string;
+  error?: string;
+}
+
+function ExportDialog({
+  open,
+  onOpenChange,
+  onExport,
+  isGenerating,
+  existingFileType,
+  fileUrl,
+  error
+}: ExportDialogProps) {
+  const [selectedFormat, setSelectedFormat] = useState<FileType>(existingFileType || 'pdf');
+  const [generatedFileUrl, setGeneratedFileUrl] = useState<string | undefined>(undefined);
+
+  // Reset the generated URL when the dialog opens/closes or format changes
+  useEffect(() => {
+    if (!open) {
+      setGeneratedFileUrl(undefined);
+    }
+  }, [open]);
+
+  const handleFormatChange = (value: FileType) => {
+    setSelectedFormat(value);
+    setGeneratedFileUrl(undefined);
+  };
+
+  const handleExport = async () => {
+    const newUrl = await onExport(selectedFormat);
+    if (newUrl) {
+      setGeneratedFileUrl(newUrl);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Export Document</DialogTitle>
+          <DialogDescription>
+            Choose a format to export your document
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="grid gap-4 py-4">
+          <div className="flex items-center gap-4">
+            <Select
+              value={selectedFormat}
+              onValueChange={handleFormatChange}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select format" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pdf">PDF Document</SelectItem>
+                <SelectItem value="docx">Word Document</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {generatedFileUrl ? (
+              <Button 
+                variant="default"
+                onClick={() => window.open(generatedFileUrl, '_blank')}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+            ) : (
+              <Button
+                onClick={handleExport}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  'Generate'
+                )}
+              </Button>
+            )}
+          </div>
+
+          {error && (
+            <div className="text-red-500 text-sm">{error}</div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function Toolbar({ editor }: { editor: any }) {
@@ -100,6 +203,12 @@ function ProcessedContent({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [initialContent, setInitialContent] = useState<string | null>(null);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [exportError, setExportError] = useState<string | undefined>(undefined);
+  const [fileType, setFileType] = useState<FileType | undefined>(undefined);
+  const [fileUrl, setFileUrl] = useState<string | undefined>(undefined);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const supabase = createClient();
 
   const editor = useEditor({
@@ -134,20 +243,34 @@ function ProcessedContent({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [initialContent, editor]);
 
+  // Update hasUnsavedChanges when content changes
+  useEffect(() => {
+    if (editor) {
+      const currentContent = editor.getHTML();
+      setHasUnsavedChanges(currentContent !== initialContent);
+    }
+  }, [editor?.getHTML(), initialContent]);
+
   useEffect(() => {
     const fetchContent = async () => {
       try {
         // First check if we have a saved version
         const { data: existingDoc } = await supabase
           .from('completed_documents')
-          .select('content')
+          .select('content, file_url, file_type')
           .eq('document_id', documentId)
           .eq('project_id', projectId)
           .single();
 
-        if (existingDoc?.content) {
-          editor?.commands.setContent(existingDoc.content);
-          setInitialContent(existingDoc.content);
+        if (existingDoc) {
+          if (existingDoc.content) {
+            editor?.commands.setContent(existingDoc.content);
+            setInitialContent(existingDoc.content);
+          }
+          if (existingDoc.file_url) {
+            setFileUrl(existingDoc.file_url);
+            setFileType(existingDoc.file_type as FileType);
+          }
           setLoading(false);
           return;
         }
@@ -228,27 +351,90 @@ function ProcessedContent({
     }
   };
 
+  const handleExport = async (format: FileType) => {
+    setIsGenerating(true);
+    setExportError(undefined);
+
+    try {
+      const response = await fetch('/api/documents/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          documentId,
+          projectId,
+          format,
+          content: editor?.getHTML()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate file');
+      }
+
+      const data = await response.json();
+      if (data.fileUrl) {
+        setFileUrl(data.fileUrl);
+        setFileType(format);
+        return data.fileUrl; // Return the URL for the ExportDialog
+      } else {
+        throw new Error('No file URL in response');
+      }
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : 'Failed to generate file');
+      return undefined;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">{document.name}</h1>
         <div className="flex items-center gap-4">
-          <Button 
-            onClick={handleSave} 
-            disabled={saving || loading}
-            variant="default"
-          >
-            {saving ? (
-              <>
-                <span className="mr-2">Saving...</span>
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </>
-            ) : (
-              'Save Document'
+          <div className="flex items-center gap-2">
+            {hasUnsavedChanges && (
+              <span className="text-yellow-600 text-sm">
+                You have unsaved changes
+              </span>
             )}
+            <Button 
+              onClick={handleSave} 
+              disabled={saving || loading}
+              variant="default"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Document
+                </>
+              )}
+            </Button>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowExportDialog(true)}
+          >
+            <FileOutput className="mr-2 h-4 w-4" />
+            Export
           </Button>
         </div>
       </div>
+
+      <ExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        onExport={handleExport}
+        isGenerating={isGenerating}
+        existingFileType={fileType}
+        fileUrl={fileUrl}
+        error={exportError}
+      />
 
       {saveError && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
