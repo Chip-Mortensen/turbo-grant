@@ -17,6 +17,7 @@ export interface Document {
   grant_types: string[];
   custom_processor?: string;
   prompt?: string;
+  page_limit?: number;
   created_at: string;
   updated_at: string;
 } 

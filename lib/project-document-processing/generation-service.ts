@@ -33,7 +33,7 @@ export async function generateDocumentContent(
         .eq('id', documentId)
         .single(),
       supabase
-        .from('projects')
+        .from('research_projects')
         .select('*')
         .eq('id', projectId)
         .single()
