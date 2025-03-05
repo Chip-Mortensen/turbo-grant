@@ -53,7 +53,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           description="Manage equipment for your project"
           href={`/dashboard/${projectId}/equipment`}
           icon={Wrench}
-          isComplete={completionStatus.equipment || false}
+          isComplete={false}
         />
       )}
       {completionStatus.foa && (
@@ -62,7 +62,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           description="Manage documents for your proposal"
           href={`/dashboard/${projectId}/attachments`}
           icon={Paperclip}
-          isComplete={completionStatus.attachments}
+          isComplete={false}
         />
       )}
     </div>
