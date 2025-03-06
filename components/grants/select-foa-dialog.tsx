@@ -18,9 +18,17 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 
+interface SubmissionRequirements {
+  formats?: string[];
+  required_documents?: string[];
+  additional_instructions?: string;
+}
+
 interface SelectFoaDialogProps {
   projectId: string;
-  foa: FOA;
+  foa: FOA & {
+    submission_requirements?: SubmissionRequirements;
+  };
 }
 
 export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
@@ -63,21 +71,45 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
           doc.grant_types.includes(foa.grant_type!)
         );
       }
+
+      // 3. Split documents into required and optional
+      const requiredDocs = applicableDocuments.filter(doc => !doc.optional);
+      const optionalDocs = applicableDocuments.filter(doc => doc.optional);
+
+      // 4. Get submission requirements from FOA
+      const submissionRequirements = foa.submission_requirements?.required_documents || [];
       
-      console.log(`Found ${applicableDocuments.length} applicable documents for FOA:`, 
-        { agency: foa.agency, grantType: foa.grant_type });
+      // 5. Match optional documents against required documents from FOA
+      const response = await fetch('/api/documents/match', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          optionalDocuments: optionalDocs.map(doc => ({
+            id: doc.id,
+            name: doc.name
+          })),
+          requiredDocuments: submissionRequirements
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to match documents');
+      }
+
+      const { matchedDocumentIds } = await response.json();
       
-      // 3. Create the initial attachments object with complete document data
+      console.log('Matched optional documents:', matchedDocumentIds);
+
+      // 6. Create the initial attachments object
       const initialAttachments: Record<string, any> = {};
       
-      // Store complete document information along with status
-      for (const doc of applicableDocuments) {
+      // Add required documents
+      for (const doc of requiredDocs) {
         initialAttachments[doc.id] = {
-          // Document status information
           completed: false,
           updatedAt: new Date().toISOString(),
-          
-          // Store complete document information
           document: {
             id: doc.id,
             name: doc.name,
@@ -89,10 +121,30 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
           }
         };
       }
+
+      // Add matched optional documents
+      for (const docId of matchedDocumentIds) {
+        const doc = optionalDocs.find(d => d.id === docId);
+        if (doc) {
+          initialAttachments[doc.id] = {
+            completed: false,
+            updatedAt: new Date().toISOString(),
+            document: {
+              id: doc.id,
+              name: doc.name,
+              fields: doc.fields || [],
+              sources: doc.sources || [],
+              agency: doc.agency,
+              grant_types: doc.grant_types || [],
+              custom_processor: doc.custom_processor
+            }
+          };
+        }
+      }
       
       console.log('Saving attachments data:', initialAttachments);
       
-      // 4. Update the project with the FOA and attachments
+      // 7. Update the project with the FOA and attachments
       const { error } = await supabase
         .from('research_projects')
         .update({ 
@@ -103,7 +155,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
       if (error) throw error;
 
-      // 5. Trigger automatic equipment analysis in the background
+      // 8. Trigger automatic equipment analysis in the background
       try {
         console.log('Triggering automatic equipment analysis...');
         setAnalysisStatus('Initializing equipment analysis...');
