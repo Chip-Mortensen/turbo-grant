@@ -29,4 +29,4 @@ export async function GET(
     console.error('Error in GET /api/attachments/documents/[id]:', error);
     return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+} 
