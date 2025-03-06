@@ -150,15 +150,23 @@ export default function EquipmentExtractor({ projectId }: EquipmentExtractorProp
         </div>
       ) : equipment.length > 0 ? (
         <div className="space-y-4">
-          <div>
+          <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold flex items-center gap-2">
               <Wrench className="h-5 w-5 text-purple-500" />
               Relevant Equipment
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {equipment.length} piece{equipment.length !== 1 ? 's' : ''} of equipment relevant to your funding opportunity
-            </p>
+            <a 
+              href="https://www.emeraldcloudlab.com/instrumentation/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+            >
+              Explore Cloud Labs
+            </a>
           </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            {equipment.length} piece{equipment.length !== 1 ? 's' : ''} of equipment relevant to your funding opportunity
+          </p>
           
           {error && (
             <Alert variant="destructive">
