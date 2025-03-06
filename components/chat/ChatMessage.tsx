@@ -23,10 +23,17 @@ export function ChatMessage({ role, content, isLoading }: ChatMessageProps) {
       </Avatar>
       <Card className={cn(
         "flex-1 p-3 max-w-[80%]",
-        role === 'user' ? "bg-primary text-primary-foreground" : "bg-muted",
+        role === 'user' 
+          ? "bg-primary text-primary-foreground" 
+          : "bg-card text-card-foreground",
         isLoading && "animate-pulse"
       )}>
-        <div className="prose prose-sm dark:prose-invert max-w-none">
+        <div className={cn(
+          "prose prose-sm max-w-none",
+          role === 'user' 
+            ? "dark:prose-invert" 
+            : "prose-neutral"
+        )}>
           {content}
         </div>
       </Card>
