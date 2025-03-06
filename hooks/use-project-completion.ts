@@ -8,7 +8,8 @@ export function useProjectCompletion(projectId: string) {
     description: false,
     figures: false,
     chalkTalk: false,
-    foa: false
+    foa: false,
+    attachments: false
   });
 
   useEffect(() => {
@@ -20,14 +21,20 @@ export function useProjectCompletion(projectId: string) {
         supabase.from('research_descriptions').select('id').eq('project_id', projectId).limit(1),
         supabase.from('scientific_figures').select('id').eq('project_id', projectId).limit(1),
         supabase.from('chalk_talks').select('id').eq('project_id', projectId).limit(1),
-        supabase.from('research_projects').select('foa').eq('id', projectId).single()
+        supabase.from('research_projects').select('foa, attachments').eq('id', projectId).single()
       ]);
+
+      // Check if all attachments are completed
+      const attachmentsComplete = projectRes.data?.attachments
+        ? Object.values(projectRes.data.attachments).every((doc: any) => doc.completed === true)
+        : false;
 
       setCompletionStatus({
         description: Boolean(descriptionRes.data && descriptionRes.data.length > 0),
         figures: Boolean(figuresRes.data && figuresRes.data.length > 0),
         chalkTalk: Boolean(chalkTalkRes.data && chalkTalkRes.data.length > 0),
-        foa: Boolean(projectRes.data?.foa)
+        foa: Boolean(projectRes.data?.foa),
+        attachments: attachmentsComplete
       });
     };
 

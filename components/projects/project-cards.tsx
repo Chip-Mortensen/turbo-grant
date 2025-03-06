@@ -62,7 +62,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           description="Manage documents for your proposal"
           href={`/dashboard/${projectId}/attachments`}
           icon={Paperclip}
-          isComplete={false}
+          isComplete={completionStatus.attachments}
         />
       )}
     </div>
