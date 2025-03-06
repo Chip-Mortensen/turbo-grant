@@ -53,7 +53,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           description="Manage equipment for your project"
           href={`/dashboard/${projectId}/equipment`}
           icon={Wrench}
-          isComplete={false}
+          isComplete={completionStatus.equipment}
         />
       )}
       {completionStatus.foa && (

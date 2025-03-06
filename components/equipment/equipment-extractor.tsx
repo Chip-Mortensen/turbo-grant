@@ -41,74 +41,112 @@ export default function EquipmentExtractor({ projectId }: EquipmentExtractorProp
         .select('*')
         .eq('project_id', projectId)
         .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
         
       if (error) {
-        if (error.code === 'PGRST116') { // Record not found
-          console.log('No equipment found for this project');
-          setIsLoading(false);
-          return;
-        }
         console.error('Error loading equipment:', error);
         setError('Unable to load equipment for this project.');
         setIsLoading(false);
         return;
       }
       
-      // Parse the equipment data
+      if (!data || data.length === 0) {
+        console.log('No equipment found for this project');
+        setIsLoading(true);
+        return;
+      }
+      
+      const equipmentRecord = data[0];
+      
       let equipmentArray: Equipment[] = [];
       
       try {
-        if (data.equipment) {
-          // If it's already an array, use it directly
-          if (Array.isArray(data.equipment)) {
-            equipmentArray = data.equipment;
+        if (equipmentRecord.equipment) {
+          if (Array.isArray(equipmentRecord.equipment)) {
+            equipmentArray = equipmentRecord.equipment;
           } 
-          // If it's a string (JSON stringified), parse it
-          else if (typeof data.equipment === 'string') {
-            const parsed = JSON.parse(data.equipment);
+          else if (typeof equipmentRecord.equipment === 'string') {
+            const parsed = JSON.parse(equipmentRecord.equipment);
             
-            // The parsed result might be an array directly or have an equipment property
             if (Array.isArray(parsed)) {
               equipmentArray = parsed;
             } else if (parsed.equipment && Array.isArray(parsed.equipment)) {
               equipmentArray = parsed.equipment;
             }
           }
-          // If it's an object with an equipment property
-          else if (typeof data.equipment === 'object' && 
-                  data.equipment.equipment && 
-                  Array.isArray(data.equipment.equipment)) {
-            equipmentArray = data.equipment.equipment;
+          else if (typeof equipmentRecord.equipment === 'object' && 
+                  equipmentRecord.equipment.equipment && 
+                  Array.isArray(equipmentRecord.equipment.equipment)) {
+            equipmentArray = equipmentRecord.equipment.equipment;
           }
         }
         
-        // Sort the equipment by relevance score
         if (equipmentArray.length > 0) {
           equipmentArray.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+          setIsLoading(false);
+        } else {
+          setIsLoading(true);
         }
       } catch (parseError) {
         console.error('Error parsing equipment data:', parseError);
         setError('Error processing equipment data.');
       }
       
-      // Set the equipment data
       setEquipment(equipmentArray);
+      
+      if (equipmentArray.length > 0 && !equipmentRecord.viewed) {
+        await markAsViewed();
+      }
     } catch (err) {
       console.error('Error loading equipment:', err);
       setError('An unexpected error occurred while loading equipment.');
-    } finally {
       setIsLoading(false);
     }
   };
+  
+  const markAsViewed = async () => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('recommended_equipment')
+        .update({ viewed: true })
+        .eq('project_id', projectId);
+        
+      if (error) {
+        console.error('Error marking equipment as viewed:', error);
+      }
+    } catch (err) {
+      console.error('Error updating viewed status:', err);
+    }
+  };
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    
+    if (isLoading && equipment !== undefined) {
+      intervalId = setInterval(() => {
+        loadEquipment();
+      }, 5000);
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isLoading, projectId]);
 
   return (
     <div className="space-y-6">
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin mr-3" />
-          <span>Loading equipment data...</span>
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="h-12 w-12 text-purple-500 animate-spin mb-4" />
+          <div className="text-center">
+            <h3 className="text-lg font-medium">Generating Recommended Equipment</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Please wait while we analyze your funding opportunity and generate equipment recommendations...
+            </p>
+          </div>
         </div>
       ) : equipment.length > 0 ? (
         <div className="space-y-4">
@@ -131,12 +169,13 @@ export default function EquipmentExtractor({ projectId }: EquipmentExtractorProp
           
           <div className="space-y-4">
             {equipment.map((item, index) => (
-              <Card key={index} className="overflow-hidden">
+              <Card 
+                key={index} 
+                className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                onClick={markAsViewed}
+              >
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">{item.name}</CardTitle>
-                  {item.specifications && (
-                    <CardDescription>{item.specifications}</CardDescription>
-                  )}
                 </CardHeader>
                 {item.relevance_details && (
                   <CardContent>
@@ -147,17 +186,7 @@ export default function EquipmentExtractor({ projectId }: EquipmentExtractorProp
             ))}
           </div>
         </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-12">
-          <Wrench className="h-12 w-12 text-muted-foreground" />
-          <div className="text-center">
-            <h3 className="text-lg font-medium">No Equipment Found</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              No equipment is currently associated with this funding opportunity.
-            </p>
-          </div>
-        </div>
-      )}
+      ) : null}
     </div>
   );
 } 
