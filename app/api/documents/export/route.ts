@@ -124,7 +124,15 @@ export async function POST(req: Request) {
   }
 }
 
+function sanitizeText(text: string): string {
+  // Remove control characters (including 0x001E) but preserve normal whitespace
+  return text.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+}
+
 async function generatePDF(content: string): Promise<Buffer> {
+  // Sanitize the content first
+  content = sanitizeText(content);
+  
   // Create a new PDFDocument
   const pdfDoc = await PDFDocument.create();
   
