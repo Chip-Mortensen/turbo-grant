@@ -475,6 +475,7 @@ export default function DocumentQuestionsPage({
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showProcessedContent, setShowProcessedContent] = useState(false);
+  const [documentGenerated, setDocumentGenerated] = useState<boolean>(false);
   const supabase = createClient();
 
   // Add function to check if all questions are answered
@@ -497,6 +498,23 @@ export default function DocumentQuestionsPage({
   const fetchDocument = async () => {
     setIsLoading(true);
     try {
+      // First, check if we already have a completed document
+      const { data: completedDocument } = await supabase
+        .from('completed_documents')
+        .select('*')
+        .eq('document_id', documentId)
+        .eq('project_id', projectId)
+        .maybeSingle();
+
+      // If we found a completed document, mark it as generated
+      if (completedDocument) {
+        console.log('Found completed document:', completedDocument);
+        setDocumentGenerated(true);
+        // Go directly to processed content view
+        setShowProcessedContent(true);
+      }
+
+      // Continue with the regular document fetching logic
       // First, try to find the document in project's attachments (primary source)
       const { data: project } = await supabase
         .from('research_projects')
@@ -704,8 +722,8 @@ export default function DocumentQuestionsPage({
     );
   }
 
-  // Check for project-description processor or if all questions are answered
-  if (document.custom_processor === 'project-description' || showProcessedContent) {
+  // Check for project-description processor or if all questions are answered or if document was already generated
+  if (document.custom_processor === 'project-description' || showProcessedContent || documentGenerated) {
     return (
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <Button 
@@ -755,7 +773,7 @@ export default function DocumentQuestionsPage({
         <div>
           <ProcessedContent 
             documentId={documentId} 
-            projectId={projectId}
+            projectId={projectId} 
             document={document}
             onChangesSaved={() => setHasUnsavedChanges(false)}
             onContentChanged={() => setHasUnsavedChanges(true)}
