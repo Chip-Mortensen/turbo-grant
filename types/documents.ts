@@ -19,6 +19,7 @@ export interface Document {
   prompt?: string;
   page_limit?: number;
   optional: boolean;
+  upload_required: boolean;
   created_at: string;
   updated_at: string;
 } 

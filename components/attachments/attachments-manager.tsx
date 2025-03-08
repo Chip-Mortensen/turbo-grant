@@ -14,8 +14,8 @@ import { format } from 'date-fns';
 interface AttachmentState {
   completed: boolean;
   updatedAt: string;
-  attachmentUrl?: string;
-  document?: Document; // Added document field to store complete document info
+  attachmentFilePath?: string;
+  document?: Document;
 }
 
 type AttachmentsData = Record<string, AttachmentState>;
@@ -171,7 +171,7 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
         updatedAttachments[documentId] = {
           completed: true,
           updatedAt: new Date().toISOString(),
-          attachmentUrl: updatedAttachments[documentId]?.attachmentUrl
+          attachmentFilePath: updatedAttachments[documentId]?.attachmentFilePath
         };
       }
       
@@ -299,17 +299,23 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
                         View Details
                       </Button>
                     )}
-                    {attachmentState?.attachmentUrl && (
+                    {attachmentState?.attachmentFilePath && (
                       <Button 
                         variant="outline" 
                         size="sm"
                         className="flex-1"
-                        asChild
+                        onClick={async () => {
+                          const { data } = await supabase.storage
+                            .from('project-attachments')
+                            .createSignedUrl(attachmentState.attachmentFilePath!, 3600);
+                          
+                          if (data?.signedUrl) {
+                            window.open(data.signedUrl, '_blank');
+                          }
+                        }}
                       >
-                        <a href={attachmentState.attachmentUrl} target="_blank" rel="noopener noreferrer">
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </a>
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
                       </Button>
                     )}
                   </CardFooter>
