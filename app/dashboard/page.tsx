@@ -22,10 +22,56 @@ export default async function Dashboard() {
     return redirect("/sign-in");
   }
 
-  const { data: projects } = await supabase
+  const { data: projects, error } = await supabase
     .from("research_projects")
-    .select("*")
+    .select(`
+      *,
+      research_descriptions (
+        id,
+        file_path,
+        pinecone_ids,
+        file_name,
+        file_type,
+        uploaded_at,
+        vectorization_status
+      ),
+      scientific_figures (
+        id,
+        image_path,
+        pinecone_id,
+        ai_description,
+        caption,
+        order_index,
+        uploaded_at,
+        vectorization_status
+      ),
+      chalk_talks (
+        id,
+        media_path,
+        pinecone_ids,
+        media_type,
+        transcription,
+        transcription_status,
+        uploaded_at,
+        vectorization_status
+      ),
+      completed_documents (
+        id,
+        file_url,
+        content,
+        file_type,
+        created_at
+      )
+    `)
+    .eq('user_id', user.id)
     .order("created_at", { ascending: false });
+
+  console.log('Dashboard Query Results:', { projects, error, userId: user.id });
+
+  if (error) {
+    console.error('Error fetching projects:', error);
+    return <div>Error loading projects. Please try again.</div>;
+  }
 
   return (
     <div className="flex-1 w-full flex flex-col gap-6 px-4">

@@ -622,3 +622,241 @@ export async function deleteChalkTalk(chalkTalkId: string) {
     return { error: 'Internal server error' };
   }
 }
+
+interface AttachmentDocument {
+  document: {
+    id: string;
+    name: string;
+  };
+  attachmentFilePath?: string;
+}
+
+interface DeletionResults {
+  researchDescriptions: string[];
+  scientificFigures: string[];
+  chalkTalks: string[];
+  completedDocuments: string[];
+  errors: string[];
+}
+
+export async function deleteProject(projectId: string): Promise<{ success?: boolean; error?: any; deletionResults: DeletionResults }> {
+  const deletionResults: DeletionResults = {
+    researchDescriptions: [],
+    scientificFigures: [],
+    chalkTalks: [],
+    completedDocuments: [],
+    errors: []
+  };
+
+  try {
+    console.log('Starting deletion process for project:', projectId);
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { error: "Not authenticated", deletionResults };
+    }
+
+    // 1. Get all associated records and project data
+    const { data: project, error: projectError } = await supabase
+      .from('research_projects')
+      .select(`
+        id,
+        title,
+        research_descriptions (id, file_path, pinecone_ids),
+        scientific_figures (id, image_path, pinecone_id),
+        chalk_talks (id, media_path, pinecone_ids),
+        completed_documents (id, file_path, file_url)
+      `)
+      .eq('id', projectId)
+      .single();
+
+    if (projectError || !project) {
+      console.error('Error fetching project:', projectError);
+      return { error: projectError || new Error('Project not found'), deletionResults };
+    }
+
+    // Convert research_descriptions to array if it's not already
+    const researchDescriptions = Array.isArray(project.research_descriptions) 
+      ? project.research_descriptions 
+      : project.research_descriptions 
+        ? [project.research_descriptions]
+        : [];
+
+    // Convert scientific_figures to array if it's not already
+    const scientificFigures = Array.isArray(project.scientific_figures)
+      ? project.scientific_figures
+      : project.scientific_figures
+        ? [project.scientific_figures]
+        : [];
+
+    // Convert chalk_talks to array if it's not already
+    const chalkTalks = Array.isArray(project.chalk_talks)
+      ? project.chalk_talks
+      : project.chalk_talks
+        ? [project.chalk_talks]
+        : [];
+
+    // Convert completed_documents to array if it's not already
+    const completedDocuments = Array.isArray(project.completed_documents)
+      ? project.completed_documents
+      : project.completed_documents
+        ? [project.completed_documents]
+        : [];
+
+    // 2. Delete all storage files
+    const storagePromises = [
+      // Research descriptions
+      ...researchDescriptions
+        .map(async d => {
+          try {
+            if (!d?.file_path) return;
+            const { error } = await supabase.storage
+              .from('research-descriptions')
+              .remove([d.file_path]);
+            
+            if (error) throw error;
+            deletionResults.researchDescriptions.push(d.file_path);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            deletionResults.errors.push(`Failed to delete research description: ${message}`);
+          }
+        }),
+      
+      // Scientific figures
+      ...scientificFigures
+        .map(async f => {
+          try {
+            if (!f?.image_path) return;
+            const { error } = await supabase.storage
+              .from('scientific-figures')
+              .remove([f.image_path]);
+            
+            if (error) throw error;
+            deletionResults.scientificFigures.push(f.image_path);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            deletionResults.errors.push(`Failed to delete scientific figure: ${message}`);
+          }
+        }),
+      
+      // Chalk talks
+      ...chalkTalks
+        .map(async t => {
+          try {
+            if (!t?.media_path) return;
+            const { error } = await supabase.storage
+              .from('chalk-talks')
+              .remove([t.media_path]);
+            
+            if (error) throw error;
+            deletionResults.chalkTalks.push(t.media_path);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            deletionResults.errors.push(`Failed to delete chalk talk: ${message}`);
+          }
+        }),
+      
+      // Completed documents
+      ...completedDocuments
+        .map(async d => {
+          try {
+            if (!d?.file_path) return;
+            const { error } = await supabase.storage
+              .from('completed-documents')
+              .remove([d.file_path]);
+            
+            if (error) throw error;
+            deletionResults.completedDocuments.push(d.file_path);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            deletionResults.errors.push(`Failed to delete completed document: ${message}`);
+          }
+        })
+    ];
+
+    // 3. Delete all Pinecone vectors
+    let pineconePromises: Promise<any>[] = [];
+    try {
+      const pineconeClient = await getPineconeClient();
+      const index = pineconeClient.index(process.env.PINECONE_INDEX_NAME!);
+      
+      pineconePromises = [
+        // Research descriptions (multiple vectors per description)
+        ...researchDescriptions
+          .filter(d => d?.pinecone_ids?.length)
+          .map(async d => {
+            try {
+              if (!d.pinecone_ids?.length) return;
+              await index.deleteMany(d.pinecone_ids);
+            } catch (error) {
+              const message = error instanceof Error ? error.message : 'Unknown error';
+              deletionResults.errors.push(`Failed to delete research description vectors: ${message}`);
+            }
+          }),
+        
+        // Scientific figures (one vector per figure)
+        ...scientificFigures
+          .filter(f => f?.pinecone_id)
+          .map(async f => {
+            try {
+              if (!f.pinecone_id) return;
+              await index.deleteOne(f.pinecone_id);
+            } catch (error) {
+              const message = error instanceof Error ? error.message : 'Unknown error';
+              deletionResults.errors.push(`Failed to delete scientific figure vector: ${message}`);
+            }
+          }),
+        
+        // Chalk talks (multiple vectors per talk)
+        ...chalkTalks
+          .filter(t => t?.pinecone_ids?.length)
+          .map(async t => {
+            try {
+              if (!t.pinecone_ids?.length) return;
+              await index.deleteMany(t.pinecone_ids);
+            } catch (error) {
+              const message = error instanceof Error ? error.message : 'Unknown error';
+              deletionResults.errors.push(`Failed to delete chalk talk vectors: ${message}`);
+            }
+          })
+      ];
+    } catch (pineconeError) {
+      console.error('Error initializing Pinecone client:', pineconeError);
+      const message = pineconeError instanceof Error ? pineconeError.message : 'Unknown error';
+      deletionResults.errors.push(`Failed to initialize Pinecone client: ${message}`);
+    }
+
+    // 4. Wait for all deletions to complete
+    await Promise.all([...storagePromises, ...pineconePromises]);
+
+    // 5. Delete the project (this will CASCADE to all related records)
+    const { error } = await supabase
+      .from('research_projects')
+      .delete()
+      .eq('id', projectId);
+
+    if (error) {
+      console.error('Error deleting project:', error);
+      return { error, deletionResults };
+    }
+
+    return { success: true, deletionResults };
+  } catch (error) {
+    console.error('Error in deleteProject:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { 
+      error,
+      deletionResults: {
+        researchDescriptions: [],
+        scientificFigures: [],
+        chalkTalks: [],
+        completedDocuments: [],
+        errors: [message]
+      }
+    };
+  }
+}

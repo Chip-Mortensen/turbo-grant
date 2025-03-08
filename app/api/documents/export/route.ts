@@ -103,7 +103,8 @@ export async function POST(req: Request) {
         document_id: documentId,
         project_id: projectId,
         file_url: publicUrl,
-        file_type: format
+        file_type: format,
+        file_path: fileName
       }, {
         onConflict: 'document_id,project_id'
       });

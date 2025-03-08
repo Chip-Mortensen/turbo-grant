@@ -39,11 +39,10 @@ export type Database = {
           id: string
           media_path: string
           media_type: string
-          pinecone_id: string | null
+          pinecone_ids: string[] | null
           project_id: string | null
           transcription: string | null
           transcription_error: string | null
-          transcription_path: string | null
           transcription_status: string
           uploaded_at: string
           vectorization_status: string
@@ -52,11 +51,10 @@ export type Database = {
           id?: string
           media_path: string
           media_type: string
-          pinecone_id?: string | null
+          pinecone_ids?: string[] | null
           project_id?: string | null
           transcription?: string | null
           transcription_error?: string | null
-          transcription_path?: string | null
           transcription_status?: string
           uploaded_at?: string
           vectorization_status?: string
@@ -65,11 +63,10 @@ export type Database = {
           id?: string
           media_path?: string
           media_type?: string
-          pinecone_id?: string | null
+          pinecone_ids?: string[] | null
           project_id?: string | null
           transcription?: string | null
           transcription_error?: string | null
-          transcription_path?: string | null
           transcription_status?: string
           uploaded_at?: string
           vectorization_status?: string
@@ -83,6 +80,99 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      completed_documents: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          document_id: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          project_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          document_id?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          project_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          document_id?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completed_documents_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "completed_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "research_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          agency: string | null
+          created_at: string
+          custom_processor: string | null
+          fields: Json[]
+          grant_types: string[] | null
+          id: string
+          name: string
+          optional: boolean
+          page_limit: number | null
+          prompt: string | null
+          sources: Database["public"]["Enums"]["document_source_type"][]
+          updated_at: string
+          upload_required: boolean
+        }
+        Insert: {
+          agency?: string | null
+          created_at?: string
+          custom_processor?: string | null
+          fields: Json[]
+          grant_types?: string[] | null
+          id?: string
+          name: string
+          optional?: boolean
+          page_limit?: number | null
+          prompt?: string | null
+          sources: Database["public"]["Enums"]["document_source_type"][]
+          updated_at?: string
+          upload_required?: boolean
+        }
+        Update: {
+          agency?: string | null
+          created_at?: string
+          custom_processor?: string | null
+          fields?: Json[]
+          grant_types?: string[] | null
+          id?: string
+          name?: string
+          optional?: boolean
+          page_limit?: number | null
+          prompt?: string | null
+          sources?: Database["public"]["Enums"]["document_source_type"][]
+          updated_at?: string
+          upload_required?: boolean
+        }
+        Relationships: []
       }
       foas: {
         Row: {
@@ -346,6 +436,41 @@ export type Database = {
           },
         ]
       }
+      recommended_equipment: {
+        Row: {
+          created_at: string
+          equipment: Json[]
+          id: string
+          project_id: string | null
+          updated_at: string
+          viewed: boolean
+        }
+        Insert: {
+          created_at?: string
+          equipment?: Json[]
+          id?: string
+          project_id?: string | null
+          updated_at?: string
+          viewed?: boolean
+        }
+        Update: {
+          created_at?: string
+          equipment?: Json[]
+          id?: string
+          project_id?: string | null
+          updated_at?: string
+          viewed?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommended_equipment_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "research_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       research_descriptions: {
         Row: {
           file_name: string
@@ -389,32 +514,45 @@ export type Database = {
       }
       research_projects: {
         Row: {
+          attachments: Json
           created_at: string
+          foa: string | null
           id: string
           title: string
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          attachments?: Json
           created_at?: string
+          foa?: string | null
           id?: string
           title: string
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          attachments?: Json
           created_at?: string
+          foa?: string | null
           id?: string
           title?: string
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "research_projects_foa_fkey"
+            columns: ["foa"]
+            isOneToOne: false
+            referencedRelation: "foas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scientific_figures: {
         Row: {
           ai_description: string | null
-          ai_description_model: string | null
           caption: string | null
           id: string
           image_path: string
@@ -426,7 +564,6 @@ export type Database = {
         }
         Insert: {
           ai_description?: string | null
-          ai_description_model?: string | null
           caption?: string | null
           id?: string
           image_path: string
@@ -438,7 +575,6 @@ export type Database = {
         }
         Update: {
           ai_description?: string | null
-          ai_description_model?: string | null
           caption?: string | null
           id?: string
           image_path?: string
@@ -651,6 +787,12 @@ export type Database = {
           }
     }
     Enums: {
+      document_field_type: "text" | "textarea" | "select"
+      document_source_type:
+        | "research_description"
+        | "scientific_figure"
+        | "chalk_talk"
+        | "foa"
       organization_type:
         | "Higher Education"
         | "Non-Profit"

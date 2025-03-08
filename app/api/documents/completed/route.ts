@@ -3,12 +3,12 @@ import { createClient } from '@/utils/supabase/server';
 
 export async function POST(request: Request) {
   try {
-    const { documentId, content } = await request.json();
+    const { documentId, content, filePath } = await request.json();
     const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('completed_documents')
-      .insert([{ document_id: documentId, content }])
+      .insert([{ document_id: documentId, content, file_path: filePath }])
       .select()
       .single();
 
