@@ -20,7 +20,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AttachmentUpload } from '@/components/attachments/AttachmentUpload';
 
 // Define the stored document type that matches what's in attachments
 interface StoredDocument {
@@ -32,14 +31,12 @@ interface StoredDocument {
   grant_types?: string[];
   custom_processor?: string;
   optional?: boolean;
-  upload_required?: boolean;
 }
 
 // Define the attachment state type to match what we're storing
 interface AttachmentState {
   completed: boolean;
   updatedAt: string;
-  attachmentFilePath?: string;
   document: StoredDocument;
 }
 
@@ -478,7 +475,6 @@ export default function DocumentQuestionsPage({
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showProcessedContent, setShowProcessedContent] = useState(false);
-  const [attachmentUrl, setAttachmentUrl] = useState<string | undefined>(undefined);
   const supabase = createClient();
 
   // Add function to check if all questions are answered
@@ -491,65 +487,6 @@ export default function DocumentQuestionsPage({
       setShowExitDialog(true);
     } else {
       router.push(`/dashboard/${projectId}/attachments`);
-    }
-  };
-
-  const handleUploadComplete = async (filePath: string) => {
-    if (!document) return;
-    
-    try {
-      // Get the current attachments data
-      const { data: project, error: fetchError } = await supabase
-        .from('research_projects')
-        .select('attachments')
-        .eq('id', projectId)
-        .single();
-      
-      if (fetchError) throw fetchError;
-      
-      // Create a copy of the attachments to work with
-      const updatedAttachments = { ...project?.attachments };
-      
-      // Update or create the attachment entry
-      updatedAttachments[documentId] = {
-        ...updatedAttachments[documentId],
-        attachmentFilePath: filePath,
-        updatedAt: new Date().toISOString(),
-        document: {
-          id: document.id,
-          name: document.name,
-          fields: document.fields || [],
-          sources: document.sources || [],
-          agency: document.agency,
-          grant_types: document.grant_types || [],
-          custom_processor: document.custom_processor,
-          optional: document.optional ?? false,
-          upload_required: document.upload_required ?? false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      };
-      
-      // Update the research_projects table
-      const { error: updateError } = await supabase
-        .from('research_projects')
-        .update({ attachments: updatedAttachments })
-        .eq('id', projectId);
-      
-      if (updateError) throw updateError;
-      
-      // Get a signed URL for the file
-      const { data } = await supabase.storage
-        .from('project-attachments')
-        .createSignedUrl(filePath, 3600);
-      
-      if (data?.signedUrl) {
-        setAttachmentUrl(data.signedUrl);
-      }
-      
-    } catch (err) {
-      console.error('Error updating attachment:', err);
-      throw err;
     }
   };
 
@@ -577,17 +514,6 @@ export default function DocumentQuestionsPage({
           if (attachment.document) {
             console.log('Found document in project attachments:', attachment.document);
             
-            // Get a signed URL if we have a file path
-            if (attachment.attachmentFilePath) {
-              const { data } = await supabase.storage
-                .from('project-attachments')
-                .createSignedUrl(attachment.attachmentFilePath, 3600);
-              
-              if (data?.signedUrl) {
-                setAttachmentUrl(data.signedUrl);
-              }
-            }
-            
             // Convert to full Document by adding missing props if needed
             const docWithDefaults: Document = {
               id: attachment.document.id,
@@ -598,7 +524,6 @@ export default function DocumentQuestionsPage({
               grant_types: attachment.document.grant_types || [],
               custom_processor: attachment.document.custom_processor,
               optional: attachment.document.optional ?? false,
-              upload_required: attachment.document.upload_required ?? false,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             };
@@ -676,7 +601,6 @@ export default function DocumentQuestionsPage({
             grant_types: document.grant_types || [],
             custom_processor: document.custom_processor,
             optional: document.optional ?? false,
-            upload_required: document.upload_required ?? false,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
@@ -693,7 +617,6 @@ export default function DocumentQuestionsPage({
             grant_types: document.grant_types || [],
             custom_processor: document.custom_processor,
             optional: document.optional ?? false,
-            upload_required: document.upload_required ?? false,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           };
@@ -777,34 +700,6 @@ export default function DocumentQuestionsPage({
             </Link>
           </Button>
         </div>
-      </div>
-    );
-  }
-
-  // Show upload interface first if upload is required
-  if (document.upload_required && !attachmentUrl) {
-    return (
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <Button asChild variant="outline" className="mb-4">
-          <Link href={`/dashboard/${projectId}/attachments`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Attachments
-          </Link>
-        </Button>
-
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">{document.name}</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Please upload your document as a PDF file before proceeding.
-          </p>
-        </div>
-
-        <AttachmentUpload
-          projectId={projectId}
-          documentId={documentId}
-          existingUrl={attachmentUrl}
-          onUploadComplete={handleUploadComplete}
-        />
       </div>
     );
   }

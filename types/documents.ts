@@ -18,8 +18,7 @@ export interface Document {
   custom_processor?: string;
   prompt?: string;
   page_limit?: number;
-  optional: boolean;
-  upload_required: boolean;
+  optional?: boolean;
   created_at: string;
   updated_at: string;
 } 

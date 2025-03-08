@@ -14,7 +14,6 @@ import { format } from 'date-fns';
 interface AttachmentState {
   completed: boolean;
   updatedAt: string;
-  attachmentFilePath?: string;
   document?: Document;
 }
 
@@ -170,8 +169,7 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
       } else {
         updatedAttachments[documentId] = {
           completed: true,
-          updatedAt: new Date().toISOString(),
-          attachmentFilePath: updatedAttachments[documentId]?.attachmentFilePath
+          updatedAt: new Date().toISOString()
         };
       }
       
@@ -285,7 +283,7 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
                       </p>
                     )}
                   </CardContent>
-                  <CardFooter className="flex gap-2">
+                  <CardFooter>
                     {(document.fields?.length > 0 || document.custom_processor) && (
                       <Button 
                         variant="outline" 
@@ -297,25 +295,6 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         View Details
-                      </Button>
-                    )}
-                    {attachmentState?.attachmentFilePath && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex-1"
-                        onClick={async () => {
-                          const { data } = await supabase.storage
-                            .from('project-attachments')
-                            .createSignedUrl(attachmentState.attachmentFilePath!, 3600);
-                          
-                          if (data?.signedUrl) {
-                            window.open(data.signedUrl, '_blank');
-                          }
-                        }}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
                       </Button>
                     )}
                   </CardFooter>

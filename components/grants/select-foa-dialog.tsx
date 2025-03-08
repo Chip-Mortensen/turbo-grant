@@ -118,8 +118,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
             agency: doc.agency,
             grant_types: doc.grant_types || [],
             custom_processor: doc.custom_processor,
-            optional: doc.optional,
-            upload_required: doc.upload_required
+            optional: doc.optional
           }
         };
       }
@@ -139,8 +138,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
               agency: doc.agency,
               grant_types: doc.grant_types || [],
               custom_processor: doc.custom_processor,
-              optional: doc.optional,
-              upload_required: doc.upload_required
+              optional: doc.optional
             }
           };
         }

@@ -86,6 +86,7 @@ export type Database = {
           content: string | null
           created_at: string | null
           document_id: string | null
+          file_path: string | null
           file_type: string | null
           file_url: string | null
           id: string
@@ -95,6 +96,7 @@ export type Database = {
           content?: string | null
           created_at?: string | null
           document_id?: string | null
+          file_path?: string | null
           file_type?: string | null
           file_url?: string | null
           id?: string
@@ -104,6 +106,7 @@ export type Database = {
           content?: string | null
           created_at?: string | null
           document_id?: string | null
+          file_path?: string | null
           file_type?: string | null
           file_url?: string | null
           id?: string
@@ -140,7 +143,6 @@ export type Database = {
           prompt: string | null
           sources: Database["public"]["Enums"]["document_source_type"][]
           updated_at: string
-          upload_required: boolean
         }
         Insert: {
           agency?: string | null
@@ -155,7 +157,6 @@ export type Database = {
           prompt?: string | null
           sources: Database["public"]["Enums"]["document_source_type"][]
           updated_at?: string
-          upload_required?: boolean
         }
         Update: {
           agency?: string | null
@@ -170,7 +171,6 @@ export type Database = {
           prompt?: string | null
           sources?: Database["public"]["Enums"]["document_source_type"][]
           updated_at?: string
-          upload_required?: boolean
         }
         Relationships: []
       }

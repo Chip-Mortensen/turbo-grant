@@ -95,8 +95,7 @@ export default function DocumentForm({
       custom_processor: undefined,
       prompt: undefined,
       page_limit: undefined,
-      optional: false,
-      upload_required: false
+      optional: false
     }
   );
 
@@ -180,7 +179,7 @@ export default function DocumentForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="grid grid-cols-4 gap-6">
-          <div className="col-span-2 space-y-4">
+          <div className="col-span-3 space-y-4">
             <div>
               <h3 className="text-lg font-medium text-gray-900">Document Name</h3>
             </div>
@@ -213,26 +212,6 @@ export default function DocumentForm({
                 />
                 <label htmlFor="optional" className="ml-2 block text-sm text-gray-900">
                   Optional Document
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900">Upload Required</h3>
-            </div>
-            <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm">
-              <div className="p-4 flex items-center">
-                <input
-                  type="checkbox"
-                  id="upload_required"
-                  checked={document.upload_required || false}
-                  onChange={(e) => setDocument({ ...document, upload_required: e.target.checked })}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="upload_required" className="ml-2 block text-sm text-gray-900">
-                  Upload Required
                 </label>
               </div>
             </div>
