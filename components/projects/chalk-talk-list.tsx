@@ -131,9 +131,9 @@ export function ChalkTalkList({ chalkTalks }: { chalkTalks: ChalkTalk[] | null }
               Are you sure you want to delete this chalk talk? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          {selectedChalkTalk && selectedChalkTalk.pinecone_id && (
+          {selectedChalkTalk && selectedChalkTalk.pinecone_ids && selectedChalkTalk.pinecone_ids.length > 0 && (
             <div className="text-sm text-muted-foreground">
-              This will also delete the associated vector from Pinecone.
+              This will also delete the associated vectors from Pinecone.
             </div>
           )}
           <DialogFooter>
