@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Document, DocumentField, AgencyType, DocumentSourceType } from '@/types/documents';
 import { use } from 'react';
@@ -209,7 +209,17 @@ function ProcessedContent({
   const [fileType, setFileType] = useState<FileType | undefined>(undefined);
   const [fileUrl, setFileUrl] = useState<string | undefined>(undefined);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isNewlyGenerated, setIsNewlyGenerated] = useState(false);
   const supabase = createClient();
+  
+  // Reference to track content changes
+  const contentRef = useRef<{
+    initial: string | null;
+    current: string | null;
+  }>({
+    initial: null,
+    current: null
+  });
 
   const editor = useEditor({
     extensions: [
@@ -221,18 +231,44 @@ function ProcessedContent({
       }
     },
     onUpdate: ({ editor }) => {
-      // Compare current content with initial content
       const currentContent = editor.getHTML();
-      if (currentContent !== initialContent) {
+      contentRef.current.current = currentContent;
+      
+      // Compare with initial content
+      const hasChanges = currentContent !== contentRef.current.initial;
+      
+      // Update local state
+      setHasUnsavedChanges(hasChanges);
+      
+      // Communicate with parent component
+      if (hasChanges) {
         onContentChanged();
+      } else {
+        onChangesSaved();
+      }
+    },
+    immediatelyRender: false
+  });
+
+  // Synchronize contentRef when initialContent changes
+  useEffect(() => {
+    if (initialContent !== null) {
+      contentRef.current.initial = initialContent;
+      // Also set current if not already set
+      if (!contentRef.current.current) {
+        contentRef.current.current = initialContent;
       }
     }
-  });
+  }, [initialContent]);
 
   // Add beforeunload event listener
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return;
+    
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (initialContent !== editor?.getHTML()) {
+      // Check if there are unsaved changes by comparing with contentRef
+      if (contentRef.current.current !== contentRef.current.initial) {
         e.preventDefault();
         e.returnValue = '';
         return '';
@@ -241,15 +277,17 @@ function ProcessedContent({
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [initialContent, editor]);
+  }, []);
 
-  // Update hasUnsavedChanges when content changes
+  // Auto-save newly generated content
   useEffect(() => {
-    if (editor) {
-      const currentContent = editor.getHTML();
-      setHasUnsavedChanges(currentContent !== initialContent);
+    if (isNewlyGenerated && editor && !loading) {
+      // Automatically save the newly generated content
+      handleSave();
+      // Reset the flag
+      setIsNewlyGenerated(false);
     }
-  }, [editor?.getHTML(), initialContent]);
+  }, [isNewlyGenerated, editor, loading]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -266,6 +304,8 @@ function ProcessedContent({
           if (existingDoc.content) {
             editor?.commands.setContent(existingDoc.content);
             setInitialContent(existingDoc.content);
+            contentRef.current.initial = existingDoc.content;
+            contentRef.current.current = existingDoc.content;
           }
           if (existingDoc.file_url) {
             setFileUrl(existingDoc.file_url);
@@ -289,7 +329,14 @@ function ProcessedContent({
         const data = await response.json();
         editor?.commands.setContent(data.content);
         setInitialContent(data.content);
-        onContentChanged(); // Set to true for newly generated content
+        contentRef.current.initial = data.content;
+        contentRef.current.current = data.content;
+        // Set the newly generated flag to trigger an auto-save
+        setIsNewlyGenerated(true);
+        // Don't mark it as having unsaved changes yet
+        setHasUnsavedChanges(false);
+        // Inform parent
+        onChangesSaved();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -311,7 +358,6 @@ function ProcessedContent({
     try {
       const content = editor.getHTML();
 
-      // Check if record exists
       const { data: existingDoc } = await supabase
         .from('completed_documents')
         .select('content')
@@ -320,7 +366,6 @@ function ProcessedContent({
         .single();
 
       if (existingDoc) {
-        // Update existing record
         const { error } = await supabase
           .from('completed_documents')
           .update({ content })
@@ -329,7 +374,6 @@ function ProcessedContent({
 
         if (error) throw error;
       } else {
-        // Insert new record
         const { error } = await supabase
           .from('completed_documents')
           .insert({
@@ -341,11 +385,19 @@ function ProcessedContent({
         if (error) throw error;
       }
 
+      // Store the exact current content as initialContent for accurate comparison
       setInitialContent(content);
+      contentRef.current.initial = content;
+      contentRef.current.current = content;
+      
+      // Reset the unsaved changes flag
+      setHasUnsavedChanges(false);
+      
+      // Inform parent component
       onChangesSaved();
     } catch (err) {
-      console.error('Error saving document:', err);
-      setSaveError(err instanceof Error ? err.message : 'Failed to save document');
+      console.error('Error saving content:', err);
+      setSaveError('Failed to save content. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -375,7 +427,7 @@ function ProcessedContent({
       if (data.fileUrl) {
         setFileUrl(data.fileUrl);
         setFileType(format);
-        return data.fileUrl; // Return the URL for the ExportDialog
+        return data.fileUrl;
       } else {
         throw new Error('No file URL in response');
       }
@@ -478,7 +530,11 @@ export default function DocumentQuestionsPage({
   const [documentGenerated, setDocumentGenerated] = useState<boolean>(false);
   const supabase = createClient();
 
-  // Add function to check if all questions are answered
+  // Helper function to check if a document has unsaved changes
+  const handleContentChange = (hasChanges: boolean) => {
+    setHasUnsavedChanges(hasChanges);
+  };
+
   const areAllQuestionsAnswered = (fields: DocumentField[]) => {
     return fields.every(field => field.answer && field.answer.trim() !== '');
   };
@@ -495,10 +551,34 @@ export default function DocumentQuestionsPage({
     fetchDocument();
   }, [documentId]);
 
+  // Handle the browser's back/forward buttons
+  useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return;
+    
+    // Define the handler for popstate event
+    const handlePopState = (event: PopStateEvent) => {
+      // If there are unsaved changes, prevent navigating away and show dialog
+      if (hasUnsavedChanges) {
+        // This is needed to prevent the default back behavior
+        window.history.pushState(null, '', window.location.href);
+        // Show the exit dialog
+        setShowExitDialog(true);
+      }
+    };
+
+    // Add a state to the history so we can detect back button clicks
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [hasUnsavedChanges]);
+
   const fetchDocument = async () => {
     setIsLoading(true);
     try {
-      // First, check if we already have a completed document
       const { data: completedDocument } = await supabase
         .from('completed_documents')
         .select('*')
@@ -506,16 +586,12 @@ export default function DocumentQuestionsPage({
         .eq('project_id', projectId)
         .maybeSingle();
 
-      // If we found a completed document, mark it as generated
       if (completedDocument) {
         console.log('Found completed document:', completedDocument);
         setDocumentGenerated(true);
-        // Go directly to processed content view
         setShowProcessedContent(true);
       }
 
-      // Continue with the regular document fetching logic
-      // First, try to find the document in project's attachments (primary source)
       const { data: project } = await supabase
         .from('research_projects')
         .select('attachments')
@@ -525,14 +601,12 @@ export default function DocumentQuestionsPage({
       if (project?.attachments) {
         console.log('Checking project attachments');
         
-        // Check if the document exists directly by ID in the attachments
         if (project.attachments[documentId]) {
           const attachment = project.attachments[documentId] as AttachmentState;
           
           if (attachment.document) {
             console.log('Found document in project attachments:', attachment.document);
             
-            // Convert to full Document by adding missing props if needed
             const docWithDefaults: Document = {
               id: attachment.document.id,
               name: attachment.document.name,
@@ -553,7 +627,6 @@ export default function DocumentQuestionsPage({
         }
       }
       
-      // Fallback to searching the documents table by ID
       console.log('Document not found in attachments, fetching from documents table');
       const { data, error: fetchError } = await supabase
         .from('documents')
@@ -584,8 +657,6 @@ export default function DocumentQuestionsPage({
     setSaveStatus('saving');
     
     try {
-      // Update the document in the project's attachments
-      // First, get the current attachments data
       const { data: project, error: fetchError } = await supabase
         .from('research_projects')
         .select('attachments')
@@ -600,13 +671,10 @@ export default function DocumentQuestionsPage({
         throw new Error('Project attachments not found');
       }
       
-      // Create a copy of the attachments to work with
       const updatedAttachments = { ...project.attachments };
       
-      // Make sure the document exists in attachments
       if (!updatedAttachments[document.id]) {
         console.log('Document not found in attachments, creating it now');
-        // Initialize the attachment if it doesn't exist
         updatedAttachments[document.id] = {
           completed: false,
           updatedAt: new Date().toISOString(),
@@ -624,7 +692,6 @@ export default function DocumentQuestionsPage({
           }
         };
       } else {
-        // Update the existing document fields in the attachment
         if (!updatedAttachments[document.id].document) {
           updatedAttachments[document.id].document = {
             id: document.id,
@@ -639,7 +706,6 @@ export default function DocumentQuestionsPage({
             updated_at: new Date().toISOString()
           };
         } else {
-          // Update just the fields in the existing document
           updatedAttachments[document.id].document = {
             ...updatedAttachments[document.id].document,
             fields: updatedFields
@@ -647,13 +713,10 @@ export default function DocumentQuestionsPage({
         }
       }
       
-      // Update the timestamp
       updatedAttachments[document.id].updatedAt = new Date().toISOString();
       
-      // Remove auto-completion logic and keep the existing completion status
       console.log('Updating attachments with new fields:', updatedAttachments[document.id]);
       
-      // Update the research_projects table with the updated attachments
       const { error: updateError } = await supabase
         .from('research_projects')
         .update({ attachments: updatedAttachments })
@@ -663,17 +726,14 @@ export default function DocumentQuestionsPage({
         throw new Error(`Failed to update project attachments: ${updateError.message}`);
       }
       
-      // Update the local state with the new fields
       setDocument(prev => prev ? {
         ...prev,
         fields: updatedFields
       } : null);
       
       setSaveStatus('success');
-      // Set a timeout to reset the status after 2 seconds
       setTimeout(() => setSaveStatus('idle'), 2000);
 
-      // Check if all questions are answered and show processed content
       if (areAllQuestionsAnswered(updatedFields)) {
         setShowProcessedContent(true);
       }
@@ -681,7 +741,6 @@ export default function DocumentQuestionsPage({
     } catch (err) {
       console.error('Error updating document:', err);
       setSaveStatus('error');
-      // Set a timeout to reset the status after 2 seconds
       setTimeout(() => setSaveStatus('idle'), 2000);
     }
   };
@@ -775,8 +834,12 @@ export default function DocumentQuestionsPage({
             documentId={documentId} 
             projectId={projectId} 
             document={document}
-            onChangesSaved={() => setHasUnsavedChanges(false)}
-            onContentChanged={() => setHasUnsavedChanges(true)}
+            onChangesSaved={() => {
+              setHasUnsavedChanges(false);
+            }}
+            onContentChanged={() => {
+              setHasUnsavedChanges(true);
+            }}
           />
         </div>
       </div>
