@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { ProjectCard } from "@/components/projects/project-card";
+import { ProjectCard } from "@/components/projects/project-summary-card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
