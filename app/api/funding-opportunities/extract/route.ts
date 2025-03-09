@@ -3,9 +3,9 @@ import { createClient } from '@/utils/supabase/server';
 import { FundingOpportunityExtractor } from '@/lib/funding-opportunity-extractor';
 
 /**
- * POST /api/extract-grant
+ * POST /api/funding-opportunities/extract
  * 
- * Extracts funding opportunity information from text content or URL
+ * Fetches content from a URL and extracts funding opportunity information
  */
 export async function POST(req: NextRequest) {
   try {
@@ -22,37 +22,32 @@ export async function POST(req: NextRequest) {
 
     // Parse the request body
     const body = await req.json();
-    const { text, url } = body;
+    const { url } = body;
 
-    // Check if either text or URL is provided
-    if (!text && !url) {
+    if (!url) {
       return NextResponse.json(
-        { error: 'No text or URL provided' },
+        { error: 'No URL provided' },
         { status: 400 }
       );
     }
 
-    // Extract funding opportunity information
+    // Validate URL format
+    try {
+      new URL(url);
+    } catch (e) {
+      return NextResponse.json(
+        { error: 'Invalid URL format' },
+        { status: 400 }
+      );
+    }
+
+    // Extract funding opportunity information directly from URL
     const extractor = new FundingOpportunityExtractor();
-    let fundingOpportunity;
-    
-    if (url) {
-      // Extract from URL
-      fundingOpportunity = await extractor.extractFromUrl(url);
-      
-      // Set the grant_url field to the provided URL
-      if (fundingOpportunity && !fundingOpportunity.grant_url) {
-        fundingOpportunity.grant_url = url;
-      }
-    } else {
-      // Create a simple HTML wrapper for the text to use the existing extraction logic
-      const htmlContent = `<html><body>${text}</body></html>`;
-      fundingOpportunity = await extractor.extractFromHtml(htmlContent);
-      
-      // If URL was provided alongside text, use it for the grant_url
-      if (url && fundingOpportunity && !fundingOpportunity.grant_url) {
-        fundingOpportunity.grant_url = url;
-      }
+    const fundingOpportunity = await extractor.extractFromUrl(url);
+
+    // Set the grant_url field to the provided URL if not already set
+    if (fundingOpportunity && !fundingOpportunity.grant_url) {
+      fundingOpportunity.grant_url = url;
     }
 
     return NextResponse.json({
@@ -62,7 +57,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error extracting funding opportunity information:', error);
     
-    // Simplified error handling - just return a generic error message
     return NextResponse.json(
       { error: 'Failed to extract funding opportunity information. Please try again.' },
       { status: 500 }
