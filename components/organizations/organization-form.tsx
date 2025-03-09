@@ -83,7 +83,6 @@ export function OrganizationForm({ userId }: { userId: string }) {
           name="uei"
           placeholder="Enter UEI (12 characters)"
           maxLength={12}
-          required
         />
         <p className="text-sm text-muted-foreground">
           The 12-character alphanumeric identifier assigned by SAM.gov
@@ -117,7 +116,7 @@ export function OrganizationForm({ userId }: { userId: string }) {
 
       <div className="space-y-2">
         <Label htmlFor="organization_type">Organization Type</Label>
-        <Select name="organization_type">
+        <Select name="organization_type" required>
           <SelectTrigger>
             <SelectValue placeholder="Select organization type" />
           </SelectTrigger>

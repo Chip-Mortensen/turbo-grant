@@ -46,8 +46,7 @@ export const updateSession = async (request: NextRequest) => {
                          request.nextUrl.pathname === "/";
 
   // Routes that require authentication but not organization selection
-  const isOrganizationRoute = request.nextUrl.pathname === "/select-organization" ||
-                              request.nextUrl.pathname.startsWith("/projects/create/organization");
+  const isOrganizationRoute = request.nextUrl.pathname.startsWith('/organizations');
                           
   if (isPublicRoute) {
     return response;
@@ -69,7 +68,7 @@ export const updateSession = async (request: NextRequest) => {
       .single();
     
     if (!profile?.institution_id) {
-      return NextResponse.redirect(new URL("/select-organization", request.url));
+      return NextResponse.redirect(new URL("/organizations/select", request.url));
     }
   }
 

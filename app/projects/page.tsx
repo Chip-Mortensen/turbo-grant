@@ -4,12 +4,6 @@ import { ProjectCard } from "@/components/projects/project-summary-card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -78,22 +72,12 @@ export default async function Dashboard() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Your Research Projects</h1>
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Create New
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href="/projects/create/project">New Project</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/projects/create/organization">New Organization</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button asChild>
+          <Link href="/projects/create/project">
+            <Plus className="mr-2 h-4 w-4" />
+            Create New Project
+          </Link>
+        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

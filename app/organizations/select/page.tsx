@@ -1,8 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { OrganizationSelector } from "@/components/organizations/organization-selector";
 
 // Maximum number of organizations to fetch initially
@@ -25,10 +23,6 @@ export default async function SelectOrganizationPage() {
     .select('institution_id')
     .eq('id', user.id)
     .single();
-
-  if (profile?.institution_id) {
-    return redirect("/projects");
-  }
 
   // Fetch organizations for selection with a limit
   const { data: organizations, count } = await supabase

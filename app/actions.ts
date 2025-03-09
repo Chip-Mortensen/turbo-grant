@@ -98,7 +98,7 @@ export const signInAction = async (formData: FormData) => {
     .single();
 
   if (!profile?.institution_id) {
-    return redirect("/select-organization");
+    return redirect("/organizations/select");
   }
 
   return redirect("/projects");
@@ -523,8 +523,12 @@ export async function createOrganization(formData: FormData) {
     return { error: "Organization name is required" }
   }
 
-  if (!uei || uei.length !== 12) {
-    return { error: "Valid UEI (12 characters) is required" }
+  if (uei && uei.length !== 12) {
+    return { error: "UEI must be 12 characters if provided" }
+  }
+
+  if (!organization_type) {
+    return { error: "Organization type is required" }
   }
 
   const { error } = await supabase

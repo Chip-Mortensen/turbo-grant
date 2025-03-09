@@ -34,7 +34,7 @@ export default async function OrganizationsPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Organizations</h1>
         <Button asChild>
-          <Link href="/projects/create/organization">
+          <Link href="/organizations/new">
             <Plus className="mr-2 h-4 w-4" />
             New Organization
           </Link>
