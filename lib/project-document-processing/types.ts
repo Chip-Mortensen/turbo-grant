@@ -17,6 +17,7 @@ export interface GenerationResult {
 export interface ProcessorConfig {
   projectId: string;
   supabase: SupabaseClient;
+  foaId?: string;
 }
 
 export interface GenerationContext {

@@ -146,3 +146,119 @@ export async function getFOAVectors(foaId: string): Promise<QueryResult> {
     };
   }
 } 
+
+/**
+ * Gets the full text content of an FOA by retrieving all its vector chunks
+ * and concatenating the text fields
+ * @param foaId The ID of the FOA to retrieve text for
+ * @returns A promise that resolves to the full text as a string
+ * @throws Error if there's an issue retrieving the text
+ */
+export async function getFOAText(foaId: string): Promise<string> {
+  try {
+    const result = await getFOAVectors(foaId);
+    
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    
+    // Extract the 'Text' field from each match's metadata and join them
+    const fullText = result.matches
+      .map(match => match.metadata?.['Text'] as string || '')
+      .filter(text => text.trim() !== '') // Filter out empty strings
+      .join(' '); // Concatenate all text chunks
+    
+    return fullText;
+    
+  } catch (error) {
+    console.error('Error extracting FOA text:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+} 
+
+/**
+ * Gets the full text content of research descriptions by retrieving all vector chunks
+ * and concatenating the text fields
+ * @param projectId The ID of the project to retrieve research description text for
+ * @returns A promise that resolves to the full text as a string
+ * @throws Error if there's an issue retrieving the text
+ */
+export async function getResearchDescriptionText(projectId: string): Promise<string> {
+  try {
+    const result = await getResearchDescriptionVectors(projectId);
+    
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    
+    // Extract the 'Text' field from each match's metadata and join them
+    const fullText = result.matches
+      .map(match => match.metadata?.['Text'] as string || '')
+      .filter(text => text.trim() !== '') // Filter out empty strings
+      .join(' '); // Concatenate all text chunks
+    
+    return fullText;
+    
+  } catch (error) {
+    console.error('Error extracting research description text:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+}
+
+/**
+ * Gets the full text content of scientific figures by retrieving all vector chunks
+ * and concatenating the text fields
+ * @param projectId The ID of the project to retrieve scientific figure text for
+ * @returns A promise that resolves to the full text as a string
+ * @throws Error if there's an issue retrieving the text
+ */
+export async function getScientificFigureText(projectId: string): Promise<string> {
+  try {
+    const result = await getScientificFigureVectors(projectId);
+    
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    
+    // Extract the 'Text' field from each match's metadata and join them
+    const fullText = result.matches
+      .map(match => match.metadata?.['Text'] as string || '')
+      .filter(text => text.trim() !== '') // Filter out empty strings
+      .join(' '); // Concatenate all text chunks
+    
+    return fullText;
+    
+  } catch (error) {
+    console.error('Error extracting scientific figure text:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+}
+
+/**
+ * Gets the full text content of chalk talk by retrieving all vector chunks
+ * and concatenating the text fields
+ * @param projectId The ID of the project to retrieve chalk talk text for
+ * @returns A promise that resolves to the full text as a string
+ * @throws Error if there's an issue retrieving the text
+ */
+export async function getChalkTalkText(projectId: string): Promise<string> {
+  try {
+    const result = await getChalkTalkVectors(projectId);
+    
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    
+    // Extract the 'Text' field from each match's metadata and join them
+    const fullText = result.matches
+      .map(match => match.metadata?.['Text'] as string || '')
+      .filter(text => text.trim() !== '') // Filter out empty strings
+      .join(' '); // Concatenate all text chunks
+    
+    return fullText;
+    
+  } catch (error) {
+    console.error('Error extracting chalk talk text:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+} 

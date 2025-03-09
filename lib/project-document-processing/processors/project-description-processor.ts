@@ -1,7 +1,6 @@
 import OpenAI from 'openai';
 import { DocumentProcessor } from '../base-processor';
 import { GenerationResult, GenerationContext } from '../types';
-import { getFOAVectors } from '../query';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -173,36 +172,32 @@ export class ProjectDescriptionProcessor extends DocumentProcessor {
   private constructOutlinePrompt(context: GenerationContext['context']): string {
     const sections = [
       context.researchDescriptions.length > 0 ? `
-Research Descriptions:
-${context.researchDescriptions
-  .map(d => d.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
-  .join('\n\n')}
-` : '',
+      Research Descriptions:
+      ${context.researchDescriptions
+        .map(d => d.text)
+        .join('\n\n')}
+      ` : '',
 
       context.scientificFigures.length > 0 ? `
-Scientific Figures:
-${context.scientificFigures
-  .map(f => f.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
-  .join('\n\n')}
-` : '',
+      Scientific Figures:
+      ${context.scientificFigures
+        .map(f => f.text)
+        .join('\n\n')}
+      ` : '',
 
       context.chalkTalks.length > 0 ? `
-Chalk Talks:
-${context.chalkTalks
-  .map(t => t.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
-  .join('\n\n')}
-` : '',
+      Chalk Talks:
+      ${context.chalkTalks
+        .map(t => t.text)
+        .join('\n\n')}
+      ` : '',
 
       context.foaContent ? `
-FOA Content:
-${context.foaContent
-  .map(f => f.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
-  .join('\n\n')}
-` : ''
+      FOA Content:
+      ${context.foaContent
+        .map(f => f.text)
+        .join('\n\n')}
+      ` : ''
     ];
 
     return `Analyze the following research content and generate a structured outline for this specific project:\n\n${
@@ -216,36 +211,32 @@ ${context.foaContent
   ): string {
     const sections = [
       context.researchDescriptions.length > 0 ? `
-Research Descriptions:
-${context.researchDescriptions
-  .map(d => d.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
-  .join('\n\n')}
-` : '',
+      Research Descriptions:
+      ${context.researchDescriptions
+      .map(d => d.text)
+      .join('\n\n')}
+      ` : '',
 
       context.scientificFigures.length > 0 ? `
-Scientific Figures:
-${context.scientificFigures
-  .map(f => f.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
-  .join('\n\n')}
-` : '',
+      Scientific Figures:
+      ${context.scientificFigures
+        .map(f => f.text)
+        .join('\n\n')}
+      ` : '',
 
       context.chalkTalks.length > 0 ? `
-Chalk Talks:
-${context.chalkTalks
-  .map(t => t.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
-  .join('\n\n')}
-` : '',
+      Chalk Talks:
+      ${context.chalkTalks
+        .map(t => t.text)
+        .join('\n\n')}
+      ` : '',
 
       context.foaContent ? `
-FOA Content:
-${context.foaContent
-  .map(f => f.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
-  .join('\n\n')}
-` : ''
+      FOA Content:
+      ${context.foaContent
+        .map(f => f.text)
+        .join('\n\n')}
+      ` : ''
     ];
 
     return `Using the following research materials, write the ${sectionHeading} section:\n\n${

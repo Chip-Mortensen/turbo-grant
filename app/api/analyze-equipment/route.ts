@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import OpenAI from 'openai';
-import { getFOAText } from '@/lib/project-document-processing/queryNew';
+import { getFOAText } from '@/lib/project-document-processing/query';
 import fs from 'fs';
 import path from 'path';
 

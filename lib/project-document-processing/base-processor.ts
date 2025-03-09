@@ -1,43 +1,68 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Document, DocumentField } from '@/types/documents';
 import { DocumentContext, GenerationResult, ProcessorConfig, GenerationContext } from './types';
-import { getResearchDescriptionVectors, getScientificFigureVectors, getChalkTalkVectors } from './query';
+import { 
+  getResearchDescriptionText, 
+  getScientificFigureText, 
+  getChalkTalkText,
+  getFOAText 
+} from './query';
 import { MatchResult } from '@/lib/vectorization/types';
 
 export abstract class DocumentProcessor {
   protected projectId: string;
   protected supabase: SupabaseClient;
+  protected foaId?: string;
 
-  constructor({ projectId, supabase }: ProcessorConfig) {
+  constructor({ projectId, supabase, foaId }: ProcessorConfig) {
     this.projectId = projectId;
     this.supabase = supabase;
+    this.foaId = foaId;
   }
 
   /**
    * Gathers all relevant context for document generation from various sources
    */
   public async gatherContext(): Promise<DocumentContext> {
-    const [researchDescriptions, scientificFigures, chalkTalks] = 
+    // Fetch all text content directly using the text functions
+    const [researchDescriptionText, scientificFigureText, chalkTalkText] = 
       await Promise.all([
-        getResearchDescriptionVectors(this.projectId),
-        getScientificFigureVectors(this.projectId),
-        getChalkTalkVectors(this.projectId)
+        getResearchDescriptionText(this.projectId),
+        getScientificFigureText(this.projectId),
+        getChalkTalkText(this.projectId)
       ]);
 
-    // Transform Pinecone results to MatchResult type
-    const transformMatches = (matches: any[]): MatchResult[] => {
-      return matches.map(match => ({
-        id: match.id,
-        score: match.score || 0,
-        metadata: match.metadata
-      }));
+    // Create context object with text content
+    const context: DocumentContext = {
+      researchDescriptions: [{ 
+        id: 'research-description', 
+        text: researchDescriptionText 
+      }],
+      scientificFigures: [{ 
+        id: 'scientific-figure', 
+        text: scientificFigureText 
+      }],
+      chalkTalks: [{ 
+        id: 'chalk-talk', 
+        text: chalkTalkText 
+      }]
     };
 
-    return {
-      researchDescriptions: transformMatches(researchDescriptions.matches),
-      scientificFigures: transformMatches(scientificFigures.matches),
-      chalkTalks: transformMatches(chalkTalks.matches)
-    };
+    // Add foaContent if foaId is provided
+    if (this.foaId) {
+      try {
+        const foaText = await getFOAText(this.foaId);
+        context.foaContent = [{
+          id: 'foa-content',
+          text: foaText
+        }];
+      } catch (error) {
+        console.error('Error fetching FOA content:', error);
+        // Don't add foaContent if there was an error
+      }
+    }
+
+    return context;
   }
 
   /**

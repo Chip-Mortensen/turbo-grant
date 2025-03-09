@@ -70,9 +70,9 @@ export class GeneralDocumentProcessor extends DocumentProcessor {
     templatePrompt: string,
     answers?: { label: string; answer: string }[],
     context?: { 
-      researchDescriptions: { metadata?: { text?: string } }[],
-      scientificFigures: { metadata?: { text?: string } }[],
-      chalkTalks: { metadata?: { text?: string } }[]
+      researchDescriptions: { text: string }[],
+      scientificFigures: { text: string }[],
+      chalkTalks: { text: string }[]
     }
   ): string {
     const sections = [
@@ -89,8 +89,7 @@ ${answers.map(a => `${a.label}: ${a.answer}`).join('\n')}
       context?.researchDescriptions.length ? `
 Research Description Context:
 ${context.researchDescriptions
-  .map(d => d.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
+  .map(d => d.text)
   .join('\n\n')}
 ` : '',
 
@@ -98,8 +97,7 @@ ${context.researchDescriptions
       context?.scientificFigures.length ? `
 Scientific Figures Context:
 ${context.scientificFigures
-  .map(f => f.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
+  .map(f => f.text)
   .join('\n\n')}
 ` : '',
 
@@ -107,8 +105,7 @@ ${context.scientificFigures
       context?.chalkTalks.length ? `
 Chalk Talks Context:
 ${context.chalkTalks
-  .map(t => t.metadata?.text)
-  .filter((text): text is string => typeof text === 'string')
+  .map(t => t.text)
   .join('\n\n')}
 ` : ''
     ];

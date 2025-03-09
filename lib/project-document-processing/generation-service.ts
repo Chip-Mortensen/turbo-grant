@@ -3,17 +3,6 @@ import { Document } from '@/types/documents';
 import { GeneralDocumentProcessor } from './processors/general-document-processor';
 import { ProjectDescriptionProcessor } from './processors/project-description-processor';
 import { GenerationResult } from './types';
-import { getFOAVectors } from './query';
-import { MatchResult } from '@/lib/vectorization/types';
-
-// Helper function to transform Pinecone results to MatchResult type
-const transformMatches = (matches: any[]): MatchResult[] => {
-  return matches.map(match => ({
-    id: match.id,
-    score: match.score || 0,
-    metadata: match.metadata
-  }));
-};
 
 /**
  * Centralized service for generating document content.
@@ -44,10 +33,13 @@ export async function generateDocumentContent(
     if (!document) throw new Error('Document not found');
     if (!project) throw new Error('Project not found');
 
-    // Create appropriate processor based on document type
+    // Get the FOA ID if available
+    const foaId = project.foa || undefined;
+
+    // Create appropriate processor based on document type, passing FOA ID if available
     const processor = document.custom_processor === 'project-description'
-      ? new ProjectDescriptionProcessor({ projectId, supabase })
-      : new GeneralDocumentProcessor({ projectId, supabase });
+      ? new ProjectDescriptionProcessor({ projectId, supabase, foaId })
+      : new GeneralDocumentProcessor({ projectId, supabase, foaId });
 
     // Get answers from attachments if they exist
     const { data: answers } = await supabase
@@ -55,20 +47,8 @@ export async function generateDocumentContent(
       .select('*')
       .eq('document_id', documentId);
 
-    // Process document with initial context
-    const result = await processor.process(document, answers || []);
-
-    // If this is a project description and we have a FOA, add that context and reprocess
-    if (document.custom_processor === 'project-description' && project.foa) {
-      const foaContent = await getFOAVectors(project.foa);
-      const context = await processor.gatherContext();
-      context.foaContent = transformMatches(foaContent.matches);
-      
-      // Reprocess with FOA context
-      return await processor.process(document, answers || []);
-    }
-
-    return result;
+    // Process document with all context (including FOA if available)
+    return await processor.process(document, answers || []);
   } catch (error) {
     console.error('Error in document generation:', error);
     return {
