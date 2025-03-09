@@ -171,10 +171,10 @@ export class ProjectDescriptionProcessor extends DocumentProcessor {
 
   private constructOutlinePrompt(context: GenerationContext['context']): string {
     const sections = [
-      context.researchDescriptions.length > 0 ? `Research Descriptions: ${context.researchDescriptions}` : '',
-      context.scientificFigures.length > 0 ? `Scientific Figures: ${context.scientificFigures}` : '',
-      context.chalkTalks.length > 0 ? `Chalk Talks: ${context.chalkTalks}` : '',
-      context.foaContent ? `FOA Content: ${context.foaContent}` : ''
+      context.researchDescriptions.length > 0 ? `Research Descriptions: ${context.researchDescriptions[0].text}` : '',
+      context.scientificFigures.length > 0 ? `Scientific Figures: ${context.scientificFigures[0].text}` : '',
+      context.chalkTalks.length > 0 ? `Chalk Talks: ${context.chalkTalks[0].text}` : '',
+      context.foaContent ? `FOA Content: ${context.foaContent?.[0].text}` : ''
     ];
 
     console.log(
@@ -195,10 +195,10 @@ export class ProjectDescriptionProcessor extends DocumentProcessor {
     sectionHeading: string
   ): string {
     const sections = [
-      context.researchDescriptions.length > 0 ? `Research Descriptions: ${context.researchDescriptions}` : '',
-      context.scientificFigures.length > 0 ? `Scientific Figures: ${context.scientificFigures}` : '',
-      context.chalkTalks.length > 0 ? `Chalk Talks: ${context.chalkTalks}` : '',
-      context.foaContent ? `FOA Content: ${context.foaContent}` : ''
+      context.researchDescriptions.length > 0 ? `Research Descriptions: ${context.researchDescriptions[0].text}` : '',
+      context.scientificFigures.length > 0 ? `Scientific Figures: ${context.scientificFigures[0].text}` : '',
+      context.chalkTalks.length > 0 ? `Chalk Talks: ${context.chalkTalks[0].text}` : '',
+      context.foaContent ? `FOA Content: ${context.foaContent?.[0].text}` : ''
     ];
 
     console.log(
