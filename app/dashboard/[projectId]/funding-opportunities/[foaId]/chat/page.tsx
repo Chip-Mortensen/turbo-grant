@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChatWrapper } from '@/components/chat';
+import { Chat } from '@/components/projects/chat';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
@@ -31,7 +31,7 @@ async function ChatContent({ projectId, foaId }: { projectId: string; foaId: str
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <ChatWrapper foaId={foaId} projectId={projectId} />
+        <Chat foaId={foaId} projectId={projectId} />
       </div>
     </Card>
   );
