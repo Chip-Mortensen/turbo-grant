@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PhoneInput from "@/components/phone-input";
+import PhoneInput from "@/components/ui/phone-input";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
