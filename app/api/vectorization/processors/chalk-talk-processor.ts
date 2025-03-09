@@ -3,42 +3,52 @@ import { ContentProcessor, ProcessingMetadata, ProcessingResult } from '@/lib/ve
 import { Database } from '@/types/supabase';
 import { encode } from 'gpt-tokenizer';
 import { generateEmbeddings } from '@/lib/vectorization/openai';
+import OpenAI from 'openai';
+import { Readable } from 'stream';
 
 type ChalkTalk = Database['public']['Tables']['chalk_talks']['Row'];
 
+// Maximum duration for audio chunks (10 minutes in seconds)
+const CHUNK_SIZE_SECONDS = 600;
+
 export class ChalkTalkProcessor extends ContentProcessor {
   private supabase: SupabaseClient;
+  private openai: OpenAI;
 
   constructor(content: ChalkTalk, projectId: string, supabase: SupabaseClient) {
     super(projectId);
     this.supabase = supabase;
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
   }
 
   async validate(content: ChalkTalk): Promise<boolean> {
     console.log('Starting validation for chalk talk:', { 
       id: content.id, 
       mediaPath: content.media_path,
-      transcriptionStatus: content.transcription_status
+      vectorizationStatus: content.vectorization_status
     });
     
-    // Check if transcription exists and is completed
-    if (!content.transcription || content.transcription_status !== 'completed') {
-      console.error('Transcription not ready:', { 
-        hasTranscription: !!content.transcription, 
-        status: content.transcription_status 
-      });
-      return false;
-    }
-
     // Check if already vectorized
     if (content.vectorization_status === 'completed') {
       console.error('Chalk talk already vectorized');
       return false;
     }
 
-    // Check if transcription is empty
-    if (content.transcription.trim().length === 0) {
-      console.error('Transcription is empty');
+    // Check if media file exists
+    try {
+      const { data, error } = await this.supabase
+        .storage
+        .from('chalk-talks')
+        .download(content.media_path);
+      
+      if (error || !data) {
+        console.error('Media file not found:', error);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking media file:', error);
       return false;
     }
 
@@ -53,15 +63,30 @@ export class ChalkTalkProcessor extends ContentProcessor {
       // Update status to processing
       await this.updateStatus('processing', content);
 
-      // Get the transcription text
-      const transcription = content.transcription;
+      // First, handle transcription
+      console.log('Starting transcription process');
+      const transcription = await this.transcribeAudio(content);
+      
       if (!transcription) {
-        throw new Error('Transcription is missing');
+        throw new Error('Failed to generate transcription');
       }
 
-      console.log('Transcription length:', transcription.length);
+      console.log('Transcription completed, length:', transcription.length);
 
-      // Split into chunks using token-based chunking
+      // Update the chalk talk with transcription
+      const { error: transcriptionError } = await this.supabase
+        .from('chalk_talks')
+        .update({
+          transcription: transcription,
+          transcription_status: 'completed'
+        })
+        .eq('id', content.id);
+
+      if (transcriptionError) {
+        throw new Error(`Failed to update transcription: ${transcriptionError.message}`);
+      }
+
+      // Split transcription into chunks for vectorization
       const chunks = this.chunkByTokens(transcription);
       console.log('Split into chunks:', chunks.length);
 
@@ -95,21 +120,14 @@ export class ChalkTalkProcessor extends ContentProcessor {
           pineconeIds.push(pineconeId);
           console.log(`Stored ${isFullTranscription ? 'full transcription' : 'chunk'} ${i + 1} in Pinecone with ID: ${pineconeId}`);
         } catch (chunkError) {
-          const errorMsg = chunkError instanceof Error 
-            ? `Error processing chunk ${i + 1}: ${chunkError.message}` 
-            : `Error processing chunk ${i + 1}`;
-          console.error(errorMsg);
-          
+          console.error(`Error processing chunk ${i + 1}:`, chunkError);
           // Continue with other chunks even if one fails
           continue;
         }
       }
 
       if (pineconeIds.length === 0) {
-        const errorMsg = 'Failed to process any chunks successfully';
-        console.error(errorMsg);
-        await this.updateStatus('failed', content);
-        throw new Error(errorMsg);
+        throw new Error('Failed to process any chunks successfully');
       }
 
       // Update the chalk talk status
@@ -122,8 +140,7 @@ export class ChalkTalkProcessor extends ContentProcessor {
         .eq('id', content.id);
 
       if (updateError) {
-        console.error('Error updating chalk talk status:', updateError);
-        throw updateError;
+        throw new Error(`Failed to update chalk talk status: ${updateError.message}`);
       }
 
       return {
@@ -134,17 +151,114 @@ export class ChalkTalkProcessor extends ContentProcessor {
         }
       };
     } catch (error) {
-      console.error('Error in processChalkTalk:', error);
+      console.error('Error in process:', error);
       
-      // Make sure we update the status if it hasn't been done already
+      // Update error status
       try {
         await this.updateStatus('failed', content);
+        
+        // Update transcription error if we failed during transcription
+        if (!content.transcription) {
+          await this.supabase
+            .from('chalk_talks')
+            .update({
+              transcription_status: 'error',
+              transcription_error: error instanceof Error ? error.message : 'Unknown error'
+            })
+            .eq('id', content.id);
+        }
       } catch (statusError) {
         console.error('Failed to update error status:', statusError);
       }
       
       throw error;
     }
+  }
+
+  private async transcribeAudio(content: ChalkTalk): Promise<string> {
+    try {
+      // Download the audio file
+      console.log(`Downloading audio file from storage: ${content.media_path}`);
+      const { data: fileData, error: downloadError } = await this.supabase
+        .storage
+        .from('chalk-talks')
+        .download(content.media_path);
+
+      if (downloadError || !fileData) {
+        throw new Error(`Failed to download audio: ${downloadError?.message || 'No data returned'}`);
+      }
+
+      // Process the audio file in chunks
+      const audioBuffer = await fileData.arrayBuffer();
+      const chunks = await this.splitAudioIntoChunks(audioBuffer);
+      console.log(`Split audio into ${chunks.length} chunks`);
+
+      // Process each chunk with Whisper API
+      const transcriptionParts: string[] = [];
+      let hasErrors = false;
+
+      for (let i = 0; i < chunks.length; i++) {
+        try {
+          console.log(`Processing chunk ${i + 1}/${chunks.length}`);
+          
+          // Create a FormData object with the chunk
+          const formData = new FormData();
+          formData.append('file', new Blob([chunks[i]], { type: 'audio/mpeg' }), `chunk-${i}.mp3`);
+          formData.append('model', 'whisper-1');
+          formData.append('language', 'en');
+
+          // Call Whisper API
+          const response = await this.openai.audio.transcriptions.create({
+            file: new File([chunks[i]], `chunk-${i}.mp3`, { type: 'audio/mpeg' }),
+            model: 'whisper-1',
+            language: 'en'
+          });
+
+          if (response.text && response.text.trim() !== '') {
+            transcriptionParts.push(response.text);
+            console.log(`Chunk ${i + 1} processed successfully`);
+          } else {
+            console.warn(`Chunk ${i + 1} returned empty transcription`);
+            hasErrors = true;
+          }
+        } catch (error) {
+          console.error(`Error processing chunk ${i + 1}:`, error);
+          hasErrors = true;
+          // Continue with other chunks
+        }
+      }
+
+      // Combine all transcription parts
+      const fullTranscription = transcriptionParts.join(' ');
+      
+      if (fullTranscription.length === 0) {
+        throw new Error('No transcription was generated for any chunk');
+      }
+
+      return fullTranscription;
+    } catch (error) {
+      console.error('Error in transcribeAudio:', error);
+      throw error;
+    }
+  }
+
+  private async splitAudioIntoChunks(audioBuffer: ArrayBuffer): Promise<ArrayBuffer[]> {
+    // For now, we'll use a simple byte-based splitting approach
+    // In a production environment, you might want to use a proper audio processing library
+    const chunks: ArrayBuffer[] = [];
+    const totalSize = audioBuffer.byteLength;
+    
+    // Estimate chunk size based on total size and desired duration
+    // This is a rough approximation - in production you'd want to use proper audio duration
+    const estimatedBytesPerSecond = totalSize / (60 * 60); // Assume max 1 hour
+    const chunkSize = estimatedBytesPerSecond * CHUNK_SIZE_SECONDS;
+    
+    for (let offset = 0; offset < totalSize; offset += chunkSize) {
+      const chunk = audioBuffer.slice(offset, Math.min(offset + chunkSize, totalSize));
+      chunks.push(chunk);
+    }
+    
+    return chunks;
   }
 
   async updateStatus(status: string, content: ChalkTalk): Promise<void> {
