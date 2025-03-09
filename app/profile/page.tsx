@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PhoneInput from "@/components/ui/phone-input";
+import Link from "next/link";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -123,19 +124,18 @@ export default async function ProfilePage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="institution_id">Institution</Label>
-                <Select name="institution_id" defaultValue={profile?.institution_id || ''}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your institution" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {organizations?.map((org) => (
-                      <SelectItem key={org.id} value={org.id}>
-                        {org.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Institution</Label>
+                <div className="flex items-center gap-4">
+                  <Input 
+                    value={organizations?.find(org => org.id === profile?.institution_id)?.name || 'No institution selected'} 
+                    disabled
+                  />
+                  <Button variant="outline" asChild className="shrink-0">
+                    <Link href="/organizations/select">
+                      Change
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
 
