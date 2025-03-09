@@ -21,7 +21,7 @@ import {
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { SelectFoaDialog } from '@/components/projects/funding-opportunities/select';
-import { BackButton } from "@/components/navigation/back-button"
+import { BackButton } from "@/components/ui/back-button"
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 

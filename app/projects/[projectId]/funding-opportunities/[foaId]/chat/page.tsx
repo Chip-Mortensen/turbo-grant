@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
 import { Card } from '@/components/ui/card';
 import { notFound } from 'next/navigation';
-import { BackButton } from "@/components/navigation/back-button"
+import { BackButton } from "@/components/ui/back-button"
 
 interface PageProps {
   params: Promise<{ projectId: string; foaId: string }>;

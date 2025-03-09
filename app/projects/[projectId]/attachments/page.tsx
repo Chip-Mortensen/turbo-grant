@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AttachmentsManager } from '@/components/attachments/attachments-manager';
-import { BackButton } from "@/components/navigation/back-button"
+import { BackButton } from "@/components/ui/back-button"
 
 export const metadata: Metadata = {
   title: 'Project Attachments | Turbo Grant',

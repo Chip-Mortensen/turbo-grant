@@ -6,7 +6,7 @@ import { UploadChalkTalk } from "@/components/projects/chalk-talk/upload"
 import { ChalkTalkList } from "@/components/projects/chalk-talk/list"
 import { Info, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { BackButton } from "@/components/navigation/back-button"
+import { BackButton } from "@/components/ui/back-button"
 
 interface PageProps {
   params: Promise<{ projectId: string }>

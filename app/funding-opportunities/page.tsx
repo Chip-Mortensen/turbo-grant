@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import OpportunityTabs from "@/components/funding-opportunities/opportunity-tabs"
-import { BackButton } from "@/components/navigation/back-button"
+import { BackButton } from "@/components/ui/back-button"
 import { ArrowLeft } from "lucide-react"
 
 export default async function FundingOpportunitiesPage() {

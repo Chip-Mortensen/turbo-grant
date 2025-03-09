@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from '@/lib/utils';
-import { BackButton } from "@/components/navigation/back-button";
+import { BackButton } from "@/components/ui/back-button";
 
 export const metadata: Metadata = {
   title: 'Application Submission | Turbo Grant',

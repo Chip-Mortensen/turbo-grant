@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { FundingOpportunitiesSearch } from '@/components/projects/funding-opportunities/search';
-import { BackButton } from "@/components/navigation/back-button"
+import { BackButton } from "@/components/ui/back-button"
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 

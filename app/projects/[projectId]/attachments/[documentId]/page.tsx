@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BackButton } from "@/components/navigation/back-button";
+import { BackButton } from "@/components/ui/back-button";
 
 // Define the stored document type that matches what's in attachments
 interface StoredDocument {

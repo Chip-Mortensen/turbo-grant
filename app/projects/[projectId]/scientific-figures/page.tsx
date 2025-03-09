@@ -6,7 +6,7 @@ import { UploadFigure } from "@/components/projects/scientific-figures/upload"
 import { FigureList } from "@/components/projects/scientific-figures/list"
 import { Info, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { BackButton } from "@/components/navigation/back-button"
+import { BackButton } from "@/components/ui/back-button"
 
 interface PageProps {
   params: Promise<{ projectId: string }>

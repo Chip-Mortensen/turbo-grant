@@ -5,7 +5,7 @@ import { formatDate } from "@/lib/utils";
 import { FileText, Image, Video, DollarSign, ArrowLeft } from "lucide-react";
 import { ProjectCards } from "@/components/projects/project-cards";
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/navigation/back-button"
+import { BackButton } from "@/components/ui/back-button"
 
 interface PageProps {
   params: Promise<{ projectId: string }>;

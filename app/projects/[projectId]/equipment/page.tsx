@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import EquipmentList from "@/components/projects/equipment/equipment-list";
-import { BackButton } from "@/components/navigation/back-button";
+import { BackButton } from "@/components/ui/back-button";
 
 interface PageProps {
   params: Promise<{ projectId: string }>
