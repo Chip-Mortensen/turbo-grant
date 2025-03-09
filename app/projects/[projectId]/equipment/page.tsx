@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import EquipmentList from "@/components/projects/equipment/equipment-list";
+import { BackButton } from "@/components/navigation/back-button";
 
 interface PageProps {
   params: Promise<{ projectId: string }>
@@ -18,12 +19,7 @@ export default async function EquipmentPage({ params }: PageProps) {
   
   return (
     <div className="container py-6 space-y-6">
-      <Link href={`/projects/${projectId}`} passHref>
-        <Button variant="outline" className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Project
-        </Button>
-      </Link>
+      <BackButton href={`/projects/${projectId}`} />
       
       <EquipmentList projectId={projectId} />
     </div>

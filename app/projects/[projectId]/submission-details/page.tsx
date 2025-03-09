@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from '@/lib/utils';
+import { BackButton } from "@/components/navigation/back-button";
 
 export const metadata: Metadata = {
   title: 'Application Submission | Turbo Grant',
@@ -65,12 +66,7 @@ export default async function SubmissionDetailsPage({ params }: PageProps) {
 
   return (
     <div className="container py-6 space-y-6">
-      <Link href={`/projects/${projectId}`} passHref>
-        <Button variant="outline" className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Project
-        </Button>
-      </Link>
+      <BackButton href={`/projects/${projectId}`} />
       
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Application Submission</h1>

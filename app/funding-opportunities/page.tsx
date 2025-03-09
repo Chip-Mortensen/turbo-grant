@@ -3,6 +3,8 @@ import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import OpportunityTabs from "@/components/funding-opportunities/opportunity-tabs"
+import { BackButton } from "@/components/navigation/back-button"
+import { ArrowLeft } from "lucide-react"
 
 export default async function FundingOpportunitiesPage() {
   const supabase = await createClient()
@@ -30,12 +32,12 @@ export default async function FundingOpportunitiesPage() {
             Manage your funding opportunities
           </p>
         </div>
-        <Link
+        <BackButton 
           href="/projects"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          Back to Dashboard
-        </Link>
+          label="Back to Dashboard"
+          variant="link"
+          className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto"
+        />
       </div>
 
       <OpportunityTabs 

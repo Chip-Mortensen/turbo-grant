@@ -21,6 +21,7 @@ import {
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { SelectFoaDialog } from '@/components/projects/funding-opportunities/select';
+import { BackButton } from "@/components/navigation/back-button"
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 
@@ -81,12 +82,10 @@ const page = async ({ params }: PageProps) => {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
-        <Link href={`/projects/${projectId}/funding-opportunities`} passHref>
-          <Button variant="outline" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Funding Opportunities
-          </Button>
-        </Link>
+        <BackButton 
+          href={`/projects/${projectId}/funding-opportunities`}
+          label="Back to Funding Opportunities"
+        />
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
             <Link href={`/projects/${projectId}/funding-opportunities/${foaId}/chat`} className="flex items-center gap-1">

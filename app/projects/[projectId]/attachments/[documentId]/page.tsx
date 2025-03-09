@@ -20,6 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BackButton } from "@/components/navigation/back-button";
 
 // Define the stored document type that matches what's in attachments
 interface StoredDocument {
@@ -770,12 +771,11 @@ export default function DocumentQuestionsPage({
           <span className="block sm:inline"> {error || "Document not found"}</span>
         </div>
         <div className="mt-4">
-          <Button asChild variant="outline">
-            <Link href={`/projects/${projectId}/attachments`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Attachments
-            </Link>
-          </Button>
+          <BackButton 
+            href={`/projects/${projectId}/attachments`} 
+            label="Back to Attachments" 
+            variant="outline" 
+          />
         </div>
       </div>
     );

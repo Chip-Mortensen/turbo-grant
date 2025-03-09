@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { FundingOpportunitiesSearch } from '@/components/projects/funding-opportunities/search';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { BackButton } from "@/components/navigation/back-button"
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
   title: 'Funding Opportunities | Turbo Grant',
@@ -18,12 +18,7 @@ export default async function FundingOpportunitiesPage({ params }: PageProps) {
   
   return (
     <div className="container py-6 space-y-4">
-      <Link href={`/projects/${projectId}`} passHref>
-        <Button variant="outline" className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Project
-        </Button>
-      </Link>
+      <BackButton href={`/projects/${projectId}`} />
       
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Funding Opportunities</h1>

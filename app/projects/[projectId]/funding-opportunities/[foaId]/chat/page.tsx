@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
 import { Card } from '@/components/ui/card';
 import { notFound } from 'next/navigation';
+import { BackButton } from "@/components/navigation/back-button"
 
 interface PageProps {
   params: Promise<{ projectId: string; foaId: string }>;
@@ -44,12 +45,10 @@ export default async function ChatPage({ params }: PageProps) {
     <div className="container max-w-6xl mx-auto py-4">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <Link href={`/projects/${projectId}/funding-opportunities/${foaId}`} passHref>
-            <Button variant="outline" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Funding Opportunity
-            </Button>
-          </Link>
+          <BackButton 
+            href={`/projects/${projectId}/funding-opportunities/${foaId}`}
+            label="Back to Funding Opportunity"
+          />
         </div>
 
         <Suspense fallback={

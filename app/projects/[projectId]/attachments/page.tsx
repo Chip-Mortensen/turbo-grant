@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AttachmentsManager } from '@/components/attachments/attachments-manager';
+import { BackButton } from "@/components/navigation/back-button"
 
 export const metadata: Metadata = {
   title: 'Project Attachments | Turbo Grant',
@@ -42,12 +43,7 @@ export default async function AttachmentsPage({ params }: PageProps) {
   
   return (
     <div className="container py-6 space-y-4">
-      <Link href={`/projects/${projectId}`} passHref>
-        <Button variant="outline" className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Project
-        </Button>
-      </Link>
+      <BackButton href={`/projects/${projectId}`} />
       
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Project Attachments</h1>
