@@ -431,22 +431,6 @@ export function UploadChalkTalk({ projectId, existingChalkTalks }: {
       
       if (dbError) throw dbError
       
-      // Trigger the transcription process in the background (non-blocking)
-      const chalkTalkId = chalkTalkData.id
-      fetch('/api/trigger-transcription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          chalkTalkId,
-          filePath: mediaPath
-        })
-      }).catch(error => {
-        console.error('Error triggering transcription:', error)
-        // We don't throw here as the upload was successful
-      })
-      
       // Refresh the page to show the new chalk talk
       router.refresh()
       
