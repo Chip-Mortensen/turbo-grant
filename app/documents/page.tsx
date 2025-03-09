@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Document } from '@/types/documents';
-import DocumentList from '@/components/documents/DocumentList';
+import DocumentList from '@/components/documents/document-list';
 
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);

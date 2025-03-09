@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import DocumentForm from '@/components/documents/DocumentForm';
+import DocumentForm from '@/components/documents/document-form';
 import { Document } from '@/types/documents';
 import { use } from 'react';
 

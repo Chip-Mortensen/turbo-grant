@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Document, DocumentField, AgencyType, DocumentSourceType } from '@/types/documents';
 import { use } from 'react';
-import QuestionView from '@/components/attachments/QuestionView';
+import QuestionView from '@/components/attachments/question-view';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, Bold, Italic, List, Heading, Download, Save, FileOutput } from 'lucide-react';
 import Link from 'next/link';

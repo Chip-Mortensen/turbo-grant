@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Document, DocumentField as DocumentFieldType, AgencyType } from '@/types/documents';
-import DocumentField from './DocumentField';
-import SourceSelector from './SourceSelector';
+import DocumentField from './document-field';
+import SourceSelector from './source-selector';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   DndContext,
