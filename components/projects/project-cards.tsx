@@ -1,7 +1,7 @@
 'use client';
 
 import { ProjectCard } from "@/components/ui/project-card";
-import { FileText, Image, Video, DollarSign, Paperclip, Wrench } from "lucide-react";
+import { FileText, Image, Video, DollarSign, Paperclip, Wrench, FileOutput, SendHorizontal } from "lucide-react";
 import { useProjectCompletion } from "@/hooks/use-project-completion";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +63,15 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           href={`/dashboard/${projectId}/attachments`}
           icon={Paperclip}
           isComplete={completionStatus.attachments}
+        />
+      )}
+      {completionStatus.foa && (
+        <ProjectCard
+          title="Application Submission"
+          description="Instructions for submitting your application"
+          href={`/dashboard/${projectId}/submission-details`}
+          icon={SendHorizontal}
+          isComplete={false}
         />
       )}
     </div>
