@@ -12,12 +12,12 @@ import { createClient } from '@/utils/supabase/client';
 import { FundingOpportunity } from '@/lib/funding-opportunity-extractor';
 import { Input } from '@/components/ui/input';
 
-interface UploadGrantProps {
+interface UploadOpportunityProps {
   projectId: string;
   onSuccess?: (data: any) => void;
 }
 
-export default function UploadGrant({ projectId, onSuccess }: UploadGrantProps) {
+export default function UploadOpportunity({ projectId, onSuccess }: UploadOpportunityProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [grantText, setGrantText] = useState<string>('');

@@ -93,8 +93,8 @@ export default async function AuthButton() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/grants" className="cursor-pointer w-full">
-              Grants
+            <Link href="/funding-opportunities" className="cursor-pointer w-full">
+              Opportunities
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

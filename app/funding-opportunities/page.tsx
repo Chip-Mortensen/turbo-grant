@@ -2,9 +2,9 @@ import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import GrantTabs from "@/components/grants/grant-tabs"
+import OpportunityTabs from "@/components/funding-opportunities/opportunity-tabs"
 
-export default async function GrantsPage() {
+export default async function FundingOpportunitiesPage() {
   const supabase = await createClient()
 
   const {
@@ -25,9 +25,9 @@ export default async function GrantsPage() {
     <div className="flex-1 w-full flex flex-col gap-6 px-4 py-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-semibold">Grant Applications</h1>
+          <h1 className="text-2xl font-semibold">Funding Opportunities</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your grant applications
+            Manage your funding opportunities
           </p>
         </div>
         <Link
@@ -38,7 +38,7 @@ export default async function GrantsPage() {
         </Link>
       </div>
 
-      <GrantTabs 
+      <OpportunityTabs 
         projectId="" 
         grantTypes={grantTypes || []} 
       />

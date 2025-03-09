@@ -17,7 +17,7 @@ import {
   DialogTitle 
 } from '@/components/ui/dialog';
 
-interface FoaListProps {
+interface ManageListProps {
   projectId: string;
 }
 
@@ -28,7 +28,7 @@ interface FoaWithId extends FundingOpportunity {
   vectorization_status?: string;
 }
 
-export default function FoaList({ projectId }: FoaListProps) {
+export default function ManageList({ projectId }: ManageListProps) {
   const [foas, setFoas] = useState<FoaWithId[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
