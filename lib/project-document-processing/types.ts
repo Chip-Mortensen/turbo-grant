@@ -3,10 +3,10 @@ import { Document, DocumentField } from '@/types/documents';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface DocumentContext {
-  researchDescriptions: MatchResult[];
-  scientificFigures: MatchResult[];
-  chalkTalks: MatchResult[];
-  foaContent?: MatchResult[];
+  researchDescriptions: string;
+  scientificFigures: string;
+  chalkTalks: string;
+  foaContent?: string;
 }
 
 export interface GenerationResult {

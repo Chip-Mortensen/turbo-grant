@@ -34,28 +34,16 @@ export abstract class DocumentProcessor {
 
     // Create context object with text content
     const context: DocumentContext = {
-      researchDescriptions: [{ 
-        id: 'research-description', 
-        text: researchDescriptionText 
-      }],
-      scientificFigures: [{ 
-        id: 'scientific-figure', 
-        text: scientificFigureText 
-      }],
-      chalkTalks: [{ 
-        id: 'chalk-talk', 
-        text: chalkTalkText 
-      }]
+      researchDescriptions: researchDescriptionText,
+      scientificFigures: scientificFigureText ,
+      chalkTalks: chalkTalkText 
     };
 
     // Add foaContent if foaId is provided
     if (this.foaId) {
       try {
         const foaText = await getFOAText(this.foaId);
-        context.foaContent = [{
-          id: 'foa-content',
-          text: foaText
-        }];
+        context.foaContent = foaText;
       } catch (error) {
         console.error('Error fetching FOA content:', error);
         // Don't add foaContent if there was an error
