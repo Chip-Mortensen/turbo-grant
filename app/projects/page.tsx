@@ -73,7 +73,7 @@ export default async function Dashboard() {
         <h1 className="text-2xl font-semibold">Your Research Projects</h1>
         
         <Button asChild>
-          <Link href="/projects/create/project">
+          <Link href="/projects/new">
             <Plus className="mr-2 h-4 w-4" />
             Create New Project
           </Link>
