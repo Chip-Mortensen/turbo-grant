@@ -38,7 +38,7 @@ export default async function SubmissionDetailsPage({ params }: PageProps) {
 
   if (projectError || !project) {
     console.error('Error fetching project:', projectError);
-    return redirect("/dashboard");
+    return redirect("/projects");
   }
 
   // Get the FOA details if available

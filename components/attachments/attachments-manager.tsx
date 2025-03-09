@@ -290,7 +290,7 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
                         size="sm" 
                         className="flex-1"
                         onClick={() => {
-                          router.push(`/dashboard/${projectId}/attachments/${document.id}`);
+                          router.push(`/projects/${projectId}/attachments/${document.id}`);
                         }}
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />

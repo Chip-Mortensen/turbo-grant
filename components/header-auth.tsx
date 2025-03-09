@@ -83,12 +83,12 @@ export default async function AuthButton() {
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/profile" className="cursor-pointer w-full">
+            <Link href="/projects/profile" className="cursor-pointer w-full">
               Profile
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/organizations" className="cursor-pointer w-full">
+            <Link href="/projects/organizations" className="cursor-pointer w-full">
               Organizations
             </Link>
           </DropdownMenuItem>

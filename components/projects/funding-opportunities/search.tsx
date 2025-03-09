@@ -110,7 +110,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
   
   // Navigate to FOA details page
   const navigateToFoaDetails = (foaId: string) => {
-    router.push(`/dashboard/${projectId}/funding-opportunities/${foaId}`);
+    router.push(`/projects/${projectId}/funding-opportunities/${foaId}`);
   };
   
   // Search function

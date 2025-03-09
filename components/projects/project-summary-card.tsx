@@ -47,7 +47,7 @@ export function ProjectCard({ project }: { project: Project }) {
 
   return (
     <Card className="group relative">
-      <Link href={`/dashboard/${project.id}`}>
+      <Link href={`/projects/${project.id}`}>
         <CardHeader>
           <CardTitle>{project.title}</CardTitle>
           <CardDescription>

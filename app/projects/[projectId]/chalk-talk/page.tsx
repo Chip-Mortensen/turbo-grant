@@ -2,16 +2,16 @@ import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { UploadDescription } from "@/components/projects/research-description/upload"
-import { DescriptionList } from "@/components/projects/research-description/list"
-import { Info, ArrowLeft } from "lucide-react"
+import { UploadChalkTalk } from "@/components/projects/chalk-talk/upload"
+import { ChalkTalkList } from "@/components/projects/chalk-talk/list"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface PageProps {
   params: Promise<{ projectId: string }>
 }
 
-export default async function ResearchDescriptionPage({ params }: PageProps) {
+export default async function ChalkTalkPage({ params }: PageProps) {
   const { projectId } = await params
   const supabase = await createClient()
 
@@ -30,11 +30,11 @@ export default async function ResearchDescriptionPage({ params }: PageProps) {
     .single()
 
   if (!project) {
-    return redirect("/dashboard")
+    return redirect("/projects")
   }
 
-  const { data: descriptions } = await supabase
-    .from("research_descriptions")
+  const { data: chalkTalks } = await supabase
+    .from("chalk_talks")
     .select("*")
     .eq("project_id", projectId)
     .order("uploaded_at", { ascending: false })
@@ -49,35 +49,27 @@ export default async function ResearchDescriptionPage({ params }: PageProps) {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold">Research Description</h1>
+        <h1 className="text-2xl font-semibold">Chalk Talk</h1>
         <p className="text-sm text-muted-foreground">
-          Upload and manage your research description
+          Upload and manage your chalk talk presentations
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle>Upload Description</CardTitle>
-              <CardDescription>
-                Upload a document describing your research project
-              </CardDescription>
-            </div>
-            <div className="flex items-center text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-md">
-              <Info className="h-3 w-3 mr-1" />
-              Only one description allowed per project
-            </div>
-          </div>
+          <CardTitle>Upload Chalk Talk</CardTitle>
+          <CardDescription>
+            Upload a video or audio recording of your chalk talk presentation
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <UploadDescription projectId={projectId} />
+          <UploadChalkTalk projectId={projectId} existingChalkTalks={chalkTalks} />
         </CardContent>
       </Card>
 
       <div className="grid gap-4">
-        <h2 className="text-lg font-semibold">Current Description</h2>
-        <DescriptionList descriptions={descriptions} />
+        <h2 className="text-lg font-semibold">Uploaded Presentations</h2>
+        <ChalkTalkList chalkTalks={chalkTalks} />
       </div>
     </div>
   )

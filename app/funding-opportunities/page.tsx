@@ -31,7 +31,7 @@ export default async function FundingOpportunitiesPage() {
           </p>
         </div>
         <Link
-          href="/dashboard"
+          href="/projects"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
           Back to Dashboard

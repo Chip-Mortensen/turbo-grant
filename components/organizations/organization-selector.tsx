@@ -124,7 +124,7 @@ export function OrganizationSelector({ organizations: initialOrganizations, user
         return;
       }
       
-      router.push("/dashboard");
+      router.push("/projects");
       router.refresh();
     });
   };

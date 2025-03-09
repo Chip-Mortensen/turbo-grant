@@ -2,8 +2,8 @@ import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { UploadChalkTalk } from "@/components/projects/chalk-talk/upload"
-import { ChalkTalkList } from "@/components/projects/chalk-talk/list"
+import { UploadFigure } from "@/components/projects/scientific-figures/upload"
+import { FigureList } from "@/components/projects/scientific-figures/list"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -11,7 +11,7 @@ interface PageProps {
   params: Promise<{ projectId: string }>
 }
 
-export default async function ChalkTalkPage({ params }: PageProps) {
+export default async function ScientificFiguresPage({ params }: PageProps) {
   const { projectId } = await params
   const supabase = await createClient()
 
@@ -30,14 +30,14 @@ export default async function ChalkTalkPage({ params }: PageProps) {
     .single()
 
   if (!project) {
-    return redirect("/dashboard")
+    return redirect("/projects")
   }
 
-  const { data: chalkTalks } = await supabase
-    .from("chalk_talks")
+  const { data: figures } = await supabase
+    .from("scientific_figures")
     .select("*")
     .eq("project_id", projectId)
-    .order("uploaded_at", { ascending: false })
+    .order("order_index", { ascending: true })
 
   return (
     <div className="flex-1 w-full flex flex-col gap-6 px-4 py-8">
@@ -49,27 +49,32 @@ export default async function ChalkTalkPage({ params }: PageProps) {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold">Chalk Talk</h1>
+        <h1 className="text-2xl font-semibold">Scientific Figures</h1>
         <p className="text-sm text-muted-foreground">
-          Upload and manage your chalk talk presentations
+          Upload and manage your scientific figures
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Upload Chalk Talk</CardTitle>
+          <CardTitle>Upload Figure</CardTitle>
           <CardDescription>
-            Upload a video or audio recording of your chalk talk presentation
+            Upload an image file with an optional caption
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <UploadChalkTalk projectId={projectId} existingChalkTalks={chalkTalks} />
+          <UploadFigure projectId={projectId} nextOrderIndex={figures?.length ?? 0} />
         </CardContent>
       </Card>
 
       <div className="grid gap-4">
-        <h2 className="text-lg font-semibold">Uploaded Presentations</h2>
-        <ChalkTalkList chalkTalks={chalkTalks} />
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Uploaded Figures</h2>
+          <p className="text-sm text-muted-foreground">
+            Drag to reorder figures
+          </p>
+        </div>
+        <FigureList figures={figures} />
       </div>
     </div>
   )

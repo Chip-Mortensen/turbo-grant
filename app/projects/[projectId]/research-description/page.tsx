@@ -2,16 +2,16 @@ import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { UploadFigure } from "@/components/projects/scientific-figures/upload"
-import { FigureList } from "@/components/projects/scientific-figures/list"
-import { ArrowLeft } from "lucide-react"
+import { UploadDescription } from "@/components/projects/research-description/upload"
+import { DescriptionList } from "@/components/projects/research-description/list"
+import { Info, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface PageProps {
   params: Promise<{ projectId: string }>
 }
 
-export default async function ScientificFiguresPage({ params }: PageProps) {
+export default async function ResearchDescriptionPage({ params }: PageProps) {
   const { projectId } = await params
   const supabase = await createClient()
 
@@ -30,14 +30,14 @@ export default async function ScientificFiguresPage({ params }: PageProps) {
     .single()
 
   if (!project) {
-    return redirect("/dashboard")
+    return redirect("/projects")
   }
 
-  const { data: figures } = await supabase
-    .from("scientific_figures")
+  const { data: descriptions } = await supabase
+    .from("research_descriptions")
     .select("*")
     .eq("project_id", projectId)
-    .order("order_index", { ascending: true })
+    .order("uploaded_at", { ascending: false })
 
   return (
     <div className="flex-1 w-full flex flex-col gap-6 px-4 py-8">
@@ -49,32 +49,35 @@ export default async function ScientificFiguresPage({ params }: PageProps) {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold">Scientific Figures</h1>
+        <h1 className="text-2xl font-semibold">Research Description</h1>
         <p className="text-sm text-muted-foreground">
-          Upload and manage your scientific figures
+          Upload and manage your research description
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Upload Figure</CardTitle>
-          <CardDescription>
-            Upload an image file with an optional caption
-          </CardDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle>Upload Description</CardTitle>
+              <CardDescription>
+                Upload a document describing your research project
+              </CardDescription>
+            </div>
+            <div className="flex items-center text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-md">
+              <Info className="h-3 w-3 mr-1" />
+              Only one description allowed per project
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <UploadFigure projectId={projectId} nextOrderIndex={figures?.length ?? 0} />
+          <UploadDescription projectId={projectId} />
         </CardContent>
       </Card>
 
       <div className="grid gap-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Uploaded Figures</h2>
-          <p className="text-sm text-muted-foreground">
-            Drag to reorder figures
-          </p>
-        </div>
-        <FigureList figures={figures} />
+        <h2 className="text-lg font-semibold">Current Description</h2>
+        <DescriptionList descriptions={descriptions} />
       </div>
     </div>
   )

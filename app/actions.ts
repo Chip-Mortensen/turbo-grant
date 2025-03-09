@@ -101,7 +101,7 @@ export const signInAction = async (formData: FormData) => {
     return redirect("/select-organization");
   }
 
-  return redirect("/dashboard");
+  return redirect("/projects");
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {

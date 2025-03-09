@@ -17,7 +17,7 @@ export function NewProjectForm() {
       const result = await createProject(formData)
       
       if (result.success && result.projectId) {
-        router.push(`/dashboard/${result.projectId}`)
+        router.push(`/projects/${result.projectId}`)
         router.refresh()
       } else if (result.error) {
         setError(result.error)

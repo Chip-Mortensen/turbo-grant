@@ -27,7 +27,7 @@ export default async function SelectOrganizationPage() {
     .single();
 
   if (profile?.institution_id) {
-    return redirect("/dashboard");
+    return redirect("/projects");
   }
 
   // Fetch organizations for selection with a limit

@@ -169,7 +169,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
       // Close dialog and redirect to project home page
       setIsOpen(false);
-      router.push(`/dashboard/${projectId}`);
+      router.push(`/projects/${projectId}`);
     } catch (err) {
       console.error('Error selecting FOA:', err);
       setError('Failed to select funding opportunity. Please try again.');

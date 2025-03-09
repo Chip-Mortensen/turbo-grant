@@ -20,21 +20,21 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
       <ProjectCard
         title="Research Description"
         description="Upload and manage your research description"
-        href={`/dashboard/${projectId}/research-description`}
+        href={`/projects/${projectId}/research-description`}
         icon={FileText}
         isComplete={completionStatus.description}
       />
       <ProjectCard
         title="Scientific Figures"
         description="Upload and manage your scientific figures"
-        href={`/dashboard/${projectId}/scientific-figures`}
+        href={`/projects/${projectId}/scientific-figures`}
         icon={Image}
         isComplete={completionStatus.figures}
       />
       <ProjectCard
         title="Chalk Talk"
         description="Record and manage your chalk talk"
-        href={`/dashboard/${projectId}/chalk-talk`}
+        href={`/projects/${projectId}/chalk-talk`}
         icon={Video}
         isComplete={completionStatus.chalkTalk}
       />
@@ -42,7 +42,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         <ProjectCard
           title="Funding Opportunity"
           description="Select and view funding opportunities"
-          href={`/dashboard/${projectId}/funding-opportunities`}
+          href={`/projects/${projectId}/funding-opportunities`}
           icon={DollarSign}
           isComplete={completionStatus.foa}
         />
@@ -51,7 +51,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         <ProjectCard
           title="Equipment"
           description="Manage equipment for your project"
-          href={`/dashboard/${projectId}/equipment`}
+          href={`/projects/${projectId}/equipment`}
           icon={Wrench}
           isComplete={completionStatus.equipment}
         />
@@ -60,7 +60,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         <ProjectCard
           title="Attachments"
           description="Manage documents for your proposal"
-          href={`/dashboard/${projectId}/attachments`}
+          href={`/projects/${projectId}/attachments`}
           icon={Paperclip}
           isComplete={completionStatus.attachments}
         />
@@ -69,7 +69,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         <ProjectCard
           title="Application Submission"
           description="Instructions for submitting your application"
-          href={`/dashboard/${projectId}/submission-details`}
+          href={`/projects/${projectId}/submission-details`}
           icon={SendHorizontal}
           isComplete={false}
         />

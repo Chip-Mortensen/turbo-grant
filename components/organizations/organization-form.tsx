@@ -51,8 +51,8 @@ export function OrganizationForm({ userId }: { userId: string }) {
             return;
           }
           
-          // Redirect to dashboard
-          router.push("/dashboard");
+          // Redirect to projects
+          router.push("/projects");
           router.refresh();
         } else {
           // Just refresh the page if we couldn't find the new organization
