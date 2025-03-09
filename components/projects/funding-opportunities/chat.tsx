@@ -131,7 +131,7 @@ export function Chat({ foaId, projectId }: ChatProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/funding-opportunity/${foaId}/chat`, {
+      const response = await fetch(`/api/funding-opportunities/${foaId}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

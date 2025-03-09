@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { SelectFoaDialog } from '@/components/grants/select-foa-dialog';
+import { SelectFoaDialog } from '@/components/projects/funding-opportunities/select';
 
 type FOA = Database['public']['Tables']['foas']['Row'];
 

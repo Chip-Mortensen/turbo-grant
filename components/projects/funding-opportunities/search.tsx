@@ -203,7 +203,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
       params.append('projectId', projectId);
       
       // Make API request
-      const response = await fetch(`/api/funding-opportunity/search?${params.toString()}`);
+      const response = await fetch(`/api/funding-opportunities/search?${params.toString()}`);
       const data = await response.json();
       
       if (!response.ok || data.error) {

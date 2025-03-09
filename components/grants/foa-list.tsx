@@ -120,7 +120,7 @@ export default function FoaList({ projectId }: FoaListProps) {
     setDeleteSuccess(null);
     
     try {
-      const response = await fetch(`/api/funding-opportunity/${selectedFoa.id}`, {
+      const response = await fetch(`/api/funding-opportunities/${selectedFoa.id}`, {
         method: 'DELETE',
       });
       

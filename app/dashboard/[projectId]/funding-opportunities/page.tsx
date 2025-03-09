@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { FundingOpportunitiesSearch } from '@/components/grants/funding-opportunities-search';
+import { FundingOpportunitiesSearch } from '@/components/projects/funding-opportunities/search';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';

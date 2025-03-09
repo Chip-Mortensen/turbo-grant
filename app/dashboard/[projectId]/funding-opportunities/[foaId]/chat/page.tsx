@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { Chat } from '@/components/projects/chat';
+import { Chat } from '@/components/projects/funding-opportunities/chat';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
