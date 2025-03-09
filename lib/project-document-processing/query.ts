@@ -164,10 +164,10 @@ export async function getFOAText(foaId: string): Promise<string> {
     
     // Extract the 'Text' field from each match's metadata and join them
     const fullText = result.matches
-      .map(match => match.metadata?.['Text'] as string || '')
+      .map(match => match.metadata?.['text'] as string || '')
       .filter(text => text.trim() !== '') // Filter out empty strings
       .join(' '); // Concatenate all text chunks
-    
+        
     return fullText;
     
   } catch (error) {
@@ -193,7 +193,7 @@ export async function getResearchDescriptionText(projectId: string): Promise<str
     
     // Extract the 'Text' field from each match's metadata and join them
     const fullText = result.matches
-      .map(match => match.metadata?.['Text'] as string || '')
+      .map(match => match.metadata?.['text'] as string || '')
       .filter(text => text.trim() !== '') // Filter out empty strings
       .join(' '); // Concatenate all text chunks
     
@@ -222,7 +222,7 @@ export async function getScientificFigureText(projectId: string): Promise<string
     
     // Extract the 'Text' field from each match's metadata and join them
     const fullText = result.matches
-      .map(match => match.metadata?.['Text'] as string || '')
+      .map(match => match.metadata?.['text'] as string || '')
       .filter(text => text.trim() !== '') // Filter out empty strings
       .join(' '); // Concatenate all text chunks
     
@@ -251,7 +251,7 @@ export async function getChalkTalkText(projectId: string): Promise<string> {
     
     // Extract the 'Text' field from each match's metadata and join them
     const fullText = result.matches
-      .map(match => match.metadata?.['Text'] as string || '')
+      .map(match => match.metadata?.['text'] as string || '')
       .filter(text => text.trim() !== '') // Filter out empty strings
       .join(' '); // Concatenate all text chunks
     
