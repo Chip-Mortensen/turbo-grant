@@ -35,7 +35,6 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [analysisStatus, setAnalysisStatus] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSelect = async () => {
@@ -157,43 +156,16 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
       if (error) throw error;
 
-      // 8. Trigger equipment analysis
-      try {
-        console.log('Triggering automatic equipment analysis...');
-        setAnalysisStatus('Initializing equipment analysis...');
-        
-        const response = await fetch('/api/equipment/analyze', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ projectId }),
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          console.log('Equipment analysis response:', result);
-          
-          if (result.status === 'success') {
-            setAnalysisStatus(`Equipment analysis successful. Generated ${result.count} recommendations.`);
-            console.log(`Equipment analysis successful. Generated ${result.count} recommendations.`);
-          } else if (result.status === 'existing') {
-            setAnalysisStatus('Equipment recommendations already exist for this project.');
-            console.log('Equipment recommendations already exist for this project.');
-          } else if (result.status === 'warning') {
-            setAnalysisStatus(`Equipment analysis completed with warnings: ${result.message}`);
-            console.warn('Equipment analysis completed with warnings:', result.message);
-          }
-        } else {
-          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-          setAnalysisStatus(`Equipment analysis failed: ${errorData.error || response.statusText}`);
-          console.error('Failed to trigger equipment analysis:', errorData.error || response.statusText);
-        }
-      } catch (analysisErr) {
-        // Log the error but don't fail the entire operation
-        setAnalysisStatus(`Setup error: ${(analysisErr as Error).message}`);
-        console.error('Error setting up equipment analysis:', analysisErr);
-      }
+      // 8. Trigger equipment analysis in the background
+      fetch('/api/equipment/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectId }),
+      }).catch(err => {
+        console.error('Error triggering equipment analysis:', err);
+      });
 
       // Close dialog and redirect to project home page
       setIsOpen(false);
@@ -235,17 +207,6 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            
-            {analysisStatus && (
-              <Alert variant="default" className="bg-blue-50 text-blue-800 border-blue-200">
-                <div className="flex items-center">
-                  <div className="animate-pulse mr-2">
-                    <div className="h-2 w-2 bg-blue-600 rounded-full"></div>
-                  </div>
-                  <AlertDescription>{analysisStatus}</AlertDescription>
-                </div>
               </Alert>
             )}
           </div>

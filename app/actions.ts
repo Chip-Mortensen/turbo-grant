@@ -198,15 +198,17 @@ export async function createProject(formData: FormData) {
     return { error: "Title is required" }
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("research_projects")
     .insert([{ title, user_id: user.id }])
+    .select()
+    .single()
 
   if (error) {
     return { error: error.message }
   }
 
-  return { success: true }
+  return { success: true, projectId: data.id }
 }
 
 export async function deleteDescription(descriptionId: string) {

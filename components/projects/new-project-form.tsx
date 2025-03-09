@@ -16,8 +16,8 @@ export function NewProjectForm() {
     startTransition(async () => {
       const result = await createProject(formData)
       
-      if (result.success) {
-        router.push("/dashboard")
+      if (result.success && result.projectId) {
+        router.push(`/dashboard/${result.projectId}`)
         router.refresh()
       } else if (result.error) {
         setError(result.error)
