@@ -70,9 +70,10 @@ export class GeneralDocumentProcessor extends DocumentProcessor {
     templatePrompt: string,
     answers?: { label: string; answer: string }[],
     context?: { 
-      researchDescriptions: { text: string }[],
-      scientificFigures: { text: string }[],
-      chalkTalks: { text: string }[]
+      researchDescriptions: string,
+      scientificFigures: string,
+      chalkTalks: string,
+      foaContent?: string
     }
   ): string {
     const sections = [
@@ -80,34 +81,12 @@ export class GeneralDocumentProcessor extends DocumentProcessor {
       templatePrompt,
 
       // User answers section
-      answers && answers.length > 0 ? `
-User Provided Information:
-${answers.map(a => `${a.label}: ${a.answer}`).join('\n')}
-` : '',
-
-      // Research context section
-      context?.researchDescriptions.length ? `
-Research Description Context:
-${context.researchDescriptions
-  .map(d => d.text)
-  .join('\n\n')}
-` : '',
-
-      // Scientific figures context
-      context?.scientificFigures.length ? `
-Scientific Figures Context:
-${context.scientificFigures
-  .map(f => f.text)
-  .join('\n\n')}
-` : '',
-
-      // Chalk talks context
-      context?.chalkTalks.length ? `
-Chalk Talks Context:
-${context.chalkTalks
-  .map(t => t.text)
-  .join('\n\n')}
-` : ''
+      answers && answers.length > 0 ? `User Provided Information: ${answers.map(a => `${a.label}: ${a.answer}`).join('\n')}` : '',
+      context?.researchDescriptions.length ? `Research Description Context: ${context.researchDescriptions}` : '',
+      context?.scientificFigures ? `Scientific Figures Context: ${context.scientificFigures}` : '',
+      context?.chalkTalks ? `Chalk Talks Context: ${context.chalkTalks}` : '',
+      context?.foaContent ? `FOA Context: ${context.foaContent}` : ''
+    
     ];
 
     return sections.filter(Boolean).join('\n\n');

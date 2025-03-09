@@ -171,18 +171,18 @@ export class ProjectDescriptionProcessor extends DocumentProcessor {
 
   private constructOutlinePrompt(context: GenerationContext['context']): string {
     const sections = [
-      context.researchDescriptions.length > 0 ? `Research Descriptions: ${context.researchDescriptions}` : '',
-      context.scientificFigures.length > 0 ? `Scientific Figures: ${context.scientificFigures}` : '',
-      context.chalkTalks.length > 0 ? `Chalk Talks: ${context.chalkTalks}` : '',
+      context.researchDescriptions ? `Research Descriptions: ${context.researchDescriptions}` : '',
+      context.scientificFigures ? `Scientific Figures: ${context.scientificFigures}` : '',
+      context.chalkTalks ? `Chalk Talks: ${context.chalkTalks}` : '',
       context.foaContent ? `FOA Content: ${context.foaContent}` : ''
     ];
 
     console.log(
       `Construct Outline Prompt:
       
-      Research Descriptions: ${context.researchDescriptions.substring(0, 10)}
-      Scientific Figures: ${context.scientificFigures.substring(0, 10)}
-      Chalk Talks: ${context.chalkTalks.substring(0, 10)}
+      Research Descriptions: ${context.researchDescriptions?.substring(0, 10)}
+      Scientific Figures: ${context.scientificFigures?.substring(0, 10)}
+      Chalk Talks: ${context.chalkTalks?.substring(0, 10)}
       FOA Content: ${context.foaContent?.substring(0, 10)}`)
 
     return `Analyze the following research content and generate a structured outline for this specific project:\n\n${
@@ -195,18 +195,18 @@ export class ProjectDescriptionProcessor extends DocumentProcessor {
     sectionHeading: string
   ): string {
     const sections = [
-      context.researchDescriptions.length > 0 ? `Research Descriptions: ${context.researchDescriptions}` : '',
-      context.scientificFigures.length > 0 ? `Scientific Figures: ${context.scientificFigures}` : '',
-      context.chalkTalks.length > 0 ? `Chalk Talks: ${context.chalkTalks}` : '',
+      context.researchDescriptions ? `Research Descriptions: ${context.researchDescriptions}` : '',
+      context.scientificFigures ? `Scientific Figures: ${context.scientificFigures}` : '',
+      context.chalkTalks ? `Chalk Talks: ${context.chalkTalks}` : '',
       context.foaContent ? `FOA Content: ${context.foaContent}` : ''
     ];
 
     console.log(
       `Construct Section Prompt:
       
-      Research Descriptions: ${context.researchDescriptions.substring(0, 10)}
-      Scientific Figures: ${context.scientificFigures.substring(0, 10)}
-      Chalk Talks: ${context.chalkTalks.substring(0, 10)}
+      Research Descriptions: ${context.researchDescriptions?.substring(0, 10)}
+      Scientific Figures: ${context.scientificFigures?.substring(0, 10)}
+      Chalk Talks: ${context.chalkTalks?.substring(0, 10)}
       FOA Content: ${context.foaContent?.substring(0, 10)}`)
 
     return `Using the following research materials, write the ${sectionHeading} section:\n\n${
