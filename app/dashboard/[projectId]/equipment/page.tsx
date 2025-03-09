@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Wrench } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import EquipmentExtractor from "@/components/equipment/equipment-extractor";
+import EquipmentList from "@/components/projects/equipment/equipment-list";
 
 interface PageProps {
   params: Promise<{ projectId: string }>
@@ -25,7 +25,7 @@ export default async function EquipmentPage({ params }: PageProps) {
         </Button>
       </Link>
       
-      <EquipmentExtractor projectId={projectId} />
+      <EquipmentList projectId={projectId} />
     </div>
   );
 } 

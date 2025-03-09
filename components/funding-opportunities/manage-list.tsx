@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, FileText, Calendar, Building, AlertCircle, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { FundingOpportunity } from '@/lib/funding-opportunity-extractor';
+import { FundingOpportunity } from '@/lib/extractors/funding-opportunity-extractor';
 import { 
   Dialog, 
   DialogContent, 

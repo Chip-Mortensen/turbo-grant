@@ -5,19 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Wrench } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import { Equipment } from '@/lib/extractors/equipment-extractor';
 
-interface EquipmentExtractorProps {
+interface EquipmentListProps {
   projectId: string;
 }
 
-interface Equipment {
-  name: string;
-  specifications?: string;
-  relevance_score: number;
-  relevance_details?: string;
-}
-
-export default function EquipmentExtractor({ projectId }: EquipmentExtractorProps) {
+export default function EquipmentList({ projectId }: EquipmentListProps) {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -184,6 +178,9 @@ export default function EquipmentExtractor({ projectId }: EquipmentExtractorProp
               >
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">{item.name}</CardTitle>
+                  {item.specifications && (
+                    <CardDescription>{item.specifications}</CardDescription>
+                  )}
                 </CardHeader>
                 {item.relevance_details && (
                   <CardContent>

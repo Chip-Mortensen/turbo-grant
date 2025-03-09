@@ -157,42 +157,38 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
       if (error) throw error;
 
-      // 8. Trigger automatic equipment analysis in the background
+      // 8. Trigger equipment analysis
       try {
         console.log('Triggering automatic equipment analysis...');
         setAnalysisStatus('Initializing equipment analysis...');
         
-        // We'll still use a non-blocking approach but with better handling
-        fetch('/api/analyze-equipment', {
+        const response = await fetch('/api/equipment/analyze', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ projectId }),
-        }).then(async response => {
-          if (response.ok) {
-            const result = await response.json();
-            console.log('Equipment analysis response:', result);
-            
-            if (result.status === 'success') {
-              setAnalysisStatus(`Equipment analysis successful. Generated ${result.count} recommendations.`);
-              console.log(`Equipment analysis successful. Generated ${result.count} recommendations.`);
-            } else if (result.status === 'existing') {
-              setAnalysisStatus('Equipment recommendations already exist for this project.');
-              console.log('Equipment recommendations already exist for this project.');
-            } else if (result.status === 'warning') {
-              setAnalysisStatus(`Equipment analysis completed with warnings: ${result.message}`);
-              console.warn('Equipment analysis completed with warnings:', result.message);
-            }
-          } else {
-            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-            setAnalysisStatus(`Equipment analysis failed: ${errorData.error || response.statusText}`);
-            console.error('Failed to trigger equipment analysis:', errorData.error || response.statusText);
-          }
-        }).catch(err => {
-          setAnalysisStatus(`Error: ${err.message || 'Unknown error during equipment analysis'}`);
-          console.error('Error communicating with equipment analysis API:', err);
         });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Equipment analysis response:', result);
+          
+          if (result.status === 'success') {
+            setAnalysisStatus(`Equipment analysis successful. Generated ${result.count} recommendations.`);
+            console.log(`Equipment analysis successful. Generated ${result.count} recommendations.`);
+          } else if (result.status === 'existing') {
+            setAnalysisStatus('Equipment recommendations already exist for this project.');
+            console.log('Equipment recommendations already exist for this project.');
+          } else if (result.status === 'warning') {
+            setAnalysisStatus(`Equipment analysis completed with warnings: ${result.message}`);
+            console.warn('Equipment analysis completed with warnings:', result.message);
+          }
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          setAnalysisStatus(`Equipment analysis failed: ${errorData.error || response.statusText}`);
+          console.error('Failed to trigger equipment analysis:', errorData.error || response.statusText);
+        }
       } catch (analysisErr) {
         // Log the error but don't fail the entire operation
         setAnalysisStatus(`Setup error: ${(analysisErr as Error).message}`);

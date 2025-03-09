@@ -1,7 +1,7 @@
 import { ContentProcessor, ProcessingResult } from '@/lib/vectorization/base-processor';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
-import { FundingOpportunityExtractor, FundingOpportunity } from '@/lib/funding-opportunity-extractor';
+import { FundingOpportunityExtractor, FundingOpportunity } from '@/lib/extractors/funding-opportunity-extractor';
 import { encode } from 'gpt-tokenizer';
 
 type FOA = Database['public']['Tables']['foas']['Row'];

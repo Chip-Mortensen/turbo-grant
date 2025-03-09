@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { FundingOpportunityExtractor } from '@/lib/funding-opportunity-extractor';
+import { FundingOpportunityExtractor } from '@/lib/extractors/funding-opportunity-extractor';
 
 /**
  * POST /api/funding-opportunity
