@@ -193,43 +193,39 @@ export class ChalkTalkProcessor extends ContentProcessor {
       const chunks = await this.splitAudioIntoChunks(audioBuffer);
       console.log(`Split audio into ${chunks.length} chunks`);
 
-      // Process each chunk with Whisper API
-      const transcriptionParts: string[] = [];
-      let hasErrors = false;
+      // Process all chunks in parallel
+      console.log('Starting parallel processing of chunks');
+      const transcriptionPromises = chunks.map((chunk, index) => {
+        return new Promise<string>(async (resolve) => {
+          try {
+            console.log(`Processing chunk ${index + 1}/${chunks.length}`);
+            
+            // Call Whisper API
+            const response = await this.openai.audio.transcriptions.create({
+              file: new File([chunk], `chunk-${index}.mp3`, { type: 'audio/mpeg' }),
+              model: 'whisper-1',
+              language: 'en'
+            });
 
-      for (let i = 0; i < chunks.length; i++) {
-        try {
-          console.log(`Processing chunk ${i + 1}/${chunks.length}`);
-          
-          // Create a FormData object with the chunk
-          const formData = new FormData();
-          formData.append('file', new Blob([chunks[i]], { type: 'audio/mpeg' }), `chunk-${i}.mp3`);
-          formData.append('model', 'whisper-1');
-          formData.append('language', 'en');
-
-          // Call Whisper API
-          const response = await this.openai.audio.transcriptions.create({
-            file: new File([chunks[i]], `chunk-${i}.mp3`, { type: 'audio/mpeg' }),
-            model: 'whisper-1',
-            language: 'en'
-          });
-
-          if (response.text && response.text.trim() !== '') {
-            transcriptionParts.push(response.text);
-            console.log(`Chunk ${i + 1} processed successfully`);
-          } else {
-            console.warn(`Chunk ${i + 1} returned empty transcription`);
-            hasErrors = true;
+            if (response.text && response.text.trim() !== '') {
+              console.log(`Chunk ${index + 1} processed successfully`);
+              resolve(response.text);
+            } else {
+              console.warn(`Chunk ${index + 1} returned empty transcription`);
+              resolve(''); // Return empty string for failed chunks
+            }
+          } catch (error) {
+            console.error(`Error processing chunk ${index + 1}:`, error);
+            resolve(''); // Return empty string for failed chunks
           }
-        } catch (error) {
-          console.error(`Error processing chunk ${i + 1}:`, error);
-          hasErrors = true;
-          // Continue with other chunks
-        }
-      }
+        });
+      });
 
-      // Combine all transcription parts
-      const fullTranscription = transcriptionParts.join(' ');
+      // Wait for all chunks to be processed
+      const transcriptionParts = await Promise.all(transcriptionPromises);
+      
+      // Filter out empty strings and combine
+      const fullTranscription = transcriptionParts.filter(text => text.length > 0).join(' ');
       
       if (fullTranscription.length === 0) {
         throw new Error('No transcription was generated for any chunk');
