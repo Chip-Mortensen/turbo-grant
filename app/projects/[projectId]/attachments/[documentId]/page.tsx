@@ -543,7 +543,7 @@ export default function DocumentQuestionsPage({
     if (hasUnsavedChanges) {
       setShowExitDialog(true);
     } else {
-      router.push(`/dashboard/${projectId}/attachments`);
+      router.push(`/projects/${projectId}/attachments`);
     }
   };
 
@@ -771,7 +771,7 @@ export default function DocumentQuestionsPage({
         </div>
         <div className="mt-4">
           <Button asChild variant="outline">
-            <Link href={`/dashboard/${projectId}/attachments`}>
+            <Link href={`/projects/${projectId}/attachments`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Attachments
             </Link>
@@ -797,7 +797,7 @@ export default function DocumentQuestionsPage({
               Back to Attachments
             </div>
           ) : (
-            <Link href={`/dashboard/${projectId}/attachments`}>
+            <Link href={`/projects/${projectId}/attachments`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Attachments
             </Link>
@@ -820,7 +820,7 @@ export default function DocumentQuestionsPage({
                 variant="destructive" 
                 onClick={() => {
                   setShowExitDialog(false);
-                  router.push(`/dashboard/${projectId}/attachments`);
+                  router.push(`/projects/${projectId}/attachments`);
                 }}
               >
                 Leave Without Saving
@@ -850,7 +850,7 @@ export default function DocumentQuestionsPage({
     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <Button asChild variant="outline" className="mb-4">
-          <Link href={`/dashboard/${projectId}/attachments`}>
+          <Link href={`/projects/${projectId}/attachments`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Attachments
           </Link>

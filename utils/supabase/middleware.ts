@@ -47,7 +47,7 @@ export const updateSession = async (request: NextRequest) => {
 
   // Routes that require authentication but not organization selection
   const isOrganizationRoute = request.nextUrl.pathname === "/select-organization" ||
-                              request.nextUrl.pathname.startsWith("/dashboard/create/organization");
+                              request.nextUrl.pathname.startsWith("/projects/create/organization");
                           
   if (isPublicRoute) {
     return response;

@@ -87,10 +87,10 @@ export default async function Dashboard() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href="/dashboard/create/project">New Project</Link>
+              <Link href="/projects/create/project">New Project</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/dashboard/create/organization">New Organization</Link>
+              <Link href="/projects/create/organization">New Organization</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

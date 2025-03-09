@@ -18,7 +18,7 @@ export default async function FundingOpportunitiesPage({ params }: PageProps) {
   
   return (
     <div className="container py-6 space-y-4">
-      <Link href={`/dashboard/${projectId}`} passHref>
+      <Link href={`/projects/${projectId}`} passHref>
         <Button variant="outline" className="gap-2">
           <ArrowLeft className="h-4 w-4" />
           Back to Project

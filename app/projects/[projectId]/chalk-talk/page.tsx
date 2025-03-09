@@ -41,7 +41,7 @@ export default async function ChalkTalkPage({ params }: PageProps) {
 
   return (
     <div className="flex-1 w-full flex flex-col gap-6 px-4 py-8">
-      <Link href={`/dashboard/${projectId}`} passHref>
+      <Link href={`/projects/${projectId}`} passHref>
         <Button variant="outline" className="gap-2">
           <ArrowLeft className="h-4 w-4" />
           Back to Project

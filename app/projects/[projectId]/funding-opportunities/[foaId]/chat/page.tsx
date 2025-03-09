@@ -44,7 +44,7 @@ export default async function ChatPage({ params }: PageProps) {
     <div className="container max-w-6xl mx-auto py-4">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <Link href={`/dashboard/${projectId}/funding-opportunities/${foaId}`} passHref>
+          <Link href={`/projects/${projectId}/funding-opportunities/${foaId}`} passHref>
             <Button variant="outline" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Funding Opportunity

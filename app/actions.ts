@@ -495,10 +495,10 @@ export async function updateProfileAction(formData: FormData) {
 
   if (error) {
     console.error('Error updating profile:', error);
-    return encodedRedirect("error", "/dashboard/profile", "Failed to update profile: " + error.message);
+    return encodedRedirect("error", "/projects/profile", "Failed to update profile: " + error.message);
   }
 
-  return encodedRedirect("success", "/dashboard/profile", "Profile updated successfully");
+  return encodedRedirect("success", "/projects/profile", "Profile updated successfully");
 }
 
 export async function createOrganization(formData: FormData) {

@@ -50,7 +50,7 @@ export async function GET(request: Request) {
     }
 
     // Default redirect
-    return NextResponse.redirect(`${origin}/dashboard`);
+    return NextResponse.redirect(`${origin}/projects`);
   }
 
   // No code, redirect to sign-in
