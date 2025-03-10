@@ -62,7 +62,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           description="Manage research sources and references"
           href={`/projects/${projectId}/sources`}
           icon={LinkIcon}
-          isComplete={false}
+          isComplete={completionStatus.sources}
         />
       )}
       {completionStatus.foa && (

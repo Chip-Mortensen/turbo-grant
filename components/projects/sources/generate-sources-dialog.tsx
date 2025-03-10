@@ -224,6 +224,9 @@ export function GenerateSourcesDialog({
 
             {step === 'preview' && response && (
               <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
+                  Sources with citation issues may still be valuable - our AI might have missed author information that's available on the page. Review these sources and update citations manually if needed.
+                </div>
                 {response.sources.map((source, index) => (
                   <div 
                     key={index} 
