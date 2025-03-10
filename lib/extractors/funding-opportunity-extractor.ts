@@ -18,10 +18,8 @@ export interface FundingOpportunity {
   animal_trials: boolean;
   human_trials: boolean;
   organization_eligibility: Record<string, any>;
-  user_eligibility: Record<string, any>;
   grant_url?: string;
   published_date: string;
-  submission_requirements: Record<string, any>;
 }
 
 /**
@@ -153,11 +151,7 @@ export class FundingOpportunityExtractor {
 
         The organization_eligibility field should capture eligibility details for organizations and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Higher Education, Non-Profit, For-Profit, Government, Hospital, Foreign, Individual
 
-        The user_eligibility field should capture eligibility details for individual applicants and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Principal Investigator (PI), Co-Principal Investigator(Co-PI), Co-Investigator (Co-I), Senior Personnel, Postdoctoral Researcher, Graduate Student, Undergraduate Student, Project Administrator, Authorized Organizational Representative (AOR)
-
         The published_date, which is the date the funding opportunity was published, formatted in ISO 8601 format (YYYY-MM-DD) (this field is required).
-
-        The submission_requirements field should be a JSON object listing the required documents, formats, and any additional instructions. Please be extremely extensive and do not leave anything out. If there is ANYTHING to submit, we should list it here. (this field is required). If a clinical trial is involved or Humans Subjects are involved, please be sure to include 'PHS Human Subjects and Clinical Trials Information Form' as a required document. DO NOT FORGET THIS UNLESS YOU ARE SURE IT ISN'T A CLINICAL TRIAL (CHECK THE TITLE).
         
         Return only valid JSON. Do not include extra commentary or formatting.
 
@@ -210,80 +204,8 @@ export class FundingOpportunityExtractor {
     info.deadline = info.deadline || '';
     info.num_awards = info.num_awards || 1;
     info.organization_eligibility = info.organization_eligibility || {};
-    info.user_eligibility = info.user_eligibility || {};
     info.published_date = info.published_date || new Date().toISOString().split('T')[0];
     
-    // Enhanced handling for submission_requirements
-    if (!info.submission_requirements || typeof info.submission_requirements !== 'object') {
-      console.warn('Missing or invalid submission_requirements field, creating default structure');
-      info.submission_requirements = {};
-    }
-    
-    // Normalize submission_requirements property names
-    const normalizedSubmissionReqs: Record<string, any> = {};
-    
-    // Check for various possible property name formats and normalize them
-    const requiredDocsKeys = ['required_documents', 'Required Documents', 'required documents', 'RequiredDocuments'];
-    const formatsKeys = ['formats', 'Formats', 'format', 'Format'];
-    const instructionsKeys = ['additional_instructions', 'Additional Instructions', 'additional instructions', 'AdditionalInstructions'];
-    
-    // Handle required documents
-    let requiredDocs = null;
-    for (const key of requiredDocsKeys) {
-      if (info.submission_requirements[key] !== undefined) {
-        requiredDocs = info.submission_requirements[key];
-        break;
-      }
-    }
-    
-    if (requiredDocs) {
-      normalizedSubmissionReqs.required_documents = Array.isArray(requiredDocs) ? requiredDocs : [requiredDocs];
-    } else {
-      normalizedSubmissionReqs.required_documents = ['Standard application forms'];
-    }
-    
-    // Handle formats
-    let formats = null;
-    for (const key of formatsKeys) {
-      if (info.submission_requirements[key] !== undefined) {
-        formats = info.submission_requirements[key];
-        break;
-      }
-    }
-    
-    if (formats) {
-      normalizedSubmissionReqs.formats = Array.isArray(formats) ? formats : [formats];
-    } else {
-      normalizedSubmissionReqs.formats = ['Electronic submission via specified portal'];
-    }
-    
-    // Handle additional instructions
-    let instructions = null;
-    for (const key of instructionsKeys) {
-      if (info.submission_requirements[key] !== undefined) {
-        instructions = info.submission_requirements[key];
-        break;
-      }
-    }
-    
-    if (instructions) {
-      normalizedSubmissionReqs.additional_instructions = instructions;
-    } else {
-      normalizedSubmissionReqs.additional_instructions = 'Follow all guidelines specified in the funding opportunity announcement.';
-    }
-    
-    // Replace the original submission_requirements with the normalized version
-    info.submission_requirements = normalizedSubmissionReqs;
-    
-    // Log the submission requirements for debugging
-    console.log('Submission requirements after normalization:', JSON.stringify(info.submission_requirements, null, 2));
-    
-    // Ensure grant_url is set, but don't warn if it's going to be set later
-    if (!info.grant_url) {
-      // Only set a default value, don't log a warning
-      info.grant_url = '';
-    }
-
     // Validate agency only if it's provided
     if (info.agency && info.agency !== 'NIH' && info.agency !== 'NSF') {
       info.agency = 'NIH'; // Default to NIH if invalid

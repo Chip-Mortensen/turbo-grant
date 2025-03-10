@@ -145,20 +145,6 @@ export class FOAProcessor extends ContentProcessor {
           org_individual: !!orgEligibility['Individual']
         };
         
-        // Flatten user_eligibility
-        const userEligibility = extractedData.user_eligibility || {};
-        const flattenedUserEligibility = {
-          user_pi: !!userEligibility['Principal Investigator (PI)'],
-          user_co_pi: !!userEligibility['Co-Principal Investigator(Co-PI)'],
-          user_co_i: !!userEligibility['Co-Investigator (Co-I)'],
-          user_senior_personnel: !!userEligibility['Senior Personnel'],
-          user_postdoc: !!userEligibility['Postdoctoral Researcher'],
-          user_grad_student: !!userEligibility['Graduate Student'],
-          user_undergrad: !!userEligibility['Undergraduate Student'],
-          user_project_admin: !!userEligibility['Project Administrator'],
-          user_aor: !!userEligibility['Authorized Organizational Representative (AOR)']
-        };
-        
         // Format deadline as ISO date if possible
         let formattedDeadline = extractedData.deadline;
         let deadlineTimestamp: number | undefined;
@@ -191,7 +177,6 @@ export class FOAProcessor extends ContentProcessor {
           human_trials: !!extractedData.human_trials,
           // Include flattened eligibility fields
           ...flattenedOrgEligibility,
-          ...flattenedUserEligibility,
           // Include the text for full-text search
           text: extractedData.description
         };
@@ -280,9 +265,7 @@ export class FOAProcessor extends ContentProcessor {
           animal_trials: extractedData.animal_trials,
           human_trials: extractedData.human_trials,
           organization_eligibility: extractedData.organization_eligibility,
-          user_eligibility: extractedData.user_eligibility,
           published_date: extractedData.published_date,
-          submission_requirements: extractedData.submission_requirements,
           grant_url: extractedData.grant_url,
           vectorization_status: 'completed',
           pinecone_ids: allPineconeIds.length > 0 ? allPineconeIds : null

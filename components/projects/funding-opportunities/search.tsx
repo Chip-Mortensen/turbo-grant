@@ -9,28 +9,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
   Search, 
-  FileText, 
   Calendar, 
   Building, 
   AlertCircle, 
   Loader2, 
-  Filter, 
   X, 
-  ChevronRight, 
-  Star, 
-  ExternalLink,
-  ArrowRight,
-  User
+  ArrowRight
 } from 'lucide-react';
 import { debounce } from 'lodash';
 import { Database } from '@/types/supabase';
-import { CheckedState } from '@radix-ui/react-checkbox';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { cn } from '@/lib/utils';
@@ -71,12 +62,6 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
   const [orgHospital, setOrgHospital] = useState<boolean | null>(null);
   const [orgForeign, setOrgForeign] = useState<boolean | null>(null);
   const [orgIndividual, setOrgIndividual] = useState<boolean | null>(null);
-  
-  // User eligibility filters
-  const [userPrincipalInvestigator, setUserPrincipalInvestigator] = useState<boolean | null>(null);
-  const [userPostdoc, setUserPostdoc] = useState<boolean | null>(null);
-  const [userGraduateStudent, setUserGraduateStudent] = useState<boolean | null>(null);
-  const [userEarlyCareer, setUserEarlyCareer] = useState<boolean | null>(null);
   
   // Pagination state
   const [offset, setOffset] = useState(0);
@@ -183,23 +168,6 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
         params.append('orgIndividual', orgIndividual.toString());
       }
       
-      // User eligibility params
-      if (userPrincipalInvestigator !== null) {
-        params.append('userPrincipalInvestigator', userPrincipalInvestigator.toString());
-      }
-      
-      if (userPostdoc !== null) {
-        params.append('userPostdoc', userPostdoc.toString());
-      }
-      
-      if (userGraduateStudent !== null) {
-        params.append('userGraduateStudent', userGraduateStudent.toString());
-      }
-      
-      if (userEarlyCareer !== null) {
-        params.append('userEarlyCareer', userEarlyCareer.toString());
-      }
-      
       params.append('projectId', projectId);
       
       // Make API request
@@ -232,10 +200,6 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     orgHospital, 
     orgForeign, 
     orgIndividual,
-    userPrincipalInvestigator,
-    userPostdoc,
-    userGraduateStudent,
-    userEarlyCareer,
     projectId,
     offset,
     limit
@@ -269,10 +233,6 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     orgHospital, 
     orgForeign, 
     orgIndividual,
-    userPrincipalInvestigator,
-    userPostdoc,
-    userGraduateStudent,
-    userEarlyCareer,
     offset,
     limit,
     debouncedSearch
@@ -294,11 +254,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     orgGovernment, 
     orgHospital, 
     orgForeign, 
-    orgIndividual,
-    userPrincipalInvestigator,
-    userPostdoc,
-    userGraduateStudent,
-    userEarlyCareer
+    orgIndividual
   ]);
   
   // Initial search on component mount
@@ -320,10 +276,6 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     setOrgHospital(null);
     setOrgForeign(null);
     setOrgIndividual(null);
-    setUserPrincipalInvestigator(null);
-    setUserPostdoc(null);
-    setUserGraduateStudent(null);
-    setUserEarlyCareer(null);
   };
   
   // Count active filters
@@ -339,11 +291,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     orgGovernment !== null,
     orgHospital !== null,
     orgForeign !== null,
-    orgIndividual !== null,
-    userPrincipalInvestigator !== null,
-    userPostdoc !== null,
-    userGraduateStudent !== null,
-    userEarlyCareer !== null
+    orgIndividual !== null
   ].filter(Boolean).length;
   
   return (
@@ -473,73 +421,10 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
                   </div>
                 </div>
                 
-                {/* User eligibility filters */}
-                <div className="space-y-3">
-                  <Label className="flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    User Eligibility
-                  </Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="userPrincipalInvestigator" 
-                        checked={userPrincipalInvestigator === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setUserPrincipalInvestigator(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="userPrincipalInvestigator" className="text-sm font-normal">
-                        Principal Investigator
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="userPostdoc" 
-                        checked={userPostdoc === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setUserPostdoc(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="userPostdoc" className="text-sm font-normal">
-                        Postdoctoral Researcher
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="userGraduateStudent" 
-                        checked={userGraduateStudent === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setUserGraduateStudent(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="userGraduateStudent" className="text-sm font-normal">
-                        Graduate Student
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="userEarlyCareer" 
-                        checked={userEarlyCareer === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setUserEarlyCareer(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="userEarlyCareer" className="text-sm font-normal">
-                        Early Career
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-                
                 {/* Organization eligibility filters */}
                 <div className="space-y-3">
-                  <Label className="flex items-center gap-1">
-                    <Building className="h-3 w-3" />
-                    Organization Eligibility
+                  <Label>
+                    Eligibility
                   </Label>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">

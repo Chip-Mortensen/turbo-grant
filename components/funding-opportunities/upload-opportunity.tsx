@@ -293,7 +293,7 @@ export default function ViewOpportunity({ projectId }: ViewOpportunityProps) {
                   </div>
                   
                   <div className="space-y-2">
-                    <h4 className="font-medium">Organization Eligibility</h4>
+                    <h4 className="font-medium">Eligibility</h4>
                     <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
                       {extractedData.organization_eligibility ? (
                         <div className="space-y-1">
@@ -307,73 +307,7 @@ export default function ViewOpportunity({ projectId }: ViewOpportunityProps) {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-gray-500">No organization eligibility data available</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-medium">User Eligibility</h4>
-                    <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
-                      {extractedData.user_eligibility ? (
-                        <div className="space-y-1">
-                          {Object.entries(extractedData.user_eligibility).map(([key, value]) => (
-                            <div key={key} className="flex items-center">
-                              <span className={`w-4 h-4 mr-2 rounded-full ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center justify-center text-xs`}>
-                                {value ? '✓' : '✗'}
-                              </span>
-                              <span>{key}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500">No user eligibility data available</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Submission Requirements</h4>
-                    <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
-                      {extractedData.submission_requirements ? (
-                        <div className="space-y-3">
-                          {extractedData.submission_requirements.required_documents && (
-                            <div>
-                              <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Required Documents</h5>
-                              <ul className="list-disc pl-5 space-y-1">
-                                {Array.isArray(extractedData.submission_requirements.required_documents) ? 
-                                  extractedData.submission_requirements.required_documents.map((doc, index) => (
-                                    <li key={index}>{doc}</li>
-                                  )) : 
-                                  <li>{String(extractedData.submission_requirements.required_documents)}</li>
-                                }
-                              </ul>
-                            </div>
-                          )}
-                          
-                          {extractedData.submission_requirements.formats && (
-                            <div>
-                              <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Formats</h5>
-                              <ul className="list-disc pl-5 space-y-1">
-                                {Array.isArray(extractedData.submission_requirements.formats) ? 
-                                  extractedData.submission_requirements.formats.map((format, index) => (
-                                    <li key={index}>{format}</li>
-                                  )) : 
-                                  <li>{String(extractedData.submission_requirements.formats)}</li>
-                                }
-                              </ul>
-                            </div>
-                          )}
-                          
-                          {extractedData.submission_requirements.additional_instructions && (
-                            <div>
-                              <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Additional Instructions</h5>
-                              <p>{extractedData.submission_requirements.additional_instructions}</p>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500">No submission requirements data available</p>
+                        <p className="text-gray-500">No eligibility data available</p>
                       )}
                     </div>
                   </div>

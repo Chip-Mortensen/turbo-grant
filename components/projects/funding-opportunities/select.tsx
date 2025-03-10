@@ -10,25 +10,36 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { createClient } from '@/utils/supabase/client';
 import { Database } from '@/types/supabase';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
-type FOA = Database['public']['Tables']['foas']['Row'];
-
-interface SubmissionRequirements {
-  formats?: string[];
-  required_documents?: string[];
-  additional_instructions?: string;
+interface FOA {
+  id: string;
+  agency: string;
+  title: string;
+  foa_code: string;
+  grant_type: string;
+  description: string;
+  deadline: string;
+  num_awards: number;
+  award_ceiling?: number;
+  award_floor?: number;
+  letters_of_intent: boolean;
+  preliminary_proposal: boolean;
+  animal_trials: boolean;
+  human_trials: boolean;
+  organization_eligibility?: Record<string, boolean>;
+  grant_url?: string;
+  published_date: string;
 }
 
 interface SelectFoaDialogProps {
   projectId: string;
-  foa: FOA & {
-    submission_requirements?: SubmissionRequirements;
-  };
+  foa: FOA;
 }
 
 export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {

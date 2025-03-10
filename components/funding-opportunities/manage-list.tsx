@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, FileText, Calendar, Building, AlertCircle, Trash2 } from 'lucide-react';
@@ -306,100 +305,22 @@ export default function ManageList({ projectId }: ManageListProps) {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Organization Eligibility</h4>
-                    <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
-                      {selectedFoa.organization_eligibility ? (
-                        <div className="space-y-1">
-                          {Object.entries(selectedFoa.organization_eligibility).map(([key, value]) => (
-                            <div key={key} className="flex items-center">
-                              <span className={`w-4 h-4 mr-2 rounded-full ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center justify-center text-xs`}>
-                                {value ? '✓' : '✗'}
-                              </span>
-                              <span>{key}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500">No organization eligibility data available</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-medium">User Eligibility</h4>
-                    <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
-                      {selectedFoa.user_eligibility ? (
-                        <div className="space-y-1">
-                          {Object.entries(selectedFoa.user_eligibility).map(([key, value]) => (
-                            <div key={key} className="flex items-center">
-                              <span className={`w-4 h-4 mr-2 rounded-full ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center justify-center text-xs`}>
-                                {value ? '✓' : '✗'}
-                              </span>
-                              <span>{key}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500">No user eligibility data available</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
                 <div className="space-y-2">
-                  <h4 className="font-medium">Submission Requirements</h4>
+                  <h4 className="font-medium">Eligibility</h4>
                   <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
-                    {selectedFoa.submission_requirements ? (
-                      <div className="space-y-3">
-                        {selectedFoa.submission_requirements.required_documents && (
-                          <div>
-                            <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Required Documents</h5>
-                            <ul className="list-disc pl-5 space-y-1">
-                              {Array.isArray(selectedFoa.submission_requirements.required_documents) ? 
-                                selectedFoa.submission_requirements.required_documents.map((doc, index) => (
-                                  <li key={index}>
-                                    {typeof doc === 'object' && doc !== null ? 
-                                      `${doc.Document}${doc.Description ? `: ${doc.Description}` : ''}` : 
-                                      String(doc)
-                                    }
-                                  </li>
-                                )) : 
-                                <li>
-                                  {typeof selectedFoa.submission_requirements.required_documents === 'object' ? 
-                                    JSON.stringify(selectedFoa.submission_requirements.required_documents) : 
-                                    String(selectedFoa.submission_requirements.required_documents)
-                                  }
-                                </li>
-                              }
-                            </ul>
+                    {selectedFoa.organization_eligibility ? (
+                      <div className="space-y-1">
+                        {Object.entries(selectedFoa.organization_eligibility).map(([key, value]) => (
+                          <div key={key} className="flex items-center">
+                            <span className={`w-4 h-4 mr-2 rounded-full ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center justify-center text-xs`}>
+                              {value ? '✓' : '✗'}
+                            </span>
+                            <span>{key}</span>
                           </div>
-                        )}
-                        
-                        {selectedFoa.submission_requirements.formats && (
-                          <div>
-                            <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Formats</h5>
-                            <ul className="list-disc pl-5 space-y-1">
-                              {Array.isArray(selectedFoa.submission_requirements.formats) ? 
-                                selectedFoa.submission_requirements.formats.map((format, index) => (
-                                  <li key={index}>{format}</li>
-                                )) : 
-                                <li>{String(selectedFoa.submission_requirements.formats)}</li>
-                              }
-                            </ul>
-                          </div>
-                        )}
-                        
-                        {selectedFoa.submission_requirements.additional_instructions && (
-                          <div>
-                            <h5 className="font-medium text-xs uppercase text-gray-500 mb-1">Additional Instructions</h5>
-                            <p>{selectedFoa.submission_requirements.additional_instructions}</p>
-                          </div>
-                        )}
+                        ))}
                       </div>
                     ) : (
-                      <p className="text-gray-500">No submission requirements data available</p>
+                      <p className="text-gray-500">No eligibility data available</p>
                     )}
                   </div>
                 </div>
