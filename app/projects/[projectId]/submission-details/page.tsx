@@ -2,12 +2,16 @@ import { Metadata } from 'next';
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from 'next/link';
-import { ArrowLeft, Info, ExternalLink, Calendar } from 'lucide-react';
+import { Info, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from '@/lib/utils';
 import { BackButton } from "@/components/ui/back-button";
+import SeniorPersonnelSection from './senior-personnel-section';
+import SingleCopyDocumentsSection from './single-copy-documents';
+import FormattingRequirementsSection from './formatting-requirements';
+import PriorNSFSupportSection from './prior-nsf-support';
 
 export const metadata: Metadata = {
   title: 'Application Submission | Turbo Grant',
@@ -75,16 +79,6 @@ export default async function SubmissionDetailsPage({ params }: PageProps) {
         </p>
       </div>
 
-      {deadline && (
-        <Alert className="bg-amber-50 border-amber-200">
-          <Calendar className="h-4 w-4 text-amber-600 mr-2" />
-          <AlertTitle className="text-amber-800">Submission Deadline</AlertTitle>
-          <AlertDescription className="text-amber-700">
-            Your application is due on <strong>{formattedDeadline}</strong>. We recommend submitting at least 48 hours before this deadline to avoid technical issues.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {!agency && (
         <Alert>
           <Info className="h-4 w-4 mr-2" />
@@ -118,6 +112,7 @@ export default async function SubmissionDetailsPage({ params }: PageProps) {
                   <li>Research Plan/Strategy</li>
                   <li>Specific Aims</li>
                   <li>Biosketch for all key personnel</li>
+                  <li>Other Support (Current & Pending Support)</li>
                   <li>Budget and Budget Justification</li>
                   <li>Facilities and Resources</li>
                   <li>Authentication of Key Resources</li>
@@ -148,41 +143,23 @@ export default async function SubmissionDetailsPage({ params }: PageProps) {
                   </Button>
                   <Button asChild variant="outline" className="w-full">
                     <Link href="https://www.ncbi.nlm.nih.gov/sciencv/" target="_blank" rel="noopener noreferrer">
-                      SciENcv (Biographical Sketch) <ExternalLink className="ml-2 h-4 w-4" />
+                      SciENcv (Biosketches & Other Support) <ExternalLink className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
-      )}
 
-      {agency === 'NSF' && (
-        <div className="space-y-6">
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <h2 className="text-xl font-semibold">NSF Submission Process</h2>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>Applications must be submitted through Research.gov or Grants.gov</li>
-                <li>Register early in Research.gov (at least 4 weeks before deadline)</li>
-                <li>Follow the NSF Proposal & Award Policies & Procedures Guide (PAPPG)</li>
-                <li>Submit all required documents in PDF format</li>
-                <li>Check for any program-specific instructions</li>
-                <li>Submit before the deadline: <strong>{formattedDeadline}</strong> (5:00 PM submitter's local time)</li>
-              </ul>
-            </CardContent>
-          </Card>
-          
           <Alert>
             <Info className="h-4 w-4 mr-2" />
-            <AlertTitle>SciENcv Requirement for Biographical Sketches</AlertTitle>
+            <AlertTitle>SciENcv Requirement for NIH Applications</AlertTitle>
             <AlertDescription className="space-y-2">
-              <p>NSF requires Biographical Sketches to be prepared and submitted using SciENcv.</p>
+              <p>NIH requires both Biographical Sketches and Other Support (Current & Pending Support) to be prepared and submitted using SciENcv.</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>A Biographical Sketch (limited to three pages) must be provided separately for each individual designated as senior personnel</li>
-                <li>SciENcv will produce an NSF-compliant PDF version of the Biographical Sketch</li>
-                <li>These documents must be prepared, saved, certified, and submitted as part of your proposal</li>
+                <li>Biographical Sketches are limited to five pages and are required for all senior/key personnel</li>
+                <li>Other Support documentation must include all resources made available to researchers, including foreign activities and resources</li>
+                <li>SciENcv will produce NIH-compliant PDF versions of both documents</li>
               </ul>
               <Button asChild size="sm" className="mt-2">
                 <Link href="https://www.ncbi.nlm.nih.gov/sciencv/" target="_blank" rel="noopener noreferrer">
@@ -191,64 +168,75 @@ export default async function SubmissionDetailsPage({ params }: PageProps) {
               </Button>
             </AlertDescription>
           </Alert>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="pt-6 space-y-4">
-                <h2 className="text-xl font-semibold">Required Documents</h2>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>Project Summary</li>
-                  <li>Project Description</li>
-                  <li>References Cited</li>
-                  <li><strong>Biographical Sketches</strong> (via SciENcv)</li>
-                  <li>Budget and Budget Justification</li>
-                  <li>Current and Pending Support</li>
-                  <li>Facilities, Equipment and Other Resources</li>
-                  <li>Data Management Plan</li>
-                  <li>Collaborators and Other Affiliations</li>
-                </ul>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6 space-y-4">
-                <h2 className="text-xl font-semibold">Important Links</h2>
-                <div className="space-y-2">
-                  <Button asChild className="w-full">
-                    <Link href="https://www.research.gov/" target="_blank" rel="noopener noreferrer">
-                      Research.gov Portal <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=pappg" target="_blank" rel="noopener noreferrer">
-                      NSF PAPPG <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="https://www.ncbi.nlm.nih.gov/sciencv/" target="_blank" rel="noopener noreferrer">
-                      SciENcv (Biographical Sketch) <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="https://www.nsf.gov/bfa/dias/policy/dmp.jsp" target="_blank" rel="noopener noreferrer">
-                      Data Management Plan Guide <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       )}
 
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertTitle>Submission Tips</AlertTitle>
-        <AlertDescription>
-          Submit your application at least 24-48 hours before the deadline ({formattedDeadline}) to avoid technical issues. 
-          Each agency has specific formatting requirements and submission processes.
-        </AlertDescription>
-      </Alert>
+      {agency === 'NSF' && (
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="pt-6 space-y-4">
+              <h2 className="text-xl font-semibold">NSF Submission Process</h2>
+              <div>
+                <ul className="list-disc pl-5 space-y-1.5">
+                  <li>Applications must be submitted through Research.gov or Grants.gov</li>
+                  <li>Register early in Research.gov (at least 4 weeks before deadline)</li>
+                  <li>Follow the NSF Proposal & Award Policies & Procedures Guide (PAPPG)</li>
+                  <li>Submit all required documents in PDF format</li>
+                  <li>Check for any program-specific instructions</li>
+                  <li>Submit at least 5 business days before the deadline: <strong>{formattedDeadline}</strong> (5:00 PM submitter's local time) to allow time for corrections if needed</li>
+                  <li className="text-amber-700"><strong>Important:</strong> If a pre-application (preliminary proposal) is required, it must be submitted through Research.gov, not Grants.gov.</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <PriorNSFSupportSection />
+
+          <FormattingRequirementsSection />
+          
+          <SeniorPersonnelSection />
+
+          <SingleCopyDocumentsSection />
+          
+          <Card>
+            <CardContent className="pt-6 space-y-3">
+              <h2 className="text-xl font-semibold">Important Resources</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Button asChild>
+                  <Link href="https://www.research.gov/" target="_blank" rel="noopener noreferrer">
+                    Research.gov Portal <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild>
+                  <Link href="https://www.grants.gov/" target="_blank" rel="noopener noreferrer">
+                    Grants.gov Portal <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=pappg" target="_blank" rel="noopener noreferrer">
+                    NSF PAPPG <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="https://www.ncbi.nlm.nih.gov/sciencv/" target="_blank" rel="noopener noreferrer">
+                    SciENcv <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="https://nsf.gov/bfa/dias/policy/coa.jsp" target="_blank" rel="noopener noreferrer">
+                    COA Template <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="https://www.nsf.gov/bfa/dias/policy/dmp.jsp" target="_blank" rel="noopener noreferrer">
+                    Data Management Plan <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 } 

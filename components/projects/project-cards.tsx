@@ -76,7 +76,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
       )}
       {completionStatus.foa && (
         <ProjectCard
-          title="Application Submission"
+          title="Submission Instructions"
           description="Instructions for submitting your application"
           href={`/projects/${projectId}/submission-details`}
           icon={SendHorizontal}
