@@ -1,7 +1,7 @@
 'use client';
 
 import { ProjectCard } from "@/components/ui/project-card";
-import { FileText, Image, Video, DollarSign, Paperclip, Wrench, FileOutput, SendHorizontal } from "lucide-react";
+import { FileText, Image, Video, DollarSign, Paperclip, Wrench, Link as LinkIcon, SendHorizontal } from "lucide-react";
 import { useProjectCompletion } from "@/hooks/use-project-completion";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +54,15 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           href={`/projects/${projectId}/equipment`}
           icon={Wrench}
           isComplete={completionStatus.equipment}
+        />
+      )}
+      {completionStatus.foa && (
+        <ProjectCard
+          title="Sources"
+          description="Manage research sources and references"
+          href={`/projects/${projectId}/sources`}
+          icon={LinkIcon}
+          isComplete={false}
         />
       )}
       {completionStatus.foa && (

@@ -252,36 +252,6 @@ export type Database = {
         }
         Relationships: []
       }
-      grant_types: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          instructions: string | null
-          is_custom: boolean | null
-          name: string
-          organization: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          instructions?: string | null
-          is_custom?: boolean | null
-          name: string
-          organization: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          instructions?: string | null
-          is_custom?: boolean | null
-          name?: string
-          organization?: string
-        }
-        Relationships: []
-      }
       organizations: {
         Row: {
           created_at: string | null
@@ -295,7 +265,7 @@ export type Database = {
             | Database["public"]["Enums"]["organization_type"]
             | null
           sam_status: boolean
-          uei: string
+          uei: string | null
           updated_at: string | null
         }
         Insert: {
@@ -310,7 +280,7 @@ export type Database = {
             | Database["public"]["Enums"]["organization_type"]
             | null
           sam_status: boolean
-          uei: string
+          uei?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -325,7 +295,7 @@ export type Database = {
             | Database["public"]["Enums"]["organization_type"]
             | null
           sam_status?: boolean
-          uei?: string
+          uei?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -394,41 +364,37 @@ export type Database = {
           },
         ]
       }
-      project_grants: {
+      project_sources: {
         Row: {
           created_at: string
-          grant_type_id: string | null
+          description: string | null
           id: string
           project_id: string | null
-          status: string
+          reason: string | null
           updated_at: string
+          url: string
         }
         Insert: {
           created_at?: string
-          grant_type_id?: string | null
+          description?: string | null
           id?: string
           project_id?: string | null
-          status: string
+          reason?: string | null
           updated_at?: string
+          url: string
         }
         Update: {
           created_at?: string
-          grant_type_id?: string | null
+          description?: string | null
           id?: string
           project_id?: string | null
-          status?: string
+          reason?: string | null
           updated_at?: string
+          url?: string
         }
         Relationships: [
           {
-            foreignKeyName: "project_grants_grant_type_id_fkey"
-            columns: ["grant_type_id"]
-            isOneToOne: false
-            referencedRelation: "grant_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "project_grants_project_id_fkey"
+            foreignKeyName: "project_sources_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "research_projects"
