@@ -71,37 +71,10 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
         );
       }
 
-      // 3. Split documents into required and optional
+      // 3. Get only required documents
       const requiredDocs = applicableDocuments.filter(doc => !doc.optional);
-      const optionalDocs = applicableDocuments.filter(doc => doc.optional);
 
-      // 4. Get submission requirements from FOA
-      const submissionRequirements = foa.submission_requirements?.required_documents || [];
-      
-      // 5. Match optional documents against required documents from FOA
-      const response = await fetch('/api/documents/match', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          optionalDocuments: optionalDocs.map(doc => ({
-            id: doc.id,
-            name: doc.name
-          })),
-          requiredDocuments: submissionRequirements
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to match documents');
-      }
-
-      const { matchedDocumentIds } = await response.json();
-      
-      console.log('Matched optional documents:', matchedDocumentIds);
-
-      // 6. Create the initial attachments object
+      // 4. Create the initial attachments object
       const initialAttachments: Record<string, any> = {};
       
       // Add required documents
@@ -117,35 +90,14 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
             agency: doc.agency,
             grant_types: doc.grant_types || [],
             custom_processor: doc.custom_processor,
-            optional: doc.optional
+            optional: false
           }
         };
-      }
-
-      // Add matched optional documents
-      for (const docId of matchedDocumentIds) {
-        const doc = optionalDocs.find(d => d.id === docId);
-        if (doc) {
-          initialAttachments[doc.id] = {
-            completed: false,
-            updatedAt: new Date().toISOString(),
-            document: {
-              id: doc.id,
-              name: doc.name,
-              fields: doc.fields || [],
-              sources: doc.sources || [],
-              agency: doc.agency,
-              grant_types: doc.grant_types || [],
-              custom_processor: doc.custom_processor,
-              optional: doc.optional
-            }
-          };
-        }
       }
       
       console.log('Saving attachments data:', initialAttachments);
       
-      // 7. Update the project with the FOA and attachments
+      // 5. Update the project with the FOA and attachments
       const { error } = await supabase
         .from('research_projects')
         .update({ 
@@ -156,7 +108,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
       if (error) throw error;
 
-      // 8. Trigger equipment analysis in the background
+      // 6. Trigger equipment analysis in the background
       fetch('/api/equipment/analyze', {
         method: 'POST',
         headers: {
