@@ -17,6 +17,7 @@ export interface FormattedSource {
   reason: string;
   description: string;
   citation: string;
+  issue?: string;
 }
 
 export interface ChalkTalkSourcesResponse {

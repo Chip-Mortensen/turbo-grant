@@ -4,7 +4,7 @@ import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Button } from '@/components/ui/button';
-import { Loader2, ExternalLink, CheckCircle2, XCircle, X } from "lucide-react";
+import { Loader2, ExternalLink, Check, XCircle, X, Sparkles } from "lucide-react";
 import { ChalkTalkSourcesResponse, FormattedSource, GeneratedQuestion } from '@/app/api/sources/utils/types';
 
 interface GenerateSourcesDialogProps {
@@ -93,9 +93,9 @@ export function GenerateSourcesDialog({
               setProgress(prev => [...prev, 'Complete']);
               if (data.response) {
                 setResponse(data.response);
-                // Initialize all sources as selected
+                // Initialize all sources as selected unless they have issues
                 const initialSelected = Object.fromEntries(
-                  data.response.sources.map((_: FormattedSource, index: number) => [index, true])
+                  data.response.sources.map((source: FormattedSource, index: number) => [index, !source.issue])
                 );
                 setSelectedSources(initialSelected);
                 setStep('preview');
@@ -145,10 +145,10 @@ export function GenerateSourcesDialog({
             <div className="flex justify-between items-start">
               <div>
                 <Dialog.Title className="text-xl font-semibold">
-                  Generate Sources from Chalk Talk
+                  Generate Sources
                 </Dialog.Title>
                 <Dialog.Description className="text-sm text-gray-500 mt-1">
-                  We'll analyze your chalk talk transcription to find relevant sources for your grant.
+                  We'll analyze your inputs to find relevant sources for your grant.
                 </Dialog.Description>
               </div>
               <Dialog.Close asChild>
@@ -178,13 +178,27 @@ export function GenerateSourcesDialog({
                   This will:
                 </p>
                 <ol className="list-decimal list-inside space-y-2 text-sm">
-                  <li>Analyze your chalk talk transcription</li>
+                  <li>Analyze your inputs</li>
                   <li>Identify key claims that need sources</li>
                   <li>Search for high-quality, reputable sources</li>
                   <li>Format the sources for your grant</li>
                 </ol>
-                <Button onClick={handleGenerate} className="mt-4">
-                  Start Generation
+                <Button 
+                  variant="outline" 
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate Sources
+                    </>
+                  )}
                 </Button>
               </div>
             )}
@@ -198,7 +212,7 @@ export function GenerateSourcesDialog({
                     <div className="mt-2 text-sm text-gray-500">
                       {progress.map((step, i) => (
                         <div key={i} className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <Check className="h-4 w-4 text-green-500" />
                           {step}
                         </div>
                       ))}
@@ -211,7 +225,14 @@ export function GenerateSourcesDialog({
             {step === 'preview' && response && (
               <div className="space-y-6">
                 {response.sources.map((source, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-4 border">
+                  <div 
+                    key={index} 
+                    className={`rounded-lg p-4 border transition-colors ${
+                      source.issue && !selectedSources[index]
+                        ? 'bg-red-50 border-red-300'
+                        : 'bg-gray-50 border-gray-200'
+                    }`}
+                  >
                     <div className="flex items-start gap-2">
                       <Checkbox.Root
                         id={`source-${index}`}
@@ -222,21 +243,27 @@ export function GenerateSourcesDialog({
                             [index]: checked === true
                           }))
                         }
-                        className="h-4 w-4 border border-gray-300 rounded bg-white"
+                        className="h-6 w-6 border border-gray-300 rounded bg-white flex items-center justify-center"
                       >
                         <Checkbox.Indicator>
-                          <CheckCircle2 className="h-4 w-4 text-purple-500" />
+                          <Check className="h-5 w-5 text-purple-500" />
                         </Checkbox.Indicator>
                       </Checkbox.Root>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
+                        {source.issue && !selectedSources[index] && (
+                          <div className="mb-3 text-sm text-red-600 flex items-center gap-2">
+                            <XCircle className="h-4 w-4" />
+                            {source.issue}
+                          </div>
+                        )}
                         <a
                           href={source.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-base font-medium hover:text-purple-500 inline-flex items-center gap-1"
+                          className="text-base font-medium hover:text-purple-500 inline-flex items-center gap-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
                         >
                           {source.url}
-                          <ExternalLink className="h-3 w-3" />
+                          <ExternalLink className="h-3 w-3 flex-shrink-0" />
                         </a>
                         <div className="mt-1 text-sm font-medium text-gray-700">
                           {source.reason}
@@ -244,6 +271,11 @@ export function GenerateSourcesDialog({
                         <p className="mt-2 text-sm text-gray-500">
                           {source.description}
                         </p>
+                        {source.citation && (
+                          <div className="mt-2 text-sm text-gray-600 font-medium border-t pt-2">
+                            {source.citation}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

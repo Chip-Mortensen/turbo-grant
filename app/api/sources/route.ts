@@ -3,14 +3,37 @@ import { generateQuestions, formatSourcesForUpload } from './utils/openai';
 import { searchAllQuestions } from './utils/perplexity';
 import { ChalkTalkSourcesResponse, ChalkTalkSourcesError } from './utils/types';
 
+interface ExistingSource {
+  url: string;
+  reason: string | null;
+}
+
 async function handleSourceGeneration(projectId: string, writer: WritableStreamDefaultWriter, encoder: TextEncoder) {
   try {
     // Send initial step
     await writer.write(encoder.encode(`data: ${JSON.stringify({ step: 'starting' })}\n\n`));
     console.log('Sent starting step');
 
-    // Get chalk talk transcription
     const supabase = await createClient();
+
+    // Get existing sources
+    let existingSources: ExistingSource[] = [];
+    try {
+      const { data, error: sourcesError } = await supabase
+        .from('project_sources')
+        .select('url, reason')
+        .eq('project_id', projectId);
+
+      if (sourcesError) {
+        console.error('Error fetching existing sources:', sourcesError);
+      } else {
+        existingSources = data || [];
+      }
+    } catch (err) {
+      console.error('Error fetching existing sources:', err);
+    }
+
+    // Get chalk talk transcription
     const { data: chalkTalk, error: chalkTalkError } = await supabase
       .from('chalk_talks')
       .select('transcription')
@@ -37,7 +60,7 @@ async function handleSourceGeneration(projectId: string, writer: WritableStreamD
     // Search for sources using Perplexity
     await writer.write(encoder.encode(`data: ${JSON.stringify({ step: 'searching_sources' })}\n\n`));
     console.log('Sent searching_sources step');
-    const rawResults = await searchAllQuestions(questions);
+    const rawResults = await searchAllQuestions(questions, existingSources || []);
     await writer.write(encoder.encode(`data: ${JSON.stringify({ step: 'sources_found', rawResults })}\n\n`));
     console.log('Sent sources_found step');
 

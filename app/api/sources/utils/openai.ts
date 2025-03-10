@@ -20,7 +20,7 @@ Return a JSON object with a 'questions' array containing exactly 5 questions, wh
 export async function generateQuestions(transcription: string): Promise<GeneratedQuestion[]> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4-0125-preview",
+      model: "gpt-4o-mini",
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: QUESTION_SYSTEM_PROMPT },
@@ -53,7 +53,7 @@ export async function generateQuestions(transcription: string): Promise<Generate
   }
 }
 
-const FORMAT_SOURCES_SYSTEM_PROMPT = `You are a research assistant helping to format source information into a structured format. Your task is to analyze the search results and format them into structured source entries.
+const FORMAT_SOURCES_SYSTEM_PROMPT = `You are a research assistant helping to format source information into a structured JSON format. Your task is to analyze the search results and format them into structured source entries that will be parsed as JSON.
 
 For each source in the search results, extract:
 1. The URL
@@ -62,17 +62,25 @@ For each source in the search results, extract:
    - Summarizes key findings
    - Highlights the source's credibility
    - Explains how it supports specific claims
-4. Extract the citation in the format provided (Author's Last Name, Initials. "Title of Web Page." Website Name, Publisher (if different from website name), Publication Date, URL.)
+4. Extract or create the citation in the format: Author's Last Name, Initials. "Title of Web Page." Website Name, Publisher (if different from website name), Publication Date, URL.
+5. Validate the citation for completeness, checking for:
+   - Author information
+   - Publication date
+   - Title
+   - Publisher/organization
+   If any of these are missing, include an 'issue' field explaining what's missing.
 
 Important:
 - Carefully extract URLs from the text
-- Combine duplicate sources if found
+- Extract ALL sources from each search result - do not skip any
+- Each numbered source in the search results should become a separate entry
+- Combine duplicate sources if found (same URL)
 - Ensure all URLs are valid
-- Preserve the exact citation format provided
-- If a citation is missing or incomplete, create one using the available information
-- Format the response as a JSON object with a 'sources' array
+- If citation information is missing, use [n.d.] for no date or [n.p.] for no publisher
+- Include an 'issue' field if the citation is incomplete or has problems
+- Return the response in valid JSON format
 
-Example output format:
+Example JSON output format:
 {
   "sources": [
     {
@@ -80,6 +88,13 @@ Example output format:
       "reason": "Provides recent data on sea level rise in coastal areas",
       "description": "This peer-reviewed study from the Environmental Research Institute presents comprehensive data on sea level rise trends. The source is particularly valuable as it includes recent measurements and projections, with specific data points showing an average rise of 3.2mm per year since 1993. The research directly supports our understanding of climate change impacts on coastal communities.",
       "citation": "Smith, J. \"The Impact of Climate Change on Coastal Communities.\" Environmental Research Institute, 2024, https://example.com/article"
+    },
+    {
+      "url": "https://example.org/research",
+      "reason": "Contains statistical analysis of climate patterns",
+      "description": "This research paper provides detailed analysis of changing weather patterns over the past decade. The findings include temperature variations and precipitation changes across different regions.",
+      "citation": "\"Climate Pattern Analysis Report.\" Climate Research Center, [n.d.], https://example.org/research",
+      "issue": "Missing author information and publication date"
     }
   ]
 }`;
@@ -90,7 +105,7 @@ export async function formatSourcesForUpload(
 ): Promise<FormattedSource[]> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4-0125-preview",
+      model: "gpt-4o-mini",
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: FORMAT_SOURCES_SYSTEM_PROMPT },

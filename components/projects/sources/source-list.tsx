@@ -168,7 +168,7 @@ export default function SourceList({ projectId }: SourceListProps) {
             ) : (
               <>
                 <Sparkles className="h-4 w-4 mr-2" />
-                Generate from Chalk Talk
+                Generate Sources
               </>
             )}
           </Button>
@@ -207,13 +207,13 @@ export default function SourceList({ projectId }: SourceListProps) {
                       <CardTitle className="text-lg">
                         {source.reason || 'Untitled Source'}
                       </CardTitle>
-                      <div className="flex items-center gap-1 mt-1 text-sm">
-                        <ExternalLink className="h-3 w-3" />
+                      <div className="flex items-center gap-1 mt-1 text-sm min-w-0">
+                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
                         <a 
                           href={source.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-black underline hover:text-purple-500 transition-colors truncate"
+                          className="text-black underline hover:text-purple-500 transition-colors truncate max-w-full overflow-hidden text-ellipsis"
                         >
                           {source.url}
                         </a>

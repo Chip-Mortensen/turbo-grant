@@ -22,11 +22,32 @@ Important:
 - Only include sources that are directly relevant to the claim
 - Ensure all URLs are valid and accessible
 - Include complete citations with all available information
+- Be thorough in finding author information:
+  * Look for author names in the article header, byline, or author section
+  * Check for author information in the metadata or article details
+  * Look for "Written by", "Author", "By", or similar indicators
+  * If multiple authors, include all of them in the citation
+  * For institutional authors, use the organization name
 - If certain citation elements are missing, use [n.d.] for no date or [n.p.] for no publisher
 - Format the response as plain text, not JSON
-- Each source should be separated by a blank line for clarity`;
+- Each source should be separated by a blank line for clarity
+- DO NOT include any sources that have already been saved (listed below)`;
 
-export async function findSources(question: GeneratedQuestion): Promise<string> {
+interface ExistingSource {
+  url: string;
+  reason: string | null;
+}
+
+export async function findSources(
+  question: GeneratedQuestion,
+  existingSources: ExistingSource[] = []
+): Promise<string> {
+  const existingSourcesText = existingSources.length > 0
+    ? `\nExisting sources to avoid duplicating:\n${existingSources.map(s => 
+        `URL: ${s.url}\nReason: ${s.reason || 'No reason provided'}`
+      ).join('\n\n')}`
+    : '';
+
   const response = await fetch('https://api.perplexity.ai/chat/completions', {
     method: 'POST',
     headers: {
@@ -47,7 +68,7 @@ export async function findSources(question: GeneratedQuestion): Promise<string> 
 Question: ${question.question}
 Context from grant: "${question.context}"
 
-Remember to focus on high-quality, reputable sources suitable for NSF/NIH grants.`
+Remember to focus on high-quality, reputable sources suitable for NSF/NIH grants.${existingSourcesText}`
         }
       ],
       temperature: 0.2,
@@ -70,12 +91,16 @@ Remember to focus on high-quality, reputable sources suitable for NSF/NIH grants
 }
 
 // Helper function to process questions in batches
-async function processBatch(questions: GeneratedQuestion[], batchSize: number): Promise<string[]> {
+async function processBatch(
+  questions: GeneratedQuestion[],
+  existingSources: ExistingSource[],
+  batchSize: number
+): Promise<string[]> {
   const results: string[] = [];
   for (let i = 0; i < questions.length; i += batchSize) {
     const batch = questions.slice(i, i + batchSize);
     const batchResults = await Promise.all(
-      batch.map(question => findSources(question))
+      batch.map(question => findSources(question, existingSources))
     );
     results.push(...batchResults);
     
@@ -87,7 +112,10 @@ async function processBatch(questions: GeneratedQuestion[], batchSize: number): 
   return results;
 }
 
-export async function searchAllQuestions(questions: GeneratedQuestion[]): Promise<string[]> {
+export async function searchAllQuestions(
+  questions: GeneratedQuestion[],
+  existingSources: ExistingSource[] = []
+): Promise<string[]> {
   // Run all requests in parallel
-  return Promise.all(questions.map(question => findSources(question)));
+  return Promise.all(questions.map(question => findSources(question, existingSources)));
 } 
