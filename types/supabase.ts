@@ -194,10 +194,8 @@ export type Database = {
           pinecone_ids: string[] | null
           preliminary_proposal: boolean | null
           published_date: string | null
-          submission_requirements: Json | null
           title: string
           updated_at: string | null
-          user_eligibility: Json | null
           vectorization_status: string
         }
         Insert: {
@@ -219,10 +217,8 @@ export type Database = {
           pinecone_ids?: string[] | null
           preliminary_proposal?: boolean | null
           published_date?: string | null
-          submission_requirements?: Json | null
           title: string
           updated_at?: string | null
-          user_eligibility?: Json | null
           vectorization_status?: string
         }
         Update: {
@@ -244,10 +240,8 @@ export type Database = {
           pinecone_ids?: string[] | null
           preliminary_proposal?: boolean | null
           published_date?: string | null
-          submission_requirements?: Json | null
           title?: string
           updated_at?: string | null
-          user_eligibility?: Json | null
           vectorization_status?: string
         }
         Relationships: []
@@ -366,6 +360,7 @@ export type Database = {
       }
       project_sources: {
         Row: {
+          citation: string | null
           created_at: string
           description: string | null
           id: string
@@ -375,6 +370,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          citation?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -384,6 +380,7 @@ export type Database = {
           url: string
         }
         Update: {
+          citation?: string | null
           created_at?: string
           description?: string | null
           id?: string

@@ -1,14 +1,10 @@
 import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
-import { Database } from '@/types/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { 
-  ArrowLeft, 
   Building, 
   Calendar, 
   FileText, 
@@ -19,11 +15,8 @@ import {
   CheckCircle
 } from 'lucide-react';
 import Link from 'next/link';
-import type { Metadata } from 'next';
 import { SelectFoaDialog } from '@/components/projects/funding-opportunities/select';
 import { BackButton } from "@/components/ui/back-button"
-
-type FOA = Database['public']['Tables']['foas']['Row'];
 
 // Format currency for display
 const formatCurrency = (value: number | null | undefined, isFloor: boolean = false) => {
@@ -198,22 +191,20 @@ const page = async ({ params }: PageProps) => {
         </Card>
       </div>
       
-      {/* Description */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Description</h3>
-        <div className="text-muted-foreground whitespace-pre-line">
-          {foa.description || 'No description available.'}
+      {/* Description and Eligibility */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Description */}
+        <div className="space-y-4 md:col-span-3">
+          <h3 className="text-lg font-medium">Description</h3>
+          <div className="text-muted-foreground whitespace-pre-line">
+            {foa.description || 'No description available.'}
+          </div>
         </div>
-      </div>
-      
-      {/* Eligibility */}
-      <div className="mt-6 space-y-4">
-        <h3 className="text-lg font-medium">Eligibility</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Organization Eligibility */}
+        {/* Eligibility */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Eligibility</h3>
           <div className="rounded-lg border bg-muted/40 p-6">
-            <h4 className="text-sm font-medium mb-4">Organization</h4>
             <div className="space-y-2">
               {[
                 { key: 'Higher Education', label: 'Higher Education' },
@@ -235,76 +226,8 @@ const page = async ({ params }: PageProps) => {
               ))}
             </div>
           </div>
-          
-          {/* Individual Eligibility */}
-          <div className="rounded-lg border bg-muted/40 p-6">
-            <h4 className="text-sm font-medium mb-4">Individual</h4>
-            <div className="space-y-2">
-              {[
-                { key: 'Principal Investigator (PI)', label: 'Principal Investigator' },
-                { key: 'Co-Principal Investigator (Co-PI)', label: 'Co-Principal Investigator' },
-                { key: 'Co-Investigator (Co-I)', label: 'Co-Investigator' },
-                { key: 'Senior Personnel', label: 'Senior Personnel' },
-                { key: 'Postdoctoral Researcher', label: 'Postdoctoral Researcher' },
-                { key: 'Graduate Student', label: 'Graduate Student' },
-                { key: 'Undergraduate Student', label: 'Undergraduate Student' },
-                { key: 'Project Administrator', label: 'Project Administrator' },
-                { key: 'Authorized Organizational Representative (AOR)', label: 'Authorized Organizational Representative' }
-              ].map(({ key, label }) => (
-                <div key={key} className="flex items-center gap-3">
-                  {foa.user_eligibility?.[key] ? (
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                  ) : (
-                    <X className="h-4 w-4 text-red-500 flex-shrink-0" />
-                  )}
-                  <span className="text-sm">{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
-      
-      {/* Submission Requirements */}
-      {foa.submission_requirements && (
-        <div className="mt-6 space-y-4">
-          <h3 className="text-lg font-medium">Submission Requirements</h3>
-          <div className="space-y-4">
-            {foa.submission_requirements.required_documents && (
-              <div>
-                <h4 className="text-sm font-medium mb-2">Required Documents</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  {Array.isArray(foa.submission_requirements.required_documents) ? 
-                    foa.submission_requirements.required_documents.map((doc: any, index: number) => (
-                      <li key={index}>
-                        {typeof doc === 'object' && doc !== null ? 
-                          `${doc.Document}${doc.Description ? `: ${doc.Description}` : ''}` : 
-                          String(doc)
-                        }
-                      </li>
-                    )) : 
-                    <li>
-                      {typeof foa.submission_requirements.required_documents === 'object' ? 
-                        JSON.stringify(foa.submission_requirements.required_documents) : 
-                        String(foa.submission_requirements.required_documents)
-                      }
-                    </li>
-                  }
-                </ul>
-              </div>
-            )}
-            
-            {foa.submission_requirements.additional_instructions && (
-              <div>
-                <h4 className="text-sm font-medium mb-2">Additional Instructions</h4>
-                <p className="text-muted-foreground">
-                  {foa.submission_requirements.additional_instructions}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

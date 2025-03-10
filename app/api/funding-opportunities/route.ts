@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     console.log('Extracted funding opportunity:', JSON.stringify(fundingOpportunity, null, 2));
 
     // Store in database
-    const { data: insertData, error: insertError } = await supabase
+    const { data: foa, error: insertError } = await supabase
       .from('foas')
       .insert({
         agency: fundingOpportunity.agency,
@@ -73,10 +73,9 @@ export async function POST(req: NextRequest) {
         animal_trials: fundingOpportunity.animal_trials,
         human_trials: fundingOpportunity.human_trials,
         organization_eligibility: fundingOpportunity.organization_eligibility,
-        user_eligibility: fundingOpportunity.user_eligibility,
-        grant_url: fundingOpportunity.grant_url,
         published_date: fundingOpportunity.published_date,
-        submission_requirements: fundingOpportunity.submission_requirements
+        grant_url: fundingOpportunity.grant_url,
+        vectorization_status: 'pending'
       })
       .select()
       .single();
@@ -100,7 +99,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: 'Funding opportunity extracted and stored successfully',
-      data: insertData
+      data: foa
     });
   } catch (error) {
     console.error('Error processing funding opportunity:', error);
