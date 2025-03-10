@@ -183,7 +183,7 @@ export default async function SubmissionDetailsPage({ params }: PageProps) {
                   <li>Follow the NSF Proposal & Award Policies & Procedures Guide (PAPPG)</li>
                   <li>Submit all required documents in PDF format</li>
                   <li>Check for any program-specific instructions</li>
-                  <li>Submit at least 5 business days before the deadline: <strong>{formattedDeadline}</strong> (5:00 PM submitter's local time) to allow time for corrections if needed</li>
+                  <li>Consider submitting at least 5 business days before the deadline: <strong>{formattedDeadline}</strong> (5:00 PM local time) to allow time for corrections if needed</li>
                   <li className="text-amber-700"><strong>Important:</strong> If a pre-application (preliminary proposal) is required, it must be submitted through Research.gov, not Grants.gov.</li>
                 </ul>
               </div>

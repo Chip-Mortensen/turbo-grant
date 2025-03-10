@@ -90,6 +90,8 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
             agency: doc.agency,
             grant_types: doc.grant_types || [],
             custom_processor: doc.custom_processor,
+            prompt: doc.prompt,
+            page_limit: doc.page_limit,
             optional: false
           }
         };

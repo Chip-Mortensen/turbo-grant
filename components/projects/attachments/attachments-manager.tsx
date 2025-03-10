@@ -278,13 +278,17 @@ export function AttachmentsManager({ projectId }: AttachmentsManagerProps) {
                       </p>
                     )}
                     {(!document.fields?.length && !document.custom_processor) && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        This document is for reference only. Online editing is not currently supported.
-                      </p>
+                      <>
+                        {!document.prompt && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            This document is for reference only. Online editing is not currently supported.
+                          </p>
+                        )}
+                      </>
                     )}
                   </CardContent>
                   <CardFooter>
-                    {(document.fields?.length > 0 || document.custom_processor) && (
+                    {(document.fields?.length > 0 || document.custom_processor || document.prompt) && (
                       <Button 
                         variant="outline" 
                         size="sm" 

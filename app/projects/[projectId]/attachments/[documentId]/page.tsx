@@ -31,6 +31,8 @@ interface StoredDocument {
   agency?: string;
   grant_types?: string[];
   custom_processor?: string;
+  prompt?: string;
+  page_limit?: number;
   optional?: boolean;
 }
 
@@ -616,6 +618,8 @@ export default function DocumentQuestionsPage({
               agency: (attachment.document.agency as AgencyType) || 'NIH',
               grant_types: attachment.document.grant_types || [],
               custom_processor: attachment.document.custom_processor,
+              prompt: attachment.document.prompt,
+              page_limit: attachment.document.page_limit,
               optional: attachment.document.optional ?? false,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
@@ -687,6 +691,8 @@ export default function DocumentQuestionsPage({
             agency: document.agency,
             grant_types: document.grant_types || [],
             custom_processor: document.custom_processor,
+            prompt: document.prompt,
+            page_limit: document.page_limit,
             optional: document.optional ?? false,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -702,6 +708,8 @@ export default function DocumentQuestionsPage({
             agency: document.agency,
             grant_types: document.grant_types || [],
             custom_processor: document.custom_processor,
+            prompt: document.prompt,
+            page_limit: document.page_limit,
             optional: document.optional ?? false,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -709,7 +717,8 @@ export default function DocumentQuestionsPage({
         } else {
           updatedAttachments[document.id].document = {
             ...updatedAttachments[document.id].document,
-            fields: updatedFields
+            fields: updatedFields,
+            updated_at: new Date().toISOString()
           };
         }
       }
@@ -782,7 +791,11 @@ export default function DocumentQuestionsPage({
   }
 
   // Check for project-description processor or if all questions are answered or if document was already generated
-  if (document.custom_processor === 'project-description' || showProcessedContent || documentGenerated) {
+  // Also show for documents that have a prompt but no fields
+  if (document.custom_processor === 'project-description' || 
+      showProcessedContent || 
+      documentGenerated || 
+      (document.prompt && (!document.fields || document.fields.length === 0))) {
     return (
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <Button 
