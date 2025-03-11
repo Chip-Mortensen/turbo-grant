@@ -8,10 +8,15 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from '@/lib/utils';
 import { BackButton } from "@/components/ui/back-button";
-import SeniorPersonnelSection from './senior-personnel-section';
-import SingleCopyDocumentsSection from './single-copy-documents';
-import FormattingRequirementsSection from './formatting-requirements';
-import PriorNSFSupportSection from './prior-nsf-support';
+
+// Import NSF components from nsf directory
+import SeniorPersonnelSection from './nsf/senior-personnel-section';
+import SingleCopyDocumentsSection from './nsf/single-copy-documents';
+import FormattingRequirementsSection from './nsf/formatting-requirements';
+import PriorNSFSupportSection from './nsf/prior-nsf-support';
+
+// Import NIH components from nih directory
+import NIHFormattingRequirementsSection from './nih/formatting-requirements';
 
 export const metadata: Metadata = {
   title: 'Application Submission | Turbo Grant',
@@ -103,6 +108,8 @@ export default async function SubmissionDetailsPage({ params }: PageProps) {
               </ul>
             </CardContent>
           </Card>
+          
+          <NIHFormattingRequirementsSection />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
