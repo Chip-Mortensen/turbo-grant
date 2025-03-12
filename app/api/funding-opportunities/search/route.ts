@@ -125,9 +125,9 @@ export async function GET(request: NextRequest) {
           }));
         
         if (orgConditions.length > 0) {
-          // Use $or to match any of the selected organization types
-          filter.$or = [
-            ...(filter.$or || []),
+          // Use $and to ensure all conditions are met
+          filter.$and = [
+            ...(filter.$and || []),
             ...orgConditions
           ];
         }
