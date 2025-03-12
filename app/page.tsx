@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import Hero from "@/components/home/Hero";
 import FeatureGrid from "@/components/home/FeatureGrid";
 import ProcessFlow from "@/components/home/ProcessFlow";
-import Testimonials from "@/components/home/Testimonials";
+import ROICalculator from "@/components/home/ROICalculator";
 import { Card } from "@/components/ui/card";
 
 export default async function Home() {
@@ -13,7 +13,7 @@ export default async function Home() {
           <Hero />
           <FeatureGrid />
           <ProcessFlow />
-          <Testimonials />
+          <ROICalculator />
         </main>
       </Card>
     </div>
