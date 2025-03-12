@@ -132,6 +132,17 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
         console.error('Error triggering equipment analysis:', err);
       });
 
+      // 7. Trigger source generation in the background
+      fetch('/api/sources/background', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectId }),
+      }).catch(err => {
+        console.error('Error triggering source generation:', err);
+      });
+
       // Close dialog and redirect to project home page
       setIsOpen(false);
       router.push(`/projects/${projectId}`);
