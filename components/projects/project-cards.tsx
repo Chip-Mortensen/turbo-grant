@@ -10,10 +10,14 @@ interface ProjectCardsProps {
 }
 
 export function ProjectCards({ projectId }: ProjectCardsProps) {
-  const completionStatus = useProjectCompletion(projectId);
+  const { completionStatus, loadingStates } = useProjectCompletion(projectId);
   const allRequiredComplete = completionStatus.description && 
     completionStatus.figures && 
     completionStatus.chalkTalk;
+
+  // Show equipment and sources cards if FOA is selected or if they're loading
+  const showEquipmentCard = completionStatus.foa || loadingStates.equipment;
+  const showSourcesCard = completionStatus.foa || loadingStates.sources;
 
   return (
     <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
@@ -23,6 +27,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         href={`/projects/${projectId}/research-description`}
         icon={FileText}
         isComplete={completionStatus.description}
+        isLoading={loadingStates.description}
       />
       <ProjectCard
         title="Scientific Figures"
@@ -30,6 +35,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         href={`/projects/${projectId}/scientific-figures`}
         icon={Image}
         isComplete={completionStatus.figures}
+        isLoading={loadingStates.figures}
       />
       <ProjectCard
         title="Chalk Talk"
@@ -37,6 +43,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         href={`/projects/${projectId}/chalk-talk`}
         icon={Video}
         isComplete={completionStatus.chalkTalk}
+        isLoading={loadingStates.chalkTalk}
       />
       {allRequiredComplete && (
         <ProjectCard
@@ -45,24 +52,27 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           href={`/projects/${projectId}/funding-opportunities`}
           icon={DollarSign}
           isComplete={completionStatus.foa}
+          isLoading={loadingStates.foa}
         />
       )}
-      {completionStatus.foa && (
+      {showEquipmentCard && (
         <ProjectCard
           title="Equipment"
           description="Manage equipment for your project"
           href={`/projects/${projectId}/equipment`}
           icon={Wrench}
           isComplete={completionStatus.equipment}
+          isLoading={loadingStates.equipment}
         />
       )}
-      {completionStatus.foa && (
+      {showSourcesCard && (
         <ProjectCard
           title="Sources"
           description="Manage research sources and references"
           href={`/projects/${projectId}/sources`}
           icon={LinkIcon}
           isComplete={completionStatus.sources}
+          isLoading={loadingStates.sources}
         />
       )}
       {completionStatus.foa && (
@@ -72,6 +82,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           href={`/projects/${projectId}/attachments`}
           icon={Paperclip}
           isComplete={completionStatus.attachments}
+          isLoading={loadingStates.attachments}
         />
       )}
       {completionStatus.foa && (
@@ -81,6 +92,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           href={`/projects/${projectId}/submission-details`}
           icon={SendHorizontal}
           isComplete={false}
+          isLoading={false}
         />
       )}
     </div>

@@ -249,29 +249,13 @@ function ProcessedContent({
       } else {
         onChangesSaved();
       }
-    },
-    immediatelyRender: false
+    }
   });
 
-  // Synchronize contentRef when initialContent changes
+  // Handle beforeunload event to warn about unsaved changes
   useEffect(() => {
-    if (initialContent !== null) {
-      contentRef.current.initial = initialContent;
-      // Also set current if not already set
-      if (!contentRef.current.current) {
-        contentRef.current.current = initialContent;
-      }
-    }
-  }, [initialContent]);
-
-  // Add beforeunload event listener
-  useEffect(() => {
-    // Only run in browser environment
-    if (typeof window === 'undefined') return;
-    
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Check if there are unsaved changes by comparing with contentRef
-      if (contentRef.current.current !== contentRef.current.initial) {
+      if (hasUnsavedChanges) {
         e.preventDefault();
         e.returnValue = '';
         return '';
@@ -279,163 +263,228 @@ function ProcessedContent({
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
-
-  // Auto-save newly generated content
-  useEffect(() => {
-    if (isNewlyGenerated && editor && !loading) {
-      // Automatically save the newly generated content
-      handleSave();
-      // Reset the flag
-      setIsNewlyGenerated(false);
-    }
-  }, [isNewlyGenerated, editor, loading]);
-
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        // First check if we have a saved version
-        const { data: existingDoc } = await supabase
-          .from('completed_documents')
-          .select('content, file_url, file_type')
-          .eq('document_id', documentId)
-          .eq('project_id', projectId)
-          .single();
-
-        if (existingDoc) {
-          if (existingDoc.content) {
-            editor?.commands.setContent(existingDoc.content);
-            setInitialContent(existingDoc.content);
-            contentRef.current.initial = existingDoc.content;
-            contentRef.current.current = existingDoc.content;
-          }
-          if (existingDoc.file_url) {
-            setFileUrl(existingDoc.file_url);
-            setFileType(existingDoc.file_type as FileType);
-          }
-          setLoading(false);
-          return;
-        }
-
-        // If no saved version, generate new content
-        const response = await fetch('/api/documents/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ documentId, projectId })
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch processed content');
-        }
-
-        const data = await response.json();
-        editor?.commands.setContent(data.content);
-        setInitialContent(data.content);
-        contentRef.current.initial = data.content;
-        contentRef.current.current = data.content;
-        // Set the newly generated flag to trigger an auto-save
-        setIsNewlyGenerated(true);
-        // Don't mark it as having unsaved changes yet
-        setHasUnsavedChanges(false);
-        // Inform parent
-        onChangesSaved();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
+  }, [hasUnsavedChanges]);
 
-    if (editor) {
-      fetchContent();
+  useEffect(() => {
+    fetchContent();
+  }, [documentId, projectId]);
+
+  useEffect(() => {
+    if (editor && initialContent) {
+      editor.commands.setContent(initialContent);
+      contentRef.current.initial = initialContent;
+      contentRef.current.current = initialContent;
     }
-  }, [documentId, projectId, editor]);
+  }, [editor, initialContent]);
 
-  const handleSave = async () => {
-    if (!editor) return;
-    
-    setSaving(true);
-    setSaveError(null);
-    
+  const fetchContent = async () => {
     try {
-      const content = editor.getHTML();
-
-      const { data: existingDoc } = await supabase
+      setLoading(true);
+      
+      // First check if we have a completed document
+      const { data: completedDocument, error: completedError } = await supabase
         .from('completed_documents')
-        .select('content')
+        .select('*')
         .eq('document_id', documentId)
         .eq('project_id', projectId)
+        .maybeSingle();
+      
+      if (completedError) {
+        console.error('Error fetching completed document:', completedError);
+      }
+      
+      if (completedDocument) {
+        console.log('Found completed document:', completedDocument);
+        setInitialContent(completedDocument.content);
+        setFileType(completedDocument.file_type as FileType);
+        setFileUrl(completedDocument.file_url);
+        setLoading(false);
+        return;
+      }
+      
+      // If no completed document, generate content from the document fields
+      console.log('No completed document found, generating content from fields');
+      
+      // Get the document fields from the project's attachments
+      const { data: project, error: projectError } = await supabase
+        .from('research_projects')
+        .select('attachments')
+        .eq('id', projectId)
         .single();
+      
+      if (projectError) {
+        throw new Error(`Error fetching project: ${projectError.message}`);
+      }
+      
+      if (!project?.attachments || !project.attachments[documentId]) {
+        console.log('Document not found in project attachments');
+        // Generate empty content
+        setInitialContent('<h1>' + document.name + '</h1><p>No content available yet. Please fill out the document questions.</p>');
+        setLoading(false);
+        return;
+      }
+      
+      const attachment = project.attachments[documentId] as AttachmentState;
+      
+      if (!attachment.document?.fields?.length) {
+        console.log('No fields found in document');
+        // Generate empty content
+        setInitialContent('<h1>' + document.name + '</h1><p>No content available yet. Please fill out the document questions.</p>');
+        setLoading(false);
+        return;
+      }
+      
+      // Generate content from fields
+      let content = `<h1>${document.name}</h1>`;
+      
+      attachment.document.fields.forEach(field => {
+        if (field.answer && field.answer.trim() !== '') {
+          content += `<h2>${field.label}</h2>`;
+          content += `<p>${field.answer}</p>`;
+        }
+      });
+      
+      setInitialContent(content);
+      setLoading(false);
+      
+    } catch (error: any) {
+      console.error('Error fetching content:', error);
+      setError(error.message || 'Failed to load document content');
+      setLoading(false);
+    }
+  };
 
+  const handleSave = async () => {
+    if (!editor || !contentRef.current.current) return;
+    
+    try {
+      setSaving(true);
+      
+      const content = contentRef.current.current;
+      
+      // Save to completed_documents table
+      const { data: existingDoc, error: fetchError } = await supabase
+        .from('completed_documents')
+        .select('id')
+        .eq('document_id', documentId)
+        .eq('project_id', projectId)
+        .maybeSingle();
+      
+      if (fetchError) {
+        throw new Error(`Error checking for existing document: ${fetchError.message}`);
+      }
+      
       if (existingDoc) {
-        const { error } = await supabase
+        // Update existing document
+        const { error: updateError } = await supabase
           .from('completed_documents')
-          .update({ content })
-          .eq('document_id', documentId)
-          .eq('project_id', projectId);
-
-        if (error) throw error;
+          .update({
+            content,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingDoc.id);
+        
+        if (updateError) {
+          throw new Error(`Error updating document: ${updateError.message}`);
+        }
       } else {
-        const { error } = await supabase
+        // Create new document
+        const { error: insertError } = await supabase
           .from('completed_documents')
           .insert({
-            document_id: documentId,
             project_id: projectId,
-            content
+            document_id: documentId,
+            content,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           });
-
-        if (error) throw error;
+        
+        if (insertError) {
+          throw new Error(`Error creating document: ${insertError.message}`);
+        }
+        
+        setIsNewlyGenerated(true);
       }
-
-      // Store the exact current content as initialContent for accurate comparison
-      setInitialContent(content);
+      
+      // Update content reference
       contentRef.current.initial = content;
-      contentRef.current.current = content;
       
-      // Reset the unsaved changes flag
+      // Update UI state
       setHasUnsavedChanges(false);
-      
-      // Inform parent component
       onChangesSaved();
-    } catch (err) {
-      console.error('Error saving content:', err);
-      setSaveError('Failed to save content. Please try again.');
+      
+    } catch (error: any) {
+      console.error('Error saving document:', error);
+      setSaveError(error.message || 'Failed to save document');
     } finally {
       setSaving(false);
     }
   };
 
   const handleExport = async (format: FileType) => {
-    setIsGenerating(true);
-    setExportError(undefined);
-
     try {
+      setIsGenerating(true);
+      setExportError(undefined);
+      
+      // Save content first if there are unsaved changes
+      if (hasUnsavedChanges) {
+        await handleSave();
+      }
+      
+      // Check if we already have a file of this type
+      if (fileType === format && fileUrl) {
+        return fileUrl;
+      }
+      
+      // Generate the file
       const response = await fetch('/api/documents/export', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
+          content: contentRef.current.current,
+          format,
           documentId,
           projectId,
-          format,
-          content: editor?.getHTML()
-        })
+          documentName: document.name
+        }),
       });
-
+      
       if (!response.ok) {
-        throw new Error('Failed to generate file');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to export document');
       }
-
+      
       const data = await response.json();
-      if (data.fileUrl) {
-        setFileUrl(data.fileUrl);
-        setFileType(format);
-        return data.fileUrl;
-      } else {
-        throw new Error('No file URL in response');
+      
+      // Update state with new file info
+      setFileType(format);
+      setFileUrl(data.fileUrl);
+      
+      // Update the completed_documents record with file info
+      const { error: updateError } = await supabase
+        .from('completed_documents')
+        .update({
+          file_url: data.fileUrl,
+          file_type: format,
+          updated_at: new Date().toISOString()
+        })
+        .eq('document_id', documentId)
+        .eq('project_id', projectId);
+      
+      if (updateError) {
+        console.error('Error updating document with file info:', updateError);
       }
-    } catch (err) {
-      setExportError(err instanceof Error ? err.message : 'Failed to generate file');
+      
+      return data.fileUrl;
+      
+    } catch (error: any) {
+      console.error('Error exporting document:', error);
+      setExportError(error.message || 'Failed to export document');
       return undefined;
     } finally {
       setIsGenerating(false);
@@ -443,44 +492,44 @@ function ProcessedContent({
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">{document.name}</h1>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            {hasUnsavedChanges && (
-              <span className="text-yellow-600 text-sm">
-                You have unsaved changes
-              </span>
-            )}
-            <Button 
-              onClick={handleSave} 
-              disabled={saving || loading}
-              variant="default"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Document
-                </>
-              )}
-            </Button>
-          </div>
+        <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={() => setShowExportDialog(true)}
+            className="flex items-center"
           >
             <FileOutput className="mr-2 h-4 w-4" />
             Export
           </Button>
+          <Button
+            onClick={handleSave}
+            disabled={saving || !hasUnsavedChanges}
+            className="flex items-center"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save
+              </>
+            )}
+          </Button>
         </div>
       </div>
-
+      
+      {saveError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+          Error: {saveError}
+        </div>
+      )}
+      
       <ExportDialog
         open={showExportDialog}
         onOpenChange={setShowExportDialog}
@@ -490,13 +539,7 @@ function ProcessedContent({
         fileUrl={fileUrl}
         error={exportError}
       />
-
-      {saveError && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
-          {saveError}
-        </div>
-      )}
-
+      
       <div className="border">
         <Toolbar editor={editor} />
         {loading ? (
@@ -529,8 +572,6 @@ export default function DocumentQuestionsPage({
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showProcessedContent, setShowProcessedContent] = useState(false);
-  const [documentGenerated, setDocumentGenerated] = useState<boolean>(false);
   const supabase = createClient();
 
   // Helper function to check if a document has unsaved changes
@@ -582,19 +623,6 @@ export default function DocumentQuestionsPage({
   const fetchDocument = async () => {
     setIsLoading(true);
     try {
-      const { data: completedDocument } = await supabase
-        .from('completed_documents')
-        .select('*')
-        .eq('document_id', documentId)
-        .eq('project_id', projectId)
-        .maybeSingle();
-
-      if (completedDocument) {
-        console.log('Found completed document:', completedDocument);
-        setDocumentGenerated(true);
-        setShowProcessedContent(true);
-      }
-
       const { data: project } = await supabase
         .from('research_projects')
         .select('attachments')
@@ -743,10 +771,6 @@ export default function DocumentQuestionsPage({
       
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 2000);
-
-      if (areAllQuestionsAnswered(updatedFields)) {
-        setShowProcessedContent(true);
-      }
       
     } catch (err) {
       console.error('Error updating document:', err);
@@ -790,101 +814,65 @@ export default function DocumentQuestionsPage({
     );
   }
 
-  // Check for project-description processor or if all questions are answered or if document was already generated
-  // Also show for documents that have a prompt but no fields
-  if (document.custom_processor === 'project-description' || 
-      showProcessedContent || 
-      documentGenerated || 
-      (document.prompt && (!document.fields || document.fields.length === 0))) {
-    return (
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <Button 
-          asChild={!hasUnsavedChanges} 
-          variant="outline" 
-          className="mb-4"
-          onClick={hasUnsavedChanges ? handleNavigateAway : undefined}
-        >
-          {hasUnsavedChanges ? (
-            <div className="flex items-center">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Attachments
-            </div>
-          ) : (
-            <Link href={`/projects/${projectId}/attachments`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Attachments
-            </Link>
-          )}
-        </Button>
-
-        <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Unsaved Changes</DialogTitle>
-              <DialogDescription>
-                You have unsaved changes. Are you sure you want to leave? Your changes will be lost.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex justify-end gap-4">
-              <Button variant="outline" onClick={() => setShowExitDialog(false)}>
-                Cancel
-              </Button>
-              <Button 
-                variant="destructive" 
-                onClick={() => {
-                  setShowExitDialog(false);
-                  router.push(`/projects/${projectId}/attachments`);
-                }}
-              >
-                Leave Without Saving
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <div>
-          <ProcessedContent 
-            documentId={documentId} 
-            projectId={projectId} 
-            document={document}
-            onChangesSaved={() => {
-              setHasUnsavedChanges(false);
-            }}
-            onContentChanged={() => {
-              setHasUnsavedChanges(true);
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      <div className="mb-6">
-        <Button asChild variant="outline" className="mb-4">
+      <Button 
+        asChild={!hasUnsavedChanges} 
+        variant="outline" 
+        className="mb-4"
+        onClick={hasUnsavedChanges ? handleNavigateAway : undefined}
+      >
+        {hasUnsavedChanges ? (
+          <div className="flex items-center">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Attachments
+          </div>
+        ) : (
           <Link href={`/projects/${projectId}/attachments`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Attachments
           </Link>
-        </Button>
-        <h1 className="text-2xl font-semibold text-gray-900 sr-only">Document Questions: {document.name}</h1>
-        
-        {saveStatus === 'saving' && (
-          <div className="text-sm text-blue-600 mt-2">Saving changes...</div>
         )}
-        {saveStatus === 'success' && (
-          <div className="text-sm text-green-600 mt-2">Changes saved successfully!</div>
-        )}
-        {saveStatus === 'error' && (
-          <div className="text-sm text-red-600 mt-2">Failed to save changes. Please try again.</div>
-        )}
-      </div>
+      </Button>
 
-      <QuestionView 
-        document={document} 
-        onUpdateAnswers={handleUpdateAnswers} 
-      />
+      <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Unsaved Changes</DialogTitle>
+            <DialogDescription>
+              You have unsaved changes. Are you sure you want to leave? Your changes will be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-4">
+            <Button variant="outline" onClick={() => setShowExitDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                setShowExitDialog(false);
+                router.push(`/projects/${projectId}/attachments`);
+              }}
+            >
+              Leave Without Saving
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <div>
+        <ProcessedContent 
+          documentId={documentId} 
+          projectId={projectId} 
+          document={document}
+          onChangesSaved={() => {
+            setHasUnsavedChanges(false);
+          }}
+          onContentChanged={() => {
+            setHasUnsavedChanges(true);
+          }}
+        />
+      </div>
     </div>
   );
 } 

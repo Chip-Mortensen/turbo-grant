@@ -1,9 +1,7 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CheckCircle } from 'lucide-react';
 import { AttachmentsManager } from '@/components/projects/attachments/attachments-manager';
 import { BackButton } from "@/components/ui/back-button"
 
@@ -38,8 +36,6 @@ export default async function AttachmentsPage({ params }: PageProps) {
   if (!project) {
     return redirect('/projects');
   }
-  
-  // No need to check for FOA here since we control visibility via the card in project-cards.tsx
   
   return (
     <div className="container py-6 space-y-4">
