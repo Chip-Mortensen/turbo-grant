@@ -22,7 +22,7 @@ interface FOA {
   agency: string;
   title: string;
   foa_code: string;
-  grant_type: string;
+  grant_type: Record<string, boolean>;
   description: string;
   deadline: string;
   num_awards: number;
@@ -78,7 +78,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
         applicableDocuments = applicableDocuments.filter(doc => 
           !doc.grant_types || 
           doc.grant_types.length === 0 || 
-          doc.grant_types.includes(foa.grant_type!)
+          Object.keys(foa.grant_type).some(type => doc.grant_types.includes(type))
         );
       }
 

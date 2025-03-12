@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { createClient } from "@/utils/supabase/client"
+import { organizationTypeLabels } from "@/utils/organization-types"
 
 export function OrganizationForm({ userId }: { userId: string }) {
   const [isPending, startTransition] = useTransition()
@@ -121,13 +122,9 @@ export function OrganizationForm({ userId }: { userId: string }) {
             <SelectValue placeholder="Select organization type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Higher Education">Higher Education</SelectItem>
-            <SelectItem value="Non-Profit">Non-Profit</SelectItem>
-            <SelectItem value="For-Profit">For-Profit</SelectItem>
-            <SelectItem value="Government">Government</SelectItem>
-            <SelectItem value="Hospital">Hospital</SelectItem>
-            <SelectItem value="Foreign">Foreign</SelectItem>
-            <SelectItem value="Individual">Individual</SelectItem>
+            {Object.entries(organizationTypeLabels).map(([type, label]) => (
+              <SelectItem key={type} value={type}>{label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

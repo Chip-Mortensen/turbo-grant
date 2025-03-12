@@ -221,7 +221,19 @@ export default function ViewOpportunity({ projectId }: ViewOpportunityProps) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <h4 className="font-medium">Grant Type</h4>
-                      <p className="text-sm">{extractedData.grant_type}</p>
+                      <div className="text-sm">
+                        {extractedData.grant_type && Object.keys(extractedData.grant_type).length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {Object.keys(extractedData.grant_type).map(type => (
+                              <span key={type} className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
+                                {type}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p>Not specified</p>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="space-y-2">

@@ -17,12 +17,6 @@ export default async function FundingOpportunitiesPage() {
     return redirect("/sign-in")
   }
 
-  // Get all grant types
-  const { data: grantTypes } = await supabase
-    .from("grant_types")
-    .select("*")
-    .order("name", { ascending: true })
-
   return (
     <div className="flex-1 w-full flex flex-col gap-6 px-4 py-8">
       <div className="flex justify-between items-center">
@@ -42,7 +36,6 @@ export default async function FundingOpportunitiesPage() {
 
       <OpportunityTabs 
         projectId="" 
-        grantTypes={grantTypes || []} 
       />
     </div>
   )

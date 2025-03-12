@@ -74,7 +74,8 @@ export default function ManageList({ projectId }: ManageListProps) {
       foa.title?.toLowerCase().includes(searchLower) ||
       foa.agency?.toLowerCase().includes(searchLower) ||
       foa.foa_code?.toLowerCase().includes(searchLower) ||
-      foa.grant_type?.toLowerCase().includes(searchLower)
+      (foa.grant_type && typeof foa.grant_type === 'object' && 
+        Object.keys(foa.grant_type).some(type => type.toLowerCase().includes(searchLower)))
     );
   });
 
@@ -271,7 +272,19 @@ export default function ManageList({ projectId }: ManageListProps) {
                     </span>
                     <span className="font-medium">Grant Type</span>
                   </div>
-                  <p className="text-sm ml-7">{selectedFoa.grant_type}</p>
+                  <div className="text-sm ml-7">
+                    {selectedFoa.grant_type && typeof selectedFoa.grant_type === 'object' && Object.keys(selectedFoa.grant_type).length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {Object.keys(selectedFoa.grant_type).map(type => (
+                          <span key={type} className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
+                            {type}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">Not specified</span>
+                    )}
+                  </div>
                 </div>
               </div>
               

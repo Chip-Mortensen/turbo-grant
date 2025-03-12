@@ -10,10 +10,9 @@ import { Sparkles, FileSpreadsheet, Trash2 } from 'lucide-react';
 
 interface OpportunityTabsProps {
   projectId: string;
-  grantTypes: any[];
 }
 
-export default function OpportunityTabs({ projectId, grantTypes }: OpportunityTabsProps) {
+export default function OpportunityTabs({ projectId }: OpportunityTabsProps) {
   const [activeTab, setActiveTab] = useState<'extract' | 'process' | 'manage'>('extract');
 
   return (

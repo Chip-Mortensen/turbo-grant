@@ -25,6 +25,7 @@ import { Database } from '@/types/supabase';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { cn } from '@/lib/utils';
+import { OrganizationType, organizationTypeLabels, initOrgEligibilityFilters } from '@/utils/organization-types';
 
 type FOA = Database['public']['Tables']['foas']['Row'] & {
   score?: number;
@@ -55,13 +56,15 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
   const [deadlineDate, setDeadlineDate] = useState<Date | null>(null);
   
   // Organization eligibility filters
-  const [orgHigherEducation, setOrgHigherEducation] = useState<boolean | null>(null);
-  const [orgNonProfit, setOrgNonProfit] = useState<boolean | null>(null);
-  const [orgForProfit, setOrgForProfit] = useState<boolean | null>(null);
-  const [orgGovernment, setOrgGovernment] = useState<boolean | null>(null);
-  const [orgHospital, setOrgHospital] = useState<boolean | null>(null);
-  const [orgForeign, setOrgForeign] = useState<boolean | null>(null);
-  const [orgIndividual, setOrgIndividual] = useState<boolean | null>(null);
+  const [orgEligibilityFilters, setOrgEligibilityFilters] = useState<Record<OrganizationType, boolean | null>>(initOrgEligibilityFilters());
+  
+  // Helper function to update organization eligibility filters
+  const updateOrgFilter = (type: OrganizationType, value: boolean | null) => {
+    setOrgEligibilityFilters(prev => ({
+      ...prev,
+      [type]: value
+    }));
+  };
   
   // Pagination state
   const [offset, setOffset] = useState(0);
@@ -139,34 +142,12 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
         params.append('deadlineDate', deadlineDate.toISOString());
       }
       
-      // Organization eligibility params
-      if (orgHigherEducation !== null) {
-        params.append('orgHigherEducation', orgHigherEducation.toString());
-      }
-      
-      if (orgNonProfit !== null) {
-        params.append('orgNonProfit', orgNonProfit.toString());
-      }
-      
-      if (orgForProfit !== null) {
-        params.append('orgForProfit', orgForProfit.toString());
-      }
-      
-      if (orgGovernment !== null) {
-        params.append('orgGovernment', orgGovernment.toString());
-      }
-      
-      if (orgHospital !== null) {
-        params.append('orgHospital', orgHospital.toString());
-      }
-      
-      if (orgForeign !== null) {
-        params.append('orgForeign', orgForeign.toString());
-      }
-      
-      if (orgIndividual !== null) {
-        params.append('orgIndividual', orgIndividual.toString());
-      }
+      // Organization eligibility params - add all non-null filters
+      Object.entries(orgEligibilityFilters).forEach(([type, value]) => {
+        if (value !== null) {
+          params.append(`org_${type}`, value.toString());
+        }
+      });
       
       params.append('projectId', projectId);
       
@@ -193,13 +174,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     animalTrials, 
     humanTrials,
     deadlineDate,
-    orgHigherEducation, 
-    orgNonProfit, 
-    orgForProfit, 
-    orgGovernment, 
-    orgHospital, 
-    orgForeign, 
-    orgIndividual,
+    orgEligibilityFilters,
     projectId,
     offset,
     limit
@@ -226,13 +201,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     animalTrials, 
     humanTrials,
     deadlineDate,
-    orgHigherEducation, 
-    orgNonProfit, 
-    orgForProfit, 
-    orgGovernment, 
-    orgHospital, 
-    orgForeign, 
-    orgIndividual,
+    orgEligibilityFilters,
     offset,
     limit,
     debouncedSearch
@@ -248,13 +217,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     animalTrials, 
     humanTrials,
     deadlineDate,
-    orgHigherEducation, 
-    orgNonProfit, 
-    orgForProfit, 
-    orgGovernment, 
-    orgHospital, 
-    orgForeign, 
-    orgIndividual
+    orgEligibilityFilters
   ]);
   
   // Initial search on component mount
@@ -269,13 +232,9 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     setAnimalTrials(null);
     setHumanTrials(null);
     setDeadlineDate(null);
-    setOrgHigherEducation(null);
-    setOrgNonProfit(null);
-    setOrgForProfit(null);
-    setOrgGovernment(null);
-    setOrgHospital(null);
-    setOrgForeign(null);
-    setOrgIndividual(null);
+    
+    // Reset all organization eligibility filters
+    setOrgEligibilityFilters(initOrgEligibilityFilters());
   };
   
   // Count active filters
@@ -285,13 +244,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     animalTrials !== null,
     humanTrials !== null,
     deadlineDate !== null,
-    orgHigherEducation !== null,
-    orgNonProfit !== null,
-    orgForProfit !== null,
-    orgGovernment !== null,
-    orgHospital !== null,
-    orgForeign !== null,
-    orgIndividual !== null
+    ...Object.values(orgEligibilityFilters).map(value => value !== null)
   ].filter(Boolean).length;
   
   return (
@@ -427,97 +380,21 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
                     Eligibility
                   </Label>
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="orgHigherEducation" 
-                        checked={orgHigherEducation === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setOrgHigherEducation(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="orgHigherEducation" className="text-sm font-normal">
-                        Higher Education
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="orgNonProfit" 
-                        checked={orgNonProfit === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setOrgNonProfit(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="orgNonProfit" className="text-sm font-normal">
-                        Non-Profit
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="orgForProfit" 
-                        checked={orgForProfit === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setOrgForProfit(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="orgForProfit" className="text-sm font-normal">
-                        For-Profit
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="orgGovernment" 
-                        checked={orgGovernment === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setOrgGovernment(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="orgGovernment" className="text-sm font-normal">
-                        Government
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="orgHospital" 
-                        checked={orgHospital === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setOrgHospital(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="orgHospital" className="text-sm font-normal">
-                        Hospital
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="orgForeign" 
-                        checked={orgForeign === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setOrgForeign(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="orgForeign" className="text-sm font-normal">
-                        Foreign
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="orgIndividual" 
-                        checked={orgIndividual === true ? true : false}
-                        onCheckedChange={(checked) => {
-                          if (checked === 'indeterminate') return;
-                          setOrgIndividual(checked ? true : null);
-                        }}
-                      />
-                      <Label htmlFor="orgIndividual" className="text-sm font-normal">
-                        Individual
-                      </Label>
-                    </div>
+                    {Object.entries(organizationTypeLabels).map(([type, label]) => (
+                      <div key={type} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`org_${type}`} 
+                          checked={orgEligibilityFilters[type as OrganizationType] === true ? true : false}
+                          onCheckedChange={(checked) => {
+                            if (checked === 'indeterminate') return;
+                            updateOrgFilter(type as OrganizationType, checked ? true : null);
+                          }}
+                        />
+                        <Label htmlFor={`org_${type}`} className="text-sm font-normal">
+                          {label}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

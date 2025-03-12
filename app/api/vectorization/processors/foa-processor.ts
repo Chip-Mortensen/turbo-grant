@@ -132,19 +132,6 @@ export class FOAProcessor extends ContentProcessor {
         const embedding = await this.generateEmbeddings(extractedData.description);
         console.log('Successfully generated embedding for FOA description');
         
-        // Prepare metadata for Pinecone
-        // Flatten organization_eligibility
-        const orgEligibility = extractedData.organization_eligibility || {};
-        const flattenedOrgEligibility = {
-          org_higher_education: !!orgEligibility['Higher Education'],
-          org_non_profit: !!orgEligibility['Non-Profit'],
-          org_for_profit: !!orgEligibility['For-Profit'],
-          org_government: !!orgEligibility['Government'],
-          org_hospital: !!orgEligibility['Hospital'],
-          org_foreign: !!orgEligibility['Foreign'],
-          org_individual: !!orgEligibility['Individual']
-        };
-        
         // Format deadline as ISO date if possible
         let formattedDeadline = extractedData.deadline;
         let deadlineTimestamp: number | undefined;
@@ -166,8 +153,14 @@ export class FOAProcessor extends ContentProcessor {
           foaId: this.foa.id,
           projectId: this.projectId || undefined,
           agency: extractedData.agency,
-          // Only include grant_type for NIH
-          ...(extractedData.agency === 'NIH' ? { grant_type: extractedData.grant_type } : {}),
+          // Add each grant type with its actual value
+          ...(extractedData.grant_type ? Object.entries(extractedData.grant_type).reduce((acc, [type, value]) => {
+            return { ...acc, [type]: value };
+          }, {}) : {}),
+          // Add each organization eligibility with its actual value
+          ...(extractedData.organization_eligibility ? Object.entries(extractedData.organization_eligibility).reduce((acc, [org, value]) => {
+            return { ...acc, [org]: value };
+          }, {}) : {}),
           title: extractedData.title,
           foa_code: extractedData.foa_code,
           deadline_timestamp: deadlineTimestamp, // Store only the timestamp for filtering
@@ -175,8 +168,6 @@ export class FOAProcessor extends ContentProcessor {
           award_ceiling: typeof extractedData.award_ceiling === 'number' ? extractedData.award_ceiling : undefined,
           animal_trials: !!extractedData.animal_trials,
           human_trials: !!extractedData.human_trials,
-          // Include flattened eligibility fields
-          ...flattenedOrgEligibility,
           // Include the text for full-text search
           text: extractedData.description
         };

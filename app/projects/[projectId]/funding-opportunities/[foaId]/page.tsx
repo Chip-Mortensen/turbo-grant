@@ -17,6 +17,7 @@ import {
 import Link from 'next/link';
 import { SelectFoaDialog } from '@/components/projects/funding-opportunities/select';
 import { BackButton } from "@/components/ui/back-button"
+import { getOrganizationTypes, organizationTypeLabels } from '@/utils/organization-types';
 
 // Format currency for display
 const formatCurrency = (value: number | null | undefined, isFloor: boolean = false) => {
@@ -69,6 +70,9 @@ const page = async ({ params }: PageProps) => {
     .single();
   
   const isSelected = project?.foa === foaId;
+  
+  // Get organization types
+  const organizationTypes = getOrganizationTypes();
   
   console.log('FOA Data:', JSON.stringify(foa, null, 2));
   
@@ -123,9 +127,13 @@ const page = async ({ params }: PageProps) => {
           </Badge>
         )}
         {foa.grant_type && (
-          <Badge variant="outline">
-            {foa.grant_type}
-          </Badge>
+          <>
+            {Object.keys(foa.grant_type).map(type => (
+              <Badge key={type} variant="outline">
+                {type}
+              </Badge>
+            ))}
+          </>
         )}
         {foa.deadline && (
           <Badge variant="outline" className="flex items-center gap-1">
@@ -206,22 +214,14 @@ const page = async ({ params }: PageProps) => {
           <h3 className="text-lg font-medium">Eligibility</h3>
           <div className="rounded-lg border bg-muted/40 p-6">
             <div className="space-y-2">
-              {[
-                { key: 'Higher Education', label: 'Higher Education' },
-                { key: 'Non-Profit', label: 'Non-Profit' },
-                { key: 'For-Profit', label: 'For-Profit' },
-                { key: 'Government', label: 'Government' },
-                { key: 'Hospital', label: 'Hospital' },
-                { key: 'Foreign', label: 'Foreign' },
-                { key: 'Individual', label: 'Individual' }
-              ].map(({ key, label }) => (
-                <div key={key} className="flex items-center gap-3">
-                  {foa.organization_eligibility?.[key] ? (
+              {organizationTypes.map(type => (
+                <div key={type} className="flex items-center gap-3">
+                  {foa.organization_eligibility?.[type] ? (
                     <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
                   ) : (
                     <X className="h-4 w-4 text-red-500 flex-shrink-0" />
                   )}
-                  <span className="text-sm">{label}</span>
+                  <span className="text-sm">{organizationTypeLabels[type]}</span>
                 </div>
               ))}
             </div>

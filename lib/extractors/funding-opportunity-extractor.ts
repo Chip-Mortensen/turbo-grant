@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { getOrganizationTypes, OrganizationType } from '@/utils/organization-types';
 
 /**
  * Interface representing the extracted funding opportunity information
@@ -7,7 +8,7 @@ export interface FundingOpportunity {
   agency: 'NIH' | 'NSF';
   title: string;
   foa_code: string;
-  grant_type: string;
+  grant_type: Record<string, any>;
   description: string;
   deadline: string;
   num_awards: number;
@@ -117,6 +118,9 @@ export class FundingOpportunityExtractor {
       year: 'numeric'
     });
 
+    // Get all organization types from the centralized utility
+    const organizationTypes = getOrganizationTypes();
+
     const prompt = `
 
         You are provided with a funding opportunity document. Extract the relevant information and return it in JSON format. The JSON that is created much be 100% informed by the document text. Please do not make up any information.
@@ -129,7 +133,7 @@ export class FundingOpportunityExtractor {
 
         The foa_code, which is the Funding Opportunity Announcement code, such as "PA-25-303" or "NSF 25-535" (this field is required and must be unique).
 
-        The grant_type, which indicates the type of grant, such as "R01", "R21", or "K99" (this field is required).
+        The grant_type, which should be a JSON object where the keys are the grant types (such as "R01", "R21", "K99") and the values are boolean true. For example, if the grant type is "R01", the field should be {"R01": true}. If multiple grant types are mentioned, include all of them as keys with true values. (this field is required). IMPORTANT: In an NSF application, the grant_type field could also be listed as a proposal type under any of these: Research, Planning, RAPID, EAGER, RAISE, GOALI, FASED, Conference, Equipment, Travel, Center, Research Infrastructure, Postdoctoral Fellowship, STTR. If it's an NSF application and there isn't any proposal type or it's a standard proposal, please use 'Research' as the key and true as the value for grant_type. IMPORTANT: If multiple are mentioned, please include all of them as keys with true values.
 
         The description, which should provide an in-depth description of the funding opportunity and should include details about every important aspect. This description should be comprehensive (around 100-300 words) and cover the purpose, scope, research areas, expected outcomes, and any special considerations of the funding opportunity. Please try to use exerpts from the text where you can. (this field is required).
 
@@ -149,15 +153,55 @@ export class FundingOpportunityExtractor {
 
         The human_trials field should be true if human trials are involved and false if not (default is false).
 
-        The organization_eligibility field should capture eligibility details for organizations and be structured as JSON (this field is required). Make sure that it adheres to boolean for each enum list: Higher Education, Non-Profit, For-Profit, Government, Hospital, Foreign, Individual
+        The organization_eligibility field should capture eligibility details for organizations and be structured as JSON (this field is required). IMPORTANT: Make sure that it adheres to boolean for each enum list:   
+
+        ${organizationTypes.map(type => `"${type}"`).join('\n        ')}
+        
+        IMPORTANT: If it mentions local governments, please make sure that county_government and city_township_government are both true.
 
         The published_date, which is the date the funding opportunity was published, formatted in ISO 8601 format (YYYY-MM-DD) (this field is required).
         
         Return only valid JSON. Do not include extra commentary or formatting.
 
+        Example: 
+
+        {
+          agency: 'NSF',
+          title: 'Translation and Diffusion (TD)',
+          foa_code: 'NSF 25-528',
+          grant_type: { Research: true, Conference: true },
+          description: 'The Translation and Diffusion (TD) program aims to facilitate the reciprocal process of translating and diffusing scientific knowledge to and from practice in STEM education. This funding opportunity encourages the scientific study of theories, frameworks, and models for the translation and diffusion of knowledge, particularly in PreK-12 STEM education. It invites proposals in four categories: Research on Translation or Diffusion, Proof-of-Concept Research, Synthesis proposals, and Conference/Workshop proposals. The program emphasizes the importance of overcoming barriers to the application of research insights in educational practice and aims to enrich the sciences informing STEM education. Proposals may request funding for up to $1 million for research projects with a duration of up to three years, or up to $500,000 for synthesis projects. The program also encourages broadening participation in STEM by supporting underrepresented communities.',
+          deadline: 'April 01, 2025',
+          num_awards: 15,
+          award_ceiling: 1000000,
+          award_floor: 25000,
+          letters_of_intent: false,
+          preliminary_proposal: false,
+          animal_trials: false,
+          human_trials: false,
+          organization_eligibility: {
+            city_township_government: true,
+            county_government: true,
+            for_profit: true,
+            independent_school_district: false,
+            individual: false,
+            native_american_tribal_government: false,
+            native_american_tribal_organization: false,
+            non_profit: true,
+            others: false,
+            private_higher_education_institution: true,
+            public_higher_education_institution: true,
+            public_housing_authorities: false,
+            small_business: true,
+            special_district_governments: false,
+            state_governments: true,
+            unrestricted: false
+          },
+          published_date: '2024-12-20'
+        }
+
         Document text:
         ${textContent}
-                
         `;
 
     const response = await this.openai.chat.completions.create({
@@ -199,7 +243,15 @@ export class FundingOpportunityExtractor {
     info.agency = info.agency || 'NIH';
     info.title = info.title || '';
     info.foa_code = info.foa_code || '';
-    info.grant_type = info.grant_type || '';
+    
+    // Convert grant_type from string to object if it's a string
+    if (typeof info.grant_type === 'string' && info.grant_type.trim() !== '') {
+      const grantTypeValue = info.grant_type.trim();
+      info.grant_type = { [grantTypeValue]: true };
+    } else if (!info.grant_type || typeof info.grant_type !== 'object') {
+      info.grant_type = {};
+    }
+    
     info.description = info.description || '';
     info.deadline = info.deadline || '';
     info.num_awards = info.num_awards || 1;

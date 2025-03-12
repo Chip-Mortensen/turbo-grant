@@ -184,7 +184,7 @@ export type Database = {
           deadline: string | null
           description: string | null
           foa_code: string | null
-          grant_type: string | null
+          grant_type: Json | null
           grant_url: string | null
           human_trials: boolean | null
           id: string
@@ -207,7 +207,7 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           foa_code?: string | null
-          grant_type?: string | null
+          grant_type?: Json | null
           grant_url?: string | null
           human_trials?: boolean | null
           id?: string
@@ -230,7 +230,7 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           foa_code?: string | null
-          grant_type?: string | null
+          grant_type?: Json | null
           grant_url?: string | null
           human_trials?: boolean | null
           id?: string
@@ -757,13 +757,23 @@ export type Database = {
         | "chalk_talk"
         | "foa"
       organization_type:
-        | "Higher Education"
-        | "Non-Profit"
-        | "For-Profit"
-        | "Government"
-        | "Hospital"
-        | "Foreign"
-        | "Individual"
+        | "city_township_government"
+        | "county_government"
+        | "for_profit"
+        | "independent_school_district"
+        | "individual"
+        | "native_american_tribal_government"
+        | "native_american_tribal_organization"
+        | "non_profit"
+        | "others"
+        | "private_higher_education_institution"
+        | "public_higher_education_institution"
+        | "public_housing_authorities"
+        | "small_business"
+        | "special_district_gGovernments"
+        | "state_governments"
+        | "unrestricted"
+
       user_role:
         | "Principal Investigator"
         | "Co-Principal Investigator"

@@ -151,7 +151,7 @@ export async function GET(req: NextRequest) {
     }
     
     if (grantType) {
-      query = query.eq('grant_type', grantType);
+      query = query.contains('grant_type', { [grantType]: true });
     }
     
     if (deadlineAfter) {
