@@ -75,16 +75,21 @@ export default async function AuthButton() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
             <Avatar>
-              <AvatarFallback>{getUserInitials(user.email || "")}</AvatarFallback>
+              <AvatarFallback className="font-heading">{getUserInitials(user.email || "")}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel className="font-heading">My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href="/profile" className="cursor-pointer w-full">
               Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/projects" className="cursor-pointer w-full">
+              Projects
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

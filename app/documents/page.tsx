@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Document } from '@/types/documents';
 import DocumentList from '@/components/documents/document-list';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -50,45 +54,56 @@ export default function DocumentsPage() {
   };
 
   if (isLoading) {
-    return <div className="p-4">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="p-4 text-red-600">Error: {error}</div>;
+    return (
+      <div className="container py-6 space-y-4">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-32 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div className="px-4 py-6 sm:px-0">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Documents</h1>
-          <Link
-            href="/documents/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
-          >
+    <div className="container py-6 space-y-4">
+      <BackButton href="/projects" label="Back to Projects" />
+      
+      <div className="flex items-center justify-between py-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold">Documents</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage document templates and their settings
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/documents/new">
+            <Plus className="mr-2 h-4 w-4" />
             New Document
           </Link>
-        </div>
-
-        {documents.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No documents found.</p>
-            <p className="mt-2">
-              <Link
-                href="/documents/new"
-                className="text-indigo-600 hover:text-indigo-900"
-              >
-                Create your first document
-              </Link>
-            </p>
-          </div>
-        ) : (
-          <DocumentList
-            documents={documents}
-            onDelete={handleDelete}
-          />
-        )}
+        </Button>
       </div>
+
+      {error && (
+        <div className="rounded-md bg-red-50 p-4 text-sm text-red-500">
+          Error: {error}
+        </div>
+      )}
+
+      <Card>
+        <CardContent className="p-0">
+          {documents.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              No documents found. Create your first document to get started!
+            </div>
+          ) : (
+            <DocumentList
+              documents={documents}
+              onDelete={handleDelete}
+            />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 } 

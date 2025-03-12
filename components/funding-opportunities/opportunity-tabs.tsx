@@ -17,44 +17,48 @@ export default function OpportunityTabs({ projectId }: OpportunityTabsProps) {
 
   return (
     <div className="w-full">
-      <div className="flex border-b mb-4">
-        <Button
-          variant={activeTab === 'extract' ? 'default' : 'ghost'}
-          className={`rounded-none border-b-2 ${
-            activeTab === 'extract' 
-              ? 'border-primary' 
-              : 'border-transparent'
-          } px-4 py-2 flex-1`}
-          onClick={() => setActiveTab('extract')}
-        >
-          <Sparkles className="h-4 w-4 mr-2" />
-          Extract with AI
-        </Button>
-        <Button
-          variant={activeTab === 'process' ? 'default' : 'ghost'}
-          className={`rounded-none border-b-2 ${
-            activeTab === 'process' 
-              ? 'border-primary' 
-              : 'border-transparent'
-          } px-4 py-2 flex-1`}
-          onClick={() => setActiveTab('process')}
-        >
-          <FileSpreadsheet className="h-4 w-4 mr-2" />
-          Process CSV
-        </Button>
-        <Button
-          variant={activeTab === 'manage' ? 'default' : 'ghost'}
-          className={`rounded-none border-b-2 ${
-            activeTab === 'manage' 
-              ? 'border-primary' 
-              : 'border-transparent'
-          } px-4 py-2 flex-1`}
-          onClick={() => setActiveTab('manage')}
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Manage
-        </Button>
-      </div>
+      <Card className="overflow-hidden mb-3">
+        <CardContent className="p-0">
+          <div className="flex border-b">
+            <Button
+              variant={activeTab === 'extract' ? 'default' : 'ghost'}
+              className={`rounded-none border-b-2 ${
+                activeTab === 'extract' 
+                  ? 'border-primary' 
+                  : 'border-transparent'
+              } px-4 py-2 flex-1`}
+              onClick={() => setActiveTab('extract')}
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Extract with AI
+            </Button>
+            <Button
+              variant={activeTab === 'process' ? 'default' : 'ghost'}
+              className={`rounded-none border-b-2 ${
+                activeTab === 'process' 
+                  ? 'border-primary' 
+                  : 'border-transparent'
+              } px-4 py-2 flex-1`}
+              onClick={() => setActiveTab('process')}
+            >
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Process CSV
+            </Button>
+            <Button
+              variant={activeTab === 'manage' ? 'default' : 'ghost'}
+              className={`rounded-none border-b-2 ${
+                activeTab === 'manage' 
+                  ? 'border-primary' 
+                  : 'border-transparent'
+              } px-4 py-2 flex-1`}
+              onClick={() => setActiveTab('manage')}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Manage
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {activeTab === 'extract' && (
         <Card>

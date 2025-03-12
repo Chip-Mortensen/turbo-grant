@@ -418,92 +418,94 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
         
         {/* Results list - full width */}
         <div className="lg:col-span-3">
-          <div className="border rounded-md">
-            {isSearching ? (
-              <div className="flex justify-center items-center h-32">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : foas.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No funding opportunities found
-              </div>
-            ) : (
-              <div className="divide-y">
-                {foas.map((foa) => (
-                  <div
-                    key={foa.id}
-                    className="p-4 hover:bg-muted transition-colors"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-start gap-3">
-                          {searchTerm && foa.score !== undefined && (
-                            <div className="flex flex-col items-center justify-center min-w-[60px]">
-                              <div className={cn(
-                                "w-12 h-12 rounded-md flex items-center justify-center text-lg font-semibold",
-                                foa.score >= 80 ? "bg-primary text-primary-foreground" :
-                                foa.score >= 60 ? "bg-secondary text-secondary-foreground" :
-                                "bg-muted text-muted-foreground"
-                              )}>
-                                {Math.round(foa.score)}
+          <Card>
+            <CardContent className="p-0">
+              {isSearching ? (
+                <div className="flex justify-center items-center h-32">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : foas.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No funding opportunities found
+                </div>
+              ) : (
+                <div className="divide-y">
+                  {foas.map((foa) => (
+                    <div
+                      key={foa.id}
+                      className="p-4 hover:bg-muted transition-colors"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-start gap-3">
+                            {searchTerm && foa.score !== undefined && (
+                              <div className="flex flex-col items-center justify-center min-w-[60px]">
+                                <div className={cn(
+                                  "w-12 h-12 rounded-md flex items-center justify-center text-lg font-semibold",
+                                  foa.score >= 80 ? "bg-primary text-primary-foreground" :
+                                  foa.score >= 60 ? "bg-secondary text-secondary-foreground" :
+                                  "bg-muted text-muted-foreground"
+                                )}>
+                                  {Math.round(foa.score)}
+                                </div>
+                                <span className="text-[10px] text-muted-foreground mt-1">relevance</span>
                               </div>
-                              <span className="text-[10px] text-muted-foreground mt-1">relevance</span>
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <div className="font-medium text-lg">{foa.title}</div>
-                            
-                            {/* Submission date */}
-                            <div className="text-sm text-muted-foreground mt-2 flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              Due: {formatDate(foa.deadline)}
-                            </div>
-                            
-                            {/* Truncated description */}
-                            <div className="text-sm mt-2 text-muted-foreground">
-                              {truncateDescription(foa.description)}
-                            </div>
-                            
-                            {/* Agency and award amount */}
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              <Badge variant="secondary" className="text-xs">
-                                {foa.agency}
-                              </Badge>
-                              {(foa.award_floor !== null || foa.award_ceiling !== null) && (
+                            )}
+                            <div className="flex-1">
+                              <div className="font-medium text-lg">{foa.title}</div>
+                              
+                              {/* Submission date */}
+                              <div className="text-sm text-muted-foreground mt-2 flex items-center">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                Due: {formatDate(foa.deadline)}
+                              </div>
+                              
+                              {/* Truncated description */}
+                              <div className="text-sm mt-2 text-muted-foreground">
+                                {truncateDescription(foa.description)}
+                              </div>
+                              
+                              {/* Agency and award amount */}
+                              <div className="mt-3 flex flex-wrap gap-2">
                                 <Badge variant="secondary" className="text-xs">
-                                  Award: {formatCurrency(foa.award_floor ?? 0)} {foa.award_ceiling !== null ? `- ${formatCurrency(foa.award_ceiling)}` : ''}
+                                  {foa.agency}
                                 </Badge>
-                              )}
-                              {foa.animal_trials && (
-                                <Badge variant="secondary" className="text-xs">
-                                  Animal Trials
-                                </Badge>
-                              )}
-                              {foa.human_trials && (
-                                <Badge variant="secondary" className="text-xs">
-                                  Human Trials
-                                </Badge>
-                              )}
+                                {(foa.award_floor !== null || foa.award_ceiling !== null) && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Award: {formatCurrency(foa.award_floor ?? 0)} {foa.award_ceiling !== null ? `- ${formatCurrency(foa.award_ceiling)}` : ''}
+                                  </Badge>
+                                )}
+                                {foa.animal_trials && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Animal Trials
+                                  </Badge>
+                                )}
+                                {foa.human_trials && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Human Trials
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="ml-4 whitespace-nowrap"
+                          onClick={() => navigateToFoaDetails(foa.id)}
+                        >
+                          View Details
+                          <ArrowRight className="ml-1 h-3 w-3" />
+                        </Button>
                       </div>
-                      
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="ml-4 whitespace-nowrap"
-                        onClick={() => navigateToFoaDetails(foa.id)}
-                      >
-                        View Details
-                        <ArrowRight className="ml-1 h-3 w-3" />
-                      </Button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
           
           {/* Pagination */}
           {!isSearching && foas.length > 0 && (

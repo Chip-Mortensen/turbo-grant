@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import DocumentForm from '@/components/documents/document-form';
 import { Document } from '@/types/documents';
 import { use } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { BackButton } from '@/components/ui/back-button';
 
 export default function EditDocumentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -55,30 +57,47 @@ export default function EditDocumentPage({ params }: { params: Promise<{ id: str
   };
 
   if (!document && !error) {
-    return <div className="p-4">Loading...</div>;
+    return (
+      <div className="container py-6 space-y-4">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-32 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div className="px-4 py-6 sm:px-0">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Edit Document</h1>
+    <div className="container py-6 space-y-4">
+      <BackButton href="/documents" label="Back to Documents" />
+      
+      <div className="flex items-center justify-between py-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold">Edit Document</h1>
+          <p className="text-sm text-muted-foreground">
+            Update document template settings
+          </p>
         </div>
-
-        {error && (
-          <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
-            {error}
-          </div>
-        )}
-
-        {document && (
-          <DocumentForm
-            initialDocument={document}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-          />
-        )}
       </div>
+
+      {error && (
+        <div className="rounded-md bg-red-50 p-4 text-sm text-red-500">
+          Error: {error}
+        </div>
+      )}
+
+      {document && (
+        <Card className="pt-6">
+          <CardContent>
+            <DocumentForm
+              initialDocument={document}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+            />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 } 

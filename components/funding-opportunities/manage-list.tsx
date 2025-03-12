@@ -196,7 +196,8 @@ export default function ManageList({ projectId }: ManageListProps) {
                   }`}
                   onClick={() => handleFoaClick(foa)}
                 >
-                  <div className="font-medium truncate">{foa.title}</div>
+                  <div className="font-heading font-semibold truncate">{foa.title}</div>
+                  <div className="font-heading font-semibold truncate">{foa.title}</div>
                   <div className="flex items-center text-sm text-gray-500 mt-1 space-x-3">
                     <span className="flex items-center">
                       <Building className="h-3 w-3 mr-1" />
@@ -223,7 +224,8 @@ export default function ManageList({ projectId }: ManageListProps) {
           {selectedFoa ? (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="font-medium text-lg">{selectedFoa.title}</h3>
+                <h3 className="font-semibold text-lg">{selectedFoa.title}</h3>
+                <h3 className="font-semibold text-lg">{selectedFoa.title}</h3>
                 <Button 
                   variant="destructive" 
                   size="sm" 
@@ -241,7 +243,8 @@ export default function ManageList({ projectId }: ManageListProps) {
                     <span className="bg-blue-100 p-1 rounded">
                       <Building className="h-4 w-4 text-blue-600" />
                     </span>
-                    <span className="font-medium">Agency</span>
+                    <span className="font-semibold font-heading">Agency</span>
+                    <span className="font-semibold font-heading">Agency</span>
                   </div>
                   <p className="text-sm ml-7">{selectedFoa.agency}</p>
                 </div>
@@ -251,7 +254,8 @@ export default function ManageList({ projectId }: ManageListProps) {
                     <span className="bg-blue-100 p-1 rounded">
                       <FileText className="h-4 w-4 text-blue-600" />
                     </span>
-                    <span className="font-medium">FOA Code</span>
+                    <span className="font-semibold font-heading">FOA Code</span>
+                    <span className="font-semibold font-heading">FOA Code</span>
                   </div>
                   <p className="text-sm ml-7">{selectedFoa.foa_code}</p>
                 </div>
@@ -261,7 +265,8 @@ export default function ManageList({ projectId }: ManageListProps) {
                     <span className="bg-blue-100 p-1 rounded">
                       <Calendar className="h-4 w-4 text-blue-600" />
                     </span>
-                    <span className="font-medium">Deadline</span>
+                    <span className="font-semibold font-heading">Deadline</span>
+                    <span className="font-semibold font-heading">Deadline</span>
                   </div>
                   <p className="text-sm ml-7">{formatDate(selectedFoa.deadline)}</p>
                 </div>
@@ -271,7 +276,7 @@ export default function ManageList({ projectId }: ManageListProps) {
                     <span className="bg-blue-100 p-1 rounded">
                       <FileText className="h-4 w-4 text-blue-600" />
                     </span>
-                    <span className="font-medium">Grant Type</span>
+                    <span className="font-semibold font-heading">Grant Type</span>
                   </div>
                   <div className="text-sm ml-7">
                     {selectedFoa.grant_type && typeof selectedFoa.grant_type === 'object' && Object.keys(selectedFoa.grant_type).length > 0 ? (
@@ -293,36 +298,39 @@ export default function ManageList({ projectId }: ManageListProps) {
               
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-medium">Description</h4>
+                  <h4 className="font-semibold">Description</h4>
                   <p className="text-sm">{selectedFoa.description}</p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <h4 className="font-medium">Published Date</h4>
+                    <h4 className="font-semibold">Published Date</h4>
                     <p className="text-sm">
                       {formatDate(selectedFoa.published_date)}
                     </p>
                   </div>
                   
                   <div className="space-y-2">
-                    <h4 className="font-medium">Expected Awards</h4>
+                    <h4 className="font-semibold">Expected Awards</h4>
+                    <h4 className="font-semibold">Expected Awards</h4>
                     <p className="text-sm">{selectedFoa.num_awards || 'Not specified'}</p>
                   </div>
                   
                   <div className="space-y-2">
-                    <h4 className="font-medium">Award Ceiling</h4>
+                    <h4 className="font-semibold">Award Ceiling</h4>
+                    <h4 className="font-semibold">Award Ceiling</h4>
                     <p className="text-sm">{formatCurrency(selectedFoa.award_ceiling)}</p>
                   </div>
                   
                   <div className="space-y-2">
-                    <h4 className="font-medium">Award Floor</h4>
+                    <h4 className="font-semibold">Award Floor</h4>
                     <p className="text-sm">{formatCurrency(selectedFoa.award_floor)}</p>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <h4 className="font-medium">Eligibility</h4>
+                  <h4 className="font-semibold">Eligibility</h4>
+                  <h4 className="font-semibold">Eligibility</h4>
                   <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
                     {selectedFoa.organization_eligibility ? (
                       <div className="space-y-1">
@@ -342,7 +350,8 @@ export default function ManageList({ projectId }: ManageListProps) {
                 </div>
                 
                 <div className="space-y-2">
-                  <h4 className="font-medium">Grant URL</h4>
+                  <h4 className="font-semibold">Grant URL</h4>
+                  <h4 className="font-semibold">Grant URL</h4>
                   <p className="text-sm break-all">
                     <a href={selectedFoa.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       {selectedFoa.grant_url}

@@ -12,6 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDate } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/ui/back-button";
 
 export default async function OrganizationsPage() {
   const supabase = await createClient();
@@ -30,9 +32,16 @@ export default async function OrganizationsPage() {
     .order("name", { ascending: true });
 
   return (
-    <div className="flex-1 w-full flex flex-col gap-6 px-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Organizations</h1>
+    <div className="container py-6 space-y-4">
+      <BackButton href="/projects" label="Back to Projects" />
+      
+      <div className="flex items-center justify-between py-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold">Organizations</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage your organizations and their settings
+          </p>
+        </div>
         <Button asChild>
           <Link href="/organizations/new">
             <Plus className="mr-2 h-4 w-4" />
@@ -41,36 +50,38 @@ export default async function OrganizationsPage() {
         </Button>
       </div>
 
-      {organizations && organizations.length > 0 ? (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>UEI</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>SAM Status</TableHead>
-                <TableHead>Created</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {organizations.map((org) => (
-                <TableRow key={org.id}>
-                  <TableCell className="font-medium">{org.name}</TableCell>
-                  <TableCell>{org.uei}</TableCell>
-                  <TableCell>{org.organization_type || "—"}</TableCell>
-                  <TableCell>{org.sam_status ? "Active" : "Inactive"}</TableCell>
-                  <TableCell>{formatDate(org.created_at)}</TableCell>
+      <Card>
+        <CardContent className="p-0">
+          {organizations && organizations.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>UEI</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>SAM Status</TableHead>
+                  <TableHead>Created</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ) : (
-        <div className="text-center py-12 text-muted-foreground">
-          No organizations found. Create your first organization to get started!
-        </div>
-      )}
+              </TableHeader>
+              <TableBody>
+                {organizations.map((org) => (
+                  <TableRow key={org.id}>
+                    <TableCell className="font-medium">{org.name}</TableCell>
+                    <TableCell>{org.uei}</TableCell>
+                    <TableCell>{org.organization_type || "—"}</TableCell>
+                    <TableCell>{org.sam_status ? "Active" : "Inactive"}</TableCell>
+                    <TableCell>{formatDate(org.created_at)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              No organizations found. Create your first organization to get started!
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 } 

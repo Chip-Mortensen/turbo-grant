@@ -8,7 +8,7 @@ export default function Header() {
         <div className="flex flex-1 items-center justify-between">
           <Link 
             href="/" 
-            className="font-semibold"
+            className="font-bold font-heading tracking-tight"
           >
             Turbo Grant
           </Link>

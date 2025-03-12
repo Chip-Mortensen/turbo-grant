@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateProfileAction } from "@/app/actions";
+import { BackButton } from "@/components/ui/back-button";
 import { 
   Select,
   SelectContent,
@@ -25,7 +26,7 @@ export default async function ProfilePage() {
   if (!user) {
     return (
       <div className="flex flex-col gap-8">
-        <h1 className="text-2xl font-bold">Profile</h1>
+        <h1 className="text-2xl font-semibold">Profile</h1>
         <p>You need to be signed in to view your profile.</p>
       </div>
     );
@@ -46,7 +47,8 @@ export default async function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-bold">Profile</h1>
+      <BackButton href="/projects" label="Back to Projects" />
+      <h1 className="text-2xl font-semibold">Profile</h1>
       
       <Card>
         <CardHeader>

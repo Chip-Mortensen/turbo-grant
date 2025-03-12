@@ -81,7 +81,8 @@ const page = async ({ params }: PageProps) => {
   console.log('FOA Data:', JSON.stringify(foa, null, 2));
   
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container py-6 space-y-6">
+    <div className="container py-6 space-y-6">
       <div className="flex justify-between items-center">
         <BackButton 
           href={`/projects/${projectId}/funding-opportunities`}
@@ -107,25 +108,28 @@ const page = async ({ params }: PageProps) => {
       
       <div className="flex justify-between items-start">
         <h1 className="text-2xl font-bold tracking-tight">{foa.title}</h1>
-        <div className="flex items-center gap-2">
-          {foa.grant_url && (
-            <Button variant="outline" size="sm" asChild>
-              <a href={foa.grant_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
-                <ExternalLink className="h-3 w-3" />
-                View Original
-              </a>
-            </Button>
-          )}
-        </div>
+        <Button variant="outline" size="sm" asChild>
+          <a href={foa.grant_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+            <ExternalLink className="h-3 w-3" />
+            View Original
+          </a>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <a href={foa.grant_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+            <ExternalLink className="h-3 w-3" />
+            View Original
+          </a>
+        </Button>
       </div>
       
       <div className="flex flex-wrap gap-2">
-        <Badge variant="outline" className="flex items-center gap-1">
+        <Badge variant="secondary" className="flex items-center gap-1">
           <Building className="h-3 w-3" />
           {foa.agency}
         </Badge>
         {foa.foa_code && (
-          <Badge variant="outline" className="flex items-center gap-1">
+          <Badge variant="secondary" className="flex items-center gap-1">
+          <Badge variant="secondary" className="flex items-center gap-1">
             <FileText className="h-3 w-3" />
             {foa.foa_code}
           </Badge>
@@ -142,28 +146,30 @@ const page = async ({ params }: PageProps) => {
           </>
         )}
         {foa.deadline && (
-          <Badge variant="outline" className="flex items-center gap-1">
+          <Badge variant="secondary" className="flex items-center gap-1">
+          <Badge variant="secondary" className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
             Due: {formatDate(foa.deadline)}
           </Badge>
         )}
         {foa.animal_trials && (
-          <Badge variant="outline">
+          <Badge variant="secondary">
+          <Badge variant="secondary">
             Animal Trials
           </Badge>
         )}
         {foa.human_trials && (
-          <Badge variant="outline">
+          <Badge variant="secondary">
             Human Trials
           </Badge>
         )}
       </div>
       
-      <Separator />
-      
       {/* Award information */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card className="bg-background">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Award Floor</div>
             <div className="text-xl font-semibold">
@@ -171,7 +177,8 @@ const page = async ({ params }: PageProps) => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-background">
+        <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Award Ceiling</div>
             <div className="text-xl font-semibold">
@@ -179,7 +186,8 @@ const page = async ({ params }: PageProps) => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-background">
+        <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Expected Awards</div>
             <div className="text-xl font-semibold">
@@ -187,7 +195,8 @@ const page = async ({ params }: PageProps) => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-background">
+        <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Letters of Intent</div>
             <div className="text-xl font-semibold">
@@ -195,7 +204,8 @@ const page = async ({ params }: PageProps) => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-background">
+        <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Preliminary Proposal</div>
             <div className="text-xl font-semibold">
@@ -210,9 +220,20 @@ const page = async ({ params }: PageProps) => {
         {/* Description */}
         <div className="space-y-4 md:col-span-3">
           <h3 className="text-lg font-medium">Description</h3>
-          <div className="text-muted-foreground whitespace-pre-line">
-            {foa.description || 'No description available.'}
-          </div>
+          <Card className="bg-background">
+            <CardContent className="pt-6">
+              <div className="text-muted-foreground whitespace-pre-line">
+                {foa.description || 'No description available.'}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-background">
+            <CardContent className="pt-6">
+              <div className="text-muted-foreground whitespace-pre-line">
+                {foa.description || 'No description available.'}
+              </div>
+            </CardContent>
+          </Card>
         </div>
         
         {/* Eligibility */}
