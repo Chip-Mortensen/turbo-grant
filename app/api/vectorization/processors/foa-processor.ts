@@ -153,13 +153,13 @@ export class FOAProcessor extends ContentProcessor {
           foaId: this.foa.id,
           projectId: this.projectId || undefined,
           agency: extractedData.agency,
-          // Add each grant type with its actual value
+          // Add each grant type with its actual value, prefixed with grant_
           ...(extractedData.grant_type ? Object.entries(extractedData.grant_type).reduce((acc, [type, value]) => {
-            return { ...acc, [type]: value };
+            return { ...acc, [`grant_${type}`]: value };
           }, {}) : {}),
-          // Add each organization eligibility with its actual value
+          // Add each organization eligibility with its actual value, prefixed with org_
           ...(extractedData.organization_eligibility ? Object.entries(extractedData.organization_eligibility).reduce((acc, [org, value]) => {
-            return { ...acc, [org]: value };
+            return { ...acc, [`org_${org}`]: value };
           }, {}) : {}),
           title: extractedData.title,
           foa_code: extractedData.foa_code,

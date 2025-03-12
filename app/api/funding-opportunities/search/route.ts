@@ -69,50 +69,65 @@ export async function GET(request: NextRequest) {
         type: 'foa_description'
       };
       
+      // Create an array for $and conditions to combine different filter categories
+      const andConditions: Record<string, any>[] = [];
+      
       // Add filters if provided
       if (agency) {
-        filter.agency = agency;
+        andConditions.push({ agency });
       }
+      
+      // Add award amount filters
       if (minAward !== null && maxAward !== null) {
         // At least one of these conditions should be true:
         // 1. award_floor (if exists) is within the range
         // 2. award_ceiling (if exists) is within the range
         // 3. range completely encompasses the award range (floor to ceiling)
-        filter.$or = [
-          { award_floor: { $gte: minAward, $lte: maxAward } },
-          { award_ceiling: { $gte: minAward, $lte: maxAward } },
-          {
-            $and: [
-              { award_floor: { $lte: minAward } },
-              { award_ceiling: { $gte: maxAward } }
-            ]
-          }
-        ];
+        andConditions.push({
+          $or: [
+            { award_floor: { $gte: minAward, $lte: maxAward } },
+            { award_ceiling: { $gte: minAward, $lte: maxAward } },
+            {
+              $and: [
+                { award_floor: { $lte: minAward } },
+                { award_ceiling: { $gte: maxAward } }
+              ]
+            }
+          ]
+        });
       } else if (minAward !== null) {
         // Either the floor or ceiling should be >= minAward
-        filter.$or = [
-          { award_floor: { $gte: minAward } },
-          { award_ceiling: { $gte: minAward } }
-        ];
+        andConditions.push({
+          $or: [
+            { award_floor: { $gte: minAward } },
+            { award_ceiling: { $gte: minAward } }
+          ]
+        });
       } else if (maxAward !== null) {
         // Either the floor or ceiling should be <= maxAward
-        filter.$or = [
-          { award_floor: { $lte: maxAward } },
-          { award_ceiling: { $lte: maxAward } }
-        ];
+        andConditions.push({
+          $or: [
+            { award_floor: { $lte: maxAward } },
+            { award_ceiling: { $lte: maxAward } }
+          ]
+        });
       }
+      
+      // Add animal trials filter
       if (animalTrials !== null) {
-        filter.animal_trials = animalTrials;
+        andConditions.push({ animal_trials: animalTrials });
       }
+      
+      // Add human trials filter
       if (humanTrials !== null) {
-        filter.human_trials = humanTrials;
+        andConditions.push({ human_trials: humanTrials });
       }
       
       // Add deadline filter
       if (deadlineDate !== null) {
         // Convert date to Unix timestamp (seconds)
         const timestamp = Math.floor(deadlineDate.getTime() / 1000);
-        filter.deadline_timestamp = { $lte: timestamp };
+        andConditions.push({ deadline_timestamp: { $lte: timestamp } });
       }
       
       // Add organization eligibility filters
@@ -121,37 +136,35 @@ export async function GET(request: NextRequest) {
         const orgConditions = Object.entries(organizationEligibility)
           .filter(([_, value]) => value !== null)
           .map(([type, value]) => ({
-            [type]: value
+            [`org_${type}`]: value
           }));
         
         if (orgConditions.length > 0) {
-          // Use $and to ensure all conditions are met
-          filter.$and = [
-            ...(filter.$and || []),
-            ...orgConditions
-          ];
+          // Use $or to match any of the selected organization types
+          andConditions.push({
+            $or: orgConditions
+          });
         }
       }
       
       // Add user eligibility filters
       if (userPrincipalInvestigator !== null) {
-        filter.user_pi = userPrincipalInvestigator;
+        andConditions.push({ user_pi: userPrincipalInvestigator });
       }
       if (userPostdoc !== null) {
-        filter.user_postdoc = userPostdoc;
+        andConditions.push({ user_postdoc: userPostdoc });
       }
       if (userGraduateStudent !== null) {
-        filter.user_grad_student = userGraduateStudent;
+        andConditions.push({ user_grad_student: userGraduateStudent });
       }
       if (userEarlyCareer !== null) {
-        filter.user_senior_personnel = userEarlyCareer; // Early career maps to senior personnel in our metadata
+        andConditions.push({ user_senior_personnel: userEarlyCareer });
       }
       
-      // FOAs are global, so we don't filter by projectId
-      // Only include projectId filter for other content types
-      // if (projectId) {
-      //   filter.projectId = projectId;
-      // }
+      // Apply all AND conditions if there are any
+      if (andConditions.length > 0) {
+        filter.$and = andConditions;
+      }
 
       console.log('Using filter:', JSON.stringify(filter, null, 2));
 
