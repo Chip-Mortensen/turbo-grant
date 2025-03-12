@@ -197,7 +197,6 @@ export default function ManageList({ projectId }: ManageListProps) {
                   onClick={() => handleFoaClick(foa)}
                 >
                   <div className="font-heading font-semibold truncate">{foa.title}</div>
-                  <div className="font-heading font-semibold truncate">{foa.title}</div>
                   <div className="flex items-center text-sm text-gray-500 mt-1 space-x-3">
                     <span className="flex items-center">
                       <Building className="h-3 w-3 mr-1" />
@@ -225,7 +224,6 @@ export default function ManageList({ projectId }: ManageListProps) {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="font-semibold text-lg">{selectedFoa.title}</h3>
-                <h3 className="font-semibold text-lg">{selectedFoa.title}</h3>
                 <Button 
                   variant="destructive" 
                   size="sm" 
@@ -244,7 +242,6 @@ export default function ManageList({ projectId }: ManageListProps) {
                       <Building className="h-4 w-4 text-blue-600" />
                     </span>
                     <span className="font-semibold font-heading">Agency</span>
-                    <span className="font-semibold font-heading">Agency</span>
                   </div>
                   <p className="text-sm ml-7">{selectedFoa.agency}</p>
                 </div>
@@ -255,7 +252,6 @@ export default function ManageList({ projectId }: ManageListProps) {
                       <FileText className="h-4 w-4 text-blue-600" />
                     </span>
                     <span className="font-semibold font-heading">FOA Code</span>
-                    <span className="font-semibold font-heading">FOA Code</span>
                   </div>
                   <p className="text-sm ml-7">{selectedFoa.foa_code}</p>
                 </div>
@@ -265,7 +261,6 @@ export default function ManageList({ projectId }: ManageListProps) {
                     <span className="bg-blue-100 p-1 rounded">
                       <Calendar className="h-4 w-4 text-blue-600" />
                     </span>
-                    <span className="font-semibold font-heading">Deadline</span>
                     <span className="font-semibold font-heading">Deadline</span>
                   </div>
                   <p className="text-sm ml-7">{formatDate(selectedFoa.deadline)}</p>
@@ -312,12 +307,10 @@ export default function ManageList({ projectId }: ManageListProps) {
                   
                   <div className="space-y-2">
                     <h4 className="font-semibold">Expected Awards</h4>
-                    <h4 className="font-semibold">Expected Awards</h4>
                     <p className="text-sm">{selectedFoa.num_awards || 'Not specified'}</p>
                   </div>
                   
                   <div className="space-y-2">
-                    <h4 className="font-semibold">Award Ceiling</h4>
                     <h4 className="font-semibold">Award Ceiling</h4>
                     <p className="text-sm">{formatCurrency(selectedFoa.award_ceiling)}</p>
                   </div>
@@ -329,7 +322,6 @@ export default function ManageList({ projectId }: ManageListProps) {
                 </div>
                 
                 <div className="space-y-2">
-                  <h4 className="font-semibold">Eligibility</h4>
                   <h4 className="font-semibold">Eligibility</h4>
                   <div className="text-sm bg-slate-50 p-3 rounded border overflow-auto max-h-60">
                     {selectedFoa.organization_eligibility ? (
@@ -350,7 +342,6 @@ export default function ManageList({ projectId }: ManageListProps) {
                 </div>
                 
                 <div className="space-y-2">
-                  <h4 className="font-semibold">Grant URL</h4>
                   <h4 className="font-semibold">Grant URL</h4>
                   <p className="text-sm break-all">
                     <a href={selectedFoa.grant_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">

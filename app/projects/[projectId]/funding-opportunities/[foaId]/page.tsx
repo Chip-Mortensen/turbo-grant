@@ -82,7 +82,6 @@ const page = async ({ params }: PageProps) => {
   
   return (
     <div className="container py-6 space-y-6">
-    <div className="container py-6 space-y-6">
       <div className="flex justify-between items-center">
         <BackButton 
           href={`/projects/${projectId}/funding-opportunities`}
@@ -114,12 +113,6 @@ const page = async ({ params }: PageProps) => {
             View Original
           </a>
         </Button>
-        <Button variant="outline" size="sm" asChild>
-          <a href={foa.grant_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
-            <ExternalLink className="h-3 w-3" />
-            View Original
-          </a>
-        </Button>
       </div>
       
       <div className="flex flex-wrap gap-2">
@@ -128,7 +121,6 @@ const page = async ({ params }: PageProps) => {
           {foa.agency}
         </Badge>
         {foa.foa_code && (
-          <Badge variant="secondary" className="flex items-center gap-1">
           <Badge variant="secondary" className="flex items-center gap-1">
             <FileText className="h-3 w-3" />
             {foa.foa_code}
@@ -147,13 +139,11 @@ const page = async ({ params }: PageProps) => {
         )}
         {foa.deadline && (
           <Badge variant="secondary" className="flex items-center gap-1">
-          <Badge variant="secondary" className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
             Due: {formatDate(foa.deadline)}
           </Badge>
         )}
         {foa.animal_trials && (
-          <Badge variant="secondary">
           <Badge variant="secondary">
             Animal Trials
           </Badge>
@@ -168,8 +158,6 @@ const page = async ({ params }: PageProps) => {
       {/* Award information */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card className="bg-background">
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Award Floor</div>
             <div className="text-xl font-semibold">
@@ -177,7 +165,6 @@ const page = async ({ params }: PageProps) => {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-background">
         <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Award Ceiling</div>
@@ -187,7 +174,6 @@ const page = async ({ params }: PageProps) => {
           </CardContent>
         </Card>
         <Card className="bg-background">
-        <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Expected Awards</div>
             <div className="text-xl font-semibold">
@@ -196,7 +182,6 @@ const page = async ({ params }: PageProps) => {
           </CardContent>
         </Card>
         <Card className="bg-background">
-        <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Letters of Intent</div>
             <div className="text-xl font-semibold">
@@ -204,7 +189,6 @@ const page = async ({ params }: PageProps) => {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-background">
         <Card className="bg-background">
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Preliminary Proposal</div>
@@ -227,32 +211,27 @@ const page = async ({ params }: PageProps) => {
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-background">
-            <CardContent className="pt-6">
-              <div className="text-muted-foreground whitespace-pre-line">
-                {foa.description || 'No description available.'}
-              </div>
-            </CardContent>
-          </Card>
         </div>
         
         {/* Eligibility */}
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Eligibility</h3>
-          <div className="rounded-lg border bg-muted/40 p-6">
-            <div className="space-y-2">
-              {organizationTypes.map(type => (
-                <div key={type} className="flex items-center gap-3">
-                  {foa.organization_eligibility?.[type] ? (
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                  ) : (
-                    <X className="h-4 w-4 text-red-500 flex-shrink-0" />
-                  )}
-                  <span className="text-sm">{organizationTypeLabels[type]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <Card className="bg-background">
+            <CardContent className="pt-6">
+              <div className="space-y-2">
+                {organizationTypes.map(type => (
+                  <div key={type} className="flex items-center gap-3">
+                    {foa.organization_eligibility?.[type] ? (
+                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <X className="h-4 w-4 text-red-500 flex-shrink-0" />
+                    )}
+                    <span className="text-sm">{organizationTypeLabels[type]}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
