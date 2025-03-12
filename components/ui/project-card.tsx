@@ -37,14 +37,10 @@ export function ProjectCard({
             "bg-background group-hover:bg-accent",
             "border border-border"
           )}>
-            {isLoading ? (
-              <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
-            ) : (
-              <Icon className={cn(
-                "h-5 w-5",
-                isComplete ? "text-green-500" : "text-muted-foreground"
-              )} />
-            )}
+            <Icon className={cn(
+              "h-5 w-5",
+              isComplete ? "text-green-500" : "text-muted-foreground"
+            )} />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-medium truncate pr-8">{title}</h3>

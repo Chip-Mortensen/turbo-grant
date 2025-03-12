@@ -37,6 +37,7 @@ export function useProjectCompletion(projectId: string) {
     const supabase = createClient();
     let equipmentSubscription: RealtimeChannel;
     let sourcesSubscription: RealtimeChannel;
+    let projectSubscription: RealtimeChannel;
 
     const fetchStatus = async () => {
       // Fetch all statuses in parallel
@@ -92,7 +93,7 @@ export function useProjectCompletion(projectId: string) {
         figures: false,
         chalkTalk: false,
         foa: false,
-        attachments: false,
+        attachments: hasFoa && !attachmentsComplete,
         // Show loading spinner for equipment if FOA is selected and we don't have equipment yet
         equipment: hasFoa && !hasEquipment,
         // Show loading spinner for sources if FOA is selected and we don't have sources yet
@@ -135,6 +136,23 @@ export function useProjectCompletion(projectId: string) {
           }
         )
         .subscribe();
+        
+      // Subscribe to research_projects table for attachments changes
+      projectSubscription = supabase
+        .channel('project-changes')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'research_projects',
+            filter: `id=eq.${projectId}`
+          }, 
+          (payload) => {
+            console.log('Project change detected:', payload);
+            fetchStatus();
+          }
+        )
+        .subscribe();
     };
 
     fetchStatus();
@@ -147,6 +165,9 @@ export function useProjectCompletion(projectId: string) {
       }
       if (sourcesSubscription) {
         supabase.removeChannel(sourcesSubscription);
+      }
+      if (projectSubscription) {
+        supabase.removeChannel(projectSubscription);
       }
     };
   }, [projectId]);

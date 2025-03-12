@@ -143,6 +143,17 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
         console.error('Error triggering source generation:', err);
       });
 
+      // 8. Trigger attachment generation in the background
+      fetch('/api/attachments/generate-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectId }),
+      }).catch(err => {
+        console.error('Error triggering attachment generation:', err);
+      });
+
       // Close dialog and redirect to project home page
       setIsOpen(false);
       router.push(`/projects/${projectId}`);
@@ -176,6 +187,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
               <li>Link this project to the FOA for tracking and compliance</li>
               <li>Initialize your documents checklist with all required attachments</li>
               <li>Automatically analyze the equipment catalog to recommend relevant equipment for your project</li>
+              <li>Begin generating content for all required documents in the background</li>
               <li>If you change your mind later, you&apos;ll need to create a new project</li>
             </ul>
 

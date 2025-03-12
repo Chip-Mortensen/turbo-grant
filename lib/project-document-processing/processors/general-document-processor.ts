@@ -21,13 +21,14 @@ Use the following guidelines:
 7. Target approximately {TARGET_WORDS} words to fill {TARGET_PAGES} pages
 
 Format Requirements:
-- Use plain text with regular paragraph breaks
-- Write in continuous prose
-- Citations should be in plain text (e.g., "Smith et al., 2023")
-- DO NOT use special characters or formatting
-- DO NOT include headers or subheaders
-- DO NOT use bullet points or numbered lists
-- DO NOT include any markdown`;
+- Structure your response with HTML tags
+- ALWAYS begin your response with the document title as a heading: <h1>{DOCUMENT_TITLE}</h1>
+- Use <h1> tags for additional main headings (e.g., <h1>Introduction</h1>)
+- Use <p> tags for paragraphs (e.g., <p>This is a paragraph.</p>)
+- Each paragraph or heading should be on its own line
+- Citations should be included within paragraph tags (e.g., <p>As shown by Smith et al. (2023)...</p>)
+- DO NOT use any other HTML tags besides <h1> and <p>
+- DO NOT use markdown formatting`;
 
 export class GeneralDocumentProcessor extends DocumentProcessor {
   async generateContent(
@@ -35,13 +36,14 @@ export class GeneralDocumentProcessor extends DocumentProcessor {
   ): Promise<GenerationResult> {
     try {
       // Calculate target words based on page limit
-      const targetPages = document.page_limit || 1; // Default to 5 pages if no limit specified
+      const targetPages = document.page_limit || 1; // Default to 1 page if no limit specified
       const targetWords = Math.round(targetPages * WORDS_PER_PAGE);
 
-      // Construct the system prompt with the target words/pages
+      // Construct the system prompt with the target words/pages and document title
       const systemPrompt = GENERAL_SYSTEM_PROMPT
         .replace('{TARGET_WORDS}', targetWords.toString())
-        .replace('{TARGET_PAGES}', targetPages.toString());
+        .replace('{TARGET_PAGES}', targetPages.toString())
+        .replace('{DOCUMENT_TITLE}', document.name || 'Document');
 
       // Construct the user prompt
       const userPrompt = this.constructPrompt(document.prompt || '', answers, context);
@@ -55,8 +57,13 @@ export class GeneralDocumentProcessor extends DocumentProcessor {
         ]
       });
 
-      const content = this.formatToHTML(completion.choices[0].message.content || '');
-      return { content };
+      const content = completion.choices[0].message.content || '';
+      
+      // Check if the content has HTML tags, if not, format it
+      const hasHtmlTags = /<\/?[hp]1?>/i.test(content);
+      return { 
+        content: hasHtmlTags ? content : this.formatToHTML(content) 
+      };
     } catch (error) {
       console.error('Error generating document:', error);
       return { 

@@ -18,6 +18,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
   // Show equipment and sources cards if FOA is selected or if they're loading
   const showEquipmentCard = completionStatus.foa || loadingStates.equipment;
   const showSourcesCard = completionStatus.foa || loadingStates.sources;
+  const showAttachmentsCard = completionStatus.foa || loadingStates.attachments;
 
   return (
     <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
@@ -75,7 +76,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.sources}
         />
       )}
-      {completionStatus.foa && (
+      {showAttachmentsCard && (
         <ProjectCard
           title="Attachments"
           description="Manage documents for your proposal"
@@ -83,16 +84,6 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           icon={Paperclip}
           isComplete={completionStatus.attachments}
           isLoading={loadingStates.attachments}
-        />
-      )}
-      {completionStatus.foa && (
-        <ProjectCard
-          title="Submission Instructions"
-          description="Instructions for submitting your application"
-          href={`/projects/${projectId}/submission-details`}
-          icon={SendHorizontal}
-          isComplete={false}
-          isLoading={false}
         />
       )}
     </div>
