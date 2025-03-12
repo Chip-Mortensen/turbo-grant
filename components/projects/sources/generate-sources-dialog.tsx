@@ -139,8 +139,8 @@ export function GenerateSourcesDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full max-w-3xl max-h-[80vh] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
+        <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full max-w-3xl max-h-[80vh] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden z-50">
           <div className="p-6 border-b">
             <div className="flex justify-between items-start">
               <div>

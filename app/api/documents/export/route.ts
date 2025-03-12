@@ -41,9 +41,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // Use timestamp in filename to bust cache
-    const timestamp = Date.now();
-    const fileName = `${projectId}/${documentId}/${timestamp}.${format}`;
+    // Use timestamp in filename for cache busting
+    const timestamp = new Date().getTime();
+    const fileName = `${projectId}/${documentId}/document-${timestamp}.${format}`;
     console.log('New file name:', fileName);
     
     // Upload new file
@@ -51,7 +51,9 @@ export async function POST(req: Request) {
       .storage
       .from('completed-documents')
       .upload(fileName, buffer, {
-        contentType: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        contentType: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        cacheControl: '3600',
+        upsert: true
       });
 
     if (uploadError) {
@@ -60,35 +62,7 @@ export async function POST(req: Request) {
 
     console.log('File uploaded successfully');
 
-    // Wait a moment for the upload to fully complete and verify the file exists
-    const maxRetries = 3;
-    let retryCount = 0;
-    let fileExists = false;
-
-    while (retryCount < maxRetries && !fileExists) {
-      console.log(`Verification attempt ${retryCount + 1}`);
-      const { data: checkFiles } = await supabase
-        .storage
-        .from('completed-documents')
-        .list(directoryPath);
-      
-      if (checkFiles?.some(file => file.name === `${timestamp}.${format}`)) {
-        fileExists = true;
-        console.log('File verified in storage');
-      } else {
-        retryCount++;
-        if (retryCount < maxRetries) {
-          console.log('File not found, waiting 500ms before retry');
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      }
-    }
-
-    if (!fileExists) {
-      throw new Error('File upload verification failed');
-    }
-
-    // Get the public URL only after confirming the file exists
+    // Get the public URL
     const { data: { publicUrl } } = supabase
       .storage
       .from('completed-documents')
@@ -113,7 +87,6 @@ export async function POST(req: Request) {
       throw updateError;
     }
 
-    // Return the new URL immediately since we know it's correct
     return NextResponse.json({ fileUrl: publicUrl });
   } catch (error) {
     console.error('Export error:', error);
@@ -126,52 +99,135 @@ export async function POST(req: Request) {
 
 function sanitizeText(text: string): string {
   // Remove control characters (including 0x001E) but preserve normal whitespace
-  return text.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+  // Only remove inline formatting tags, preserve structural tags
+  return text
+    .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+    .replace(/<\/?(?!h1|p)(?:strong|em|b|i)[^>]*>/g, ''); // Remove formatting tags but preserve h1 and p
+}
+
+// Helper function to parse HTML tags and return text segments with formatting info
+type TextSegment = {
+  text: string;
+  isBold: boolean;
+  isItalic: boolean;
+};
+
+function parseHTMLText(text: string): TextSegment[] {
+  const segments: TextSegment[] = [];
+  let currentIndex = 0;
+  let currentText = '';
+  let isBold = false;
+  let isItalic = false;
+
+  while (currentIndex < text.length) {
+    const bIndex = text.indexOf('<b>', currentIndex);
+    const strongIndex = text.indexOf('<strong>', currentIndex);
+    const boldStartIndex = bIndex === -1 ? strongIndex : strongIndex === -1 ? bIndex : Math.min(bIndex, strongIndex);
+
+    const bEndIndex = text.indexOf('</b>', currentIndex);
+    const strongEndIndex = text.indexOf('</strong>', currentIndex);
+    const boldEndIndex = bEndIndex === -1 ? strongEndIndex : strongEndIndex === -1 ? bEndIndex : Math.min(bEndIndex, strongEndIndex);
+
+    const iIndex = text.indexOf('<i>', currentIndex);
+    const emIndex = text.indexOf('<em>', currentIndex);
+    const italicStartIndex = iIndex === -1 ? emIndex : emIndex === -1 ? iIndex : Math.min(iIndex, emIndex);
+
+    const iEndIndex = text.indexOf('</i>', currentIndex);
+    const emEndIndex = text.indexOf('</em>', currentIndex);
+    const italicEndIndex = iEndIndex === -1 ? emEndIndex : emEndIndex === -1 ? iEndIndex : Math.min(iEndIndex, emEndIndex);
+
+    const nextTagIndex = [boldStartIndex, boldEndIndex, italicStartIndex, italicEndIndex]
+      .filter((index): index is number => index !== -1)
+      .reduce((min, current) => Math.min(min, current), Infinity);
+
+    if (nextTagIndex === Infinity) {
+      // No more tags, add remaining text
+      if (currentText || text.slice(currentIndex)) {
+        segments.push({
+          text: sanitizeText(currentText + text.slice(currentIndex)),
+          isBold,
+          isItalic
+        });
+      }
+      break;
+    }
+
+    if (nextTagIndex > currentIndex) {
+      currentText += text.slice(currentIndex, nextTagIndex);
+    }
+
+    const isStrongTag = text.startsWith('<strong>', nextTagIndex);
+    const isEmTag = text.startsWith('<em>', nextTagIndex);
+
+    if (nextTagIndex === boldStartIndex) {
+      if (currentText) {
+        segments.push({ text: sanitizeText(currentText), isBold, isItalic });
+        currentText = '';
+      }
+      isBold = true;
+      currentIndex = nextTagIndex + (isStrongTag ? 8 : 3); // Length of '<strong>' or '<b>'
+    } else if (nextTagIndex === boldEndIndex) {
+      if (currentText) {
+        segments.push({ text: sanitizeText(currentText), isBold, isItalic });
+        currentText = '';
+      }
+      isBold = false;
+      currentIndex = nextTagIndex + (text.startsWith('</strong>', nextTagIndex) ? 9 : 4); // Length of '</strong>' or '</b>'
+    } else if (nextTagIndex === italicStartIndex) {
+      if (currentText) {
+        segments.push({ text: sanitizeText(currentText), isBold, isItalic });
+        currentText = '';
+      }
+      isItalic = true;
+      currentIndex = nextTagIndex + (isEmTag ? 4 : 3); // Length of '<em>' or '<i>'
+    } else if (nextTagIndex === italicEndIndex) {
+      if (currentText) {
+        segments.push({ text: sanitizeText(currentText), isBold, isItalic });
+        currentText = '';
+      }
+      isItalic = false;
+      currentIndex = nextTagIndex + (text.startsWith('</em>', nextTagIndex) ? 5 : 4); // Length of '</em>' or '</i>'
+    }
+  }
+
+  return segments;
 }
 
 async function generatePDF(content: string): Promise<Buffer> {
-  // Sanitize the content first
-  content = sanitizeText(content);
-  
-  // Create a new PDFDocument
+  // Don't sanitize the full content up front
   const pdfDoc = await PDFDocument.create();
   
   // Add a blank page with letter size (8.5 x 11 inches)
-  // Convert inches to points (1 inch = 72 points)
   let page = pdfDoc.addPage([8.5 * 72, 11 * 72]);
   
-  // Embed Times New Roman (using Helvetica as fallback since pdf-lib doesn't support Times New Roman)
-  // TODO: Consider using a different PDF library that supports Times New Roman
+  // Embed fonts
   const regularFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
   const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+  const italicFont = await pdfDoc.embedFont(StandardFonts.TimesRomanItalic);
+  const boldItalicFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBoldItalic);
   
   // Constants for formatting
-  const fontSize = 11; // NSF requirement for Times New Roman
-  const headingSize = 11; // Keep same size for consistency
-  const margin = 72; // 1 inch = 72 points
-  // NSF requires no more than 6 lines per inch
-  // At 11pt font, we need at least 12pt line height to meet this (72/6 = 12)
-  const lineHeight = Math.max(fontSize * 1.2, 12); // Ensures no more than 6 lines per inch
-  const paragraphSpacing = lineHeight * 1.5; // Add 50% more space between paragraphs
-  const headingSpacing = lineHeight * 2; // Double space after headings
-  let yPosition = page.getSize().height - margin; // Start 1 inch from top
+  const fontSize = 11;
+  const headingSize = 11;
+  const margin = 72;
+  const lineHeight = Math.max(fontSize * 1.2, 12);
+  const paragraphSpacing = lineHeight * 1.5;
+  const headingSpacing = lineHeight * 2;
+  let yPosition = page.getSize().height - margin;
 
   // Split content into sections by h1 tags, keeping the tags
   const parts = content.split(/(<h1>.*?<\/h1>)/).filter(Boolean);
   
   for (const part of parts) {
-    // Check if this part is a heading
     if (part.startsWith('<h1>')) {
-      // Extract heading text
+      // Only sanitize the heading text content
       const headingText = part.replace(/<\/?h1>/g, '').trim();
       
-      // Add a new page if there isn't enough space for heading + some content
       if (yPosition < margin + headingSize * 3) {
         page = pdfDoc.addPage([8.5 * 72, 11 * 72]);
         yPosition = page.getSize().height - margin;
       }
       
-      // Draw the heading
       page.drawText(headingText, {
         x: margin,
         y: yPosition,
@@ -180,82 +236,112 @@ async function generatePDF(content: string): Promise<Buffer> {
       });
       yPosition -= headingSpacing;
     } else {
-      // Process paragraphs
       const paragraphs = part
         .split('</p>')
         .map(p => p.replace(/<p>/g, '').trim())
         .filter(Boolean);
       
       for (const paragraph of paragraphs) {
-        // Add a new page if there isn't enough space for at least one line
         if (yPosition < margin + fontSize) {
           page = pdfDoc.addPage([8.5 * 72, 11 * 72]);
           yPosition = page.getSize().height - margin;
         }
-        
-        // Split paragraph into words
-        const words = paragraph.split(' ');
+
+        const segments = parseHTMLText(paragraph);
+        let xPosition = margin;
         let currentLine = '';
-        
-        for (const word of words) {
-          const testLine = currentLine + (currentLine ? ' ' : '') + word;
-          const textWidth = regularFont.widthOfTextAtSize(testLine, fontSize);
+        let currentSegments: TextSegment[] = [];
+
+        for (const segment of segments) {
+          const words = segment.text.split(' ');
           
-          if (textWidth > page.getSize().width - 2 * margin) {
-            // Draw the current line
-            page.drawText(currentLine, {
-              x: margin,
-              y: yPosition,
-              size: fontSize,
-              font: regularFont
-            });
-            yPosition -= lineHeight;
-            currentLine = word;
+          for (const word of words) {
+            const testLine = currentLine + (currentLine ? ' ' : '') + word;
+            const font = segment.isBold && segment.isItalic ? boldItalicFont :
+                        segment.isBold ? boldFont :
+                        segment.isItalic ? italicFont :
+                        regularFont;
+            const textWidth = font.widthOfTextAtSize(testLine, fontSize);
             
-            // Add a new page if needed
-            if (yPosition < margin) {
-              page = pdfDoc.addPage([8.5 * 72, 11 * 72]);
-              yPosition = page.getSize().height - margin;
+            if (textWidth > page.getSize().width - 2 * margin) {
+              // Draw current line with proper formatting for each segment
+              let segmentX = margin;
+              for (const seg of currentSegments) {
+                const segFont = seg.isBold && seg.isItalic ? boldItalicFont :
+                              seg.isBold ? boldFont :
+                              seg.isItalic ? italicFont :
+                              regularFont;
+                page.drawText(seg.text, {
+                  x: segmentX,
+                  y: yPosition,
+                  size: fontSize,
+                  font: segFont
+                });
+                segmentX += segFont.widthOfTextAtSize(seg.text + ' ', fontSize);
+              }
+              
+              yPosition -= lineHeight;
+              if (yPosition < margin) {
+                page = pdfDoc.addPage([8.5 * 72, 11 * 72]);
+                yPosition = page.getSize().height - margin;
+              }
+              
+              currentLine = word;
+              currentSegments = [{ ...segment, text: word }];
+              xPosition = margin + font.widthOfTextAtSize(word + ' ', fontSize);
+            } else {
+              currentLine = testLine;
+              if (currentSegments.length > 0 && 
+                  currentSegments[currentSegments.length - 1].isBold === segment.isBold && 
+                  currentSegments[currentSegments.length - 1].isItalic === segment.isItalic) {
+                currentSegments[currentSegments.length - 1].text += (currentSegments[currentSegments.length - 1].text ? ' ' : '') + word;
+              } else {
+                currentSegments.push({ ...segment, text: word });
+              }
             }
-          } else {
-            currentLine = testLine;
           }
         }
         
-        // Draw the last line of the paragraph
+        // Draw the last line
         if (currentLine) {
-          page.drawText(currentLine, {
-            x: margin,
-            y: yPosition,
-            size: fontSize,
-            font: regularFont
-          });
+          let segmentX = margin;
+          for (const seg of currentSegments) {
+            const segFont = seg.isBold && seg.isItalic ? boldItalicFont :
+                          seg.isBold ? boldFont :
+                          seg.isItalic ? italicFont :
+                          regularFont;
+            page.drawText(seg.text, {
+              x: segmentX,
+              y: yPosition,
+              size: fontSize,
+              font: segFont
+            });
+            segmentX += segFont.widthOfTextAtSize(seg.text + ' ', fontSize);
+          }
           yPosition -= paragraphSpacing;
         }
       }
     }
   }
   
-  // Serialize the PDFDocument to bytes
   const pdfBytes = await pdfDoc.save();
   return Buffer.from(pdfBytes);
 }
 
 async function generateDOCX(content: string): Promise<Buffer> {
-  // Split content into sections by h1 tags, keeping the tags
+  // Don't sanitize the full content up front
   const parts = content.split(/(<h1>.*?<\/h1>)/).filter(Boolean);
   
-  // Create document with proper formatting
   const doc = new Document({
     sections: [{
       properties: {
         page: {
           size: {
-            width: 12240, // 8.5 inches in twips (1440 twips per inch)
-            height: 15840, // 11 inches in twips
+            width: 12240,
+            height: 15840,
           },
           margin: {
-            top: 1440,    // 1 inch margins
+            top: 1440,
             right: 1440,
             bottom: 1440,
             left: 1440,
@@ -264,45 +350,47 @@ async function generateDOCX(content: string): Promise<Buffer> {
       },
       children: parts.map(part => {
         if (part.startsWith('<h1>')) {
-          // Extract heading text and create heading paragraph
+          // Only sanitize the heading text content
           const headingText = part.replace(/<\/?h1>/g, '').trim();
           return new Paragraph({
             children: [
               new TextRun({
                 text: headingText,
                 bold: true,
-                size: 22, // 11 points * 2
+                size: 22,
                 font: 'Times New Roman',
               }),
             ],
             heading: 'Heading1',
             spacing: {
-              after: 480, // 20 points (24 twips per point)
-              line: 360, // 15 points
+              after: 480,
+              line: 360,
               lineRule: 'exact',
             },
           });
         } else {
-          // Process paragraphs
           const paragraphs = part
             .split('</p>')
             .map(p => p.replace(/<p>/g, '').trim())
             .filter(Boolean);
 
-          return paragraphs.map(text => new Paragraph({
-            children: [
-              new TextRun({
-                text: text,
-                size: 22, // 11 points * 2
+          return paragraphs.map(text => {
+            const segments = parseHTMLText(text);
+            return new Paragraph({
+              children: segments.map(segment => new TextRun({
+                text: segment.text,
+                size: 22,
                 font: 'Times New Roman',
-              }),
-            ],
-            spacing: {
-              after: 360, // 15 points
-              line: 360, // 15 points (ensures no more than 6 lines per inch)
-              lineRule: 'exact',
-            },
-          }));
+                bold: segment.isBold,
+                italics: segment.isItalic,
+              })),
+              spacing: {
+                after: 360,
+                line: 360,
+                lineRule: 'exact',
+              },
+            });
+          });
         }
       }).flat(),
     }],
@@ -315,7 +403,7 @@ async function generateDOCX(content: string): Promise<Buffer> {
           next: 'Normal',
           quickFormat: true,
           run: {
-            size: 22, // 11 points * 2
+            size: 22,
             font: {
               name: 'Times New Roman',
             },
@@ -323,8 +411,8 @@ async function generateDOCX(content: string): Promise<Buffer> {
           },
           paragraph: {
             spacing: {
-              after: 480, // 20 points
-              line: 360, // 15 points
+              after: 480,
+              line: 360,
               lineRule: 'exact',
             },
           },

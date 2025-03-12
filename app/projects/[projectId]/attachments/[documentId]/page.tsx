@@ -230,7 +230,7 @@ function ProcessedContent({
     ],
     editorProps: {
       attributes: {
-        class: 'prose prose-slate prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl max-w-none focus:outline-none min-h-[500px] p-4'
+        class: 'prose prose-slate prose-headings:font-bold prose-h1:text-lg prose-h2:text-base max-w-none focus:outline-none min-h-[500px] p-4 bg-white rounded-md'
       }
     },
     onUpdate: ({ editor }) => {
