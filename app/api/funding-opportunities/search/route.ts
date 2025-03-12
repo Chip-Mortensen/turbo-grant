@@ -32,13 +32,9 @@ export async function GET(request: NextRequest) {
     const deadlineDate = searchParams.get('deadlineDate') ? new Date(searchParams.get('deadlineDate')!) : null;
     
     // Parse organization eligibility filters
-    const orgHigherEducation = searchParams.get('orgHigherEducation') === 'true' ? true : null;
-    const orgNonProfit = searchParams.get('orgNonProfit') === 'true' ? true : null;
-    const orgForProfit = searchParams.get('orgForProfit') === 'true' ? true : null;
-    const orgGovernment = searchParams.get('orgGovernment') === 'true' ? true : null;
-    const orgHospital = searchParams.get('orgHospital') === 'true' ? true : null;
-    const orgForeign = searchParams.get('orgForeign') === 'true' ? true : null;
-    const orgIndividual = searchParams.get('orgIndividual') === 'true' ? true : null;
+    const organizationEligibility = searchParams.get('organization_eligibility') 
+      ? JSON.parse(searchParams.get('organization_eligibility')!)
+      : null;
     
     // Parse user eligibility filters
     const userPrincipalInvestigator = searchParams.get('userPrincipalInvestigator') === 'true' ? true : null;
@@ -120,26 +116,21 @@ export async function GET(request: NextRequest) {
       }
       
       // Add organization eligibility filters
-      if (orgHigherEducation !== null) {
-        filter.org_higher_education = orgHigherEducation;
-      }
-      if (orgNonProfit !== null) {
-        filter.org_non_profit = orgNonProfit;
-      }
-      if (orgForProfit !== null) {
-        filter.org_for_profit = orgForProfit;
-      }
-      if (orgGovernment !== null) {
-        filter.org_government = orgGovernment;
-      }
-      if (orgHospital !== null) {
-        filter.org_hospital = orgHospital;
-      }
-      if (orgForeign !== null) {
-        filter.org_foreign = orgForeign;
-      }
-      if (orgIndividual !== null) {
-        filter.org_individual = orgIndividual;
+      if (organizationEligibility) {
+        // Create an array of conditions for each organization type
+        const orgConditions = Object.entries(organizationEligibility)
+          .filter(([_, value]) => value !== null)
+          .map(([type, value]) => ({
+            [type]: value
+          }));
+        
+        if (orgConditions.length > 0) {
+          // Use $or to match any of the selected organization types
+          filter.$or = [
+            ...(filter.$or || []),
+            ...orgConditions
+          ];
+        }
       }
       
       // Add user eligibility filters

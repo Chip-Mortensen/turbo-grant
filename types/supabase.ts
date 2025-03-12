@@ -756,6 +756,7 @@ export type Database = {
         | "scientific_figure"
         | "chalk_talk"
         | "foa"
+
       organization_type:
         | "city_township_government"
         | "county_government"
@@ -770,9 +771,26 @@ export type Database = {
         | "public_higher_education_institution"
         | "public_housing_authorities"
         | "small_business"
-        | "special_district_gGovernments"
+        | "special_district_governments"
         | "state_governments"
         | "unrestricted"
+
+      nsf_proposal_types:
+        | "research"
+        | "planning"
+        | "rapid"
+        | "eager"
+        | "raise"
+        | "goali"
+        | "ideas_lab"
+        | "fased"
+        | "conference"
+        | "equipment"
+        | "travel"
+        | "center"
+        | "research_infrastructure"
+        | "clb"
+        | "roa_pui"
 
       user_role:
         | "Principal Investigator"

@@ -15,6 +15,7 @@ import {
   DialogHeader, 
   DialogTitle 
 } from '@/components/ui/dialog';
+import { nsfProposalTypeLabels, NsfProposalType } from "@/types/enum-types";
 
 interface ManageListProps {
   projectId: string;
@@ -277,7 +278,9 @@ export default function ManageList({ projectId }: ManageListProps) {
                       <div className="flex flex-wrap gap-1">
                         {Object.keys(selectedFoa.grant_type).map(type => (
                           <span key={type} className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
-                            {type}
+                            {selectedFoa.agency === 'NSF' && nsfProposalTypeLabels[type.toLowerCase() as NsfProposalType] ? 
+                              nsfProposalTypeLabels[type.toLowerCase() as NsfProposalType] : 
+                              type}
                           </span>
                         ))}
                       </div>

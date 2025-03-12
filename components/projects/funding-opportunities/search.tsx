@@ -25,7 +25,7 @@ import { Database } from '@/types/supabase';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { cn } from '@/lib/utils';
-import { OrganizationType, organizationTypeLabels, initOrgEligibilityFilters } from '@/utils/organization-types';
+import { OrganizationType, organizationTypeLabels, initOrgEligibilityFilters } from '@/types/enum-types';
 
 type FOA = Database['public']['Tables']['foas']['Row'] & {
   score?: number;
@@ -143,11 +143,13 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
       }
       
       // Organization eligibility params - add all non-null filters
-      Object.entries(orgEligibilityFilters).forEach(([type, value]) => {
-        if (value !== null) {
-          params.append(`org_${type}`, value.toString());
-        }
-      });
+      const activeOrgFilters = Object.entries(orgEligibilityFilters)
+        .filter(([_, value]) => value !== null)
+        .reduce((acc, [type, value]) => ({ ...acc, [type]: value }), {});
+      
+      if (Object.keys(activeOrgFilters).length > 0) {
+        params.append('organization_eligibility', JSON.stringify(activeOrgFilters));
+      }
       
       params.append('projectId', projectId);
       

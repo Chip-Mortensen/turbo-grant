@@ -12,12 +12,16 @@ import {
   Check,
   X,
   MessageSquare,
-  CheckCircle
+  CheckCircle,
+  DollarSign,
+  Users,
+  XCircle,
+  ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { SelectFoaDialog } from '@/components/projects/funding-opportunities/select';
 import { BackButton } from "@/components/ui/back-button"
-import { getOrganizationTypes, organizationTypeLabels } from '@/utils/organization-types';
+import { getOrganizationTypes, organizationTypeLabels, nsfProposalTypeLabels, NsfProposalType } from '@/types/enum-types';
 
 // Format currency for display
 const formatCurrency = (value: number | null | undefined, isFloor: boolean = false) => {
@@ -130,7 +134,9 @@ const page = async ({ params }: PageProps) => {
           <>
             {Object.keys(foa.grant_type).map(type => (
               <Badge key={type} variant="outline">
-                {type}
+                {foa.agency === 'NSF' && nsfProposalTypeLabels[type.toLowerCase() as NsfProposalType] ? 
+                  nsfProposalTypeLabels[type.toLowerCase() as NsfProposalType] : 
+                  type}
               </Badge>
             ))}
           </>

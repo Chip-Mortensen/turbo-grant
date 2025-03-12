@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { createClient } from "@/utils/supabase/client"
-import { organizationTypeLabels } from "@/utils/organization-types"
+import { organizationTypeLabels } from "@/types/enum-types"
 
 export function OrganizationForm({ userId }: { userId: string }) {
   const [isPending, startTransition] = useTransition()

@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, FileText, Check, Calendar, Users, Building, FileCheck } from 'lucide-react';
+import { AlertCircle, FileText, Check, Calendar, Users, Building, FileCheck, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { FundingOpportunity } from '@/lib/extractors/funding-opportunity-extractor';
 import { Input } from '@/components/ui/input';
+import { nsfProposalTypeLabels, NsfProposalType } from "@/types/enum-types";
 
 interface ViewOpportunityProps {
   projectId: string;
@@ -226,12 +227,14 @@ export default function ViewOpportunity({ projectId }: ViewOpportunityProps) {
                           <div className="flex flex-wrap gap-1">
                             {Object.keys(extractedData.grant_type).map(type => (
                               <span key={type} className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
-                                {type}
+                                {extractedData.agency === 'NSF' && nsfProposalTypeLabels[type.toLowerCase() as NsfProposalType] ? 
+                                  nsfProposalTypeLabels[type.toLowerCase() as NsfProposalType] : 
+                                  type}
                               </span>
                             ))}
                           </div>
                         ) : (
-                          <p>Not specified</p>
+                          <span className="text-gray-500">Not specified</span>
                         )}
                       </div>
                     </div>
