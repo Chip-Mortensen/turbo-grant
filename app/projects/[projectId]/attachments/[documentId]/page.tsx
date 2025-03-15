@@ -220,6 +220,7 @@ function ProcessedContent({
   const [aiEditLoading, setAIEditLoading] = useState(false);
   const [editSuggestions, setEditSuggestions] = useState<EditSuggestion[] | null>(null);
   const [isApplyingEdits, setIsApplyingEdits] = useState(false);
+  const [isGeneratingDocument, setIsGeneratingDocument] = useState(false);
   const supabase = createClient();
   
   // Reference to track content changes
@@ -342,8 +343,98 @@ function ProcessedContent({
         return;
       }
       
-      // If no completed document, generate content from the document fields
-      console.log('No completed document found, generating content from fields');
+      // If no completed document, try to generate it via the API
+      console.log('No completed document found, calling generation API');
+      setIsGeneratingDocument(true);
+      
+      try {
+        // Call the document generation API
+        const response = await fetch('/api/documents/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            documentId,
+            projectId,
+          }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Successfully generated document content via API');
+          setInitialContent(data.content);
+          setIsGeneratingDocument(false);
+          setLoading(false);
+          
+          // Check if the document was created in the database
+          const { data: createdDoc } = await supabase
+            .from('completed_documents')
+            .select('file_type, file_url')
+            .eq('document_id', documentId)
+            .eq('project_id', projectId)
+            .maybeSingle();
+            
+          if (createdDoc) {
+            setFileType(createdDoc.file_type as FileType);
+            setFileUrl(createdDoc.file_url);
+          }
+          
+          return;
+        } else {
+          // Check if this is a race condition error (500 with duplicate key)
+          const errorText = await response.text();
+          console.error('Failed to generate document via API:', errorText);
+          
+          // Even if the API call failed, check if the document was created anyway
+          // (this handles the race condition where another request succeeded)
+          const { data: createdDoc } = await supabase
+            .from('completed_documents')
+            .select('content, file_type, file_url')
+            .eq('document_id', documentId)
+            .eq('project_id', projectId)
+            .maybeSingle();
+            
+          if (createdDoc) {
+            console.log('Document was created despite API error, using it');
+            setInitialContent(createdDoc.content);
+            setFileType(createdDoc.file_type as FileType);
+            setFileUrl(createdDoc.file_url);
+            setIsGeneratingDocument(false);
+            setLoading(false);
+            return;
+          }
+          
+          setIsGeneratingDocument(false);
+          // Continue with fallback content generation
+        }
+      } catch (genError) {
+        console.error('Error calling document generation API:', genError);
+        
+        // Check if the document was created despite the error
+        const { data: createdDoc } = await supabase
+          .from('completed_documents')
+          .select('content, file_type, file_url')
+          .eq('document_id', documentId)
+          .eq('project_id', projectId)
+          .maybeSingle();
+          
+        if (createdDoc) {
+          console.log('Document was created despite API error, using it');
+          setInitialContent(createdDoc.content);
+          setFileType(createdDoc.file_type as FileType);
+          setFileUrl(createdDoc.file_url);
+          setIsGeneratingDocument(false);
+          setLoading(false);
+          return;
+        }
+        
+        setIsGeneratingDocument(false);
+        // Continue with fallback content generation
+      }
+      
+      // Fallback: Generate content from the document fields
+      console.log('Falling back to generating content from fields');
       
       // Get the document fields from the project's attachments
       const { data: project, error: projectError } = await supabase
@@ -390,6 +481,7 @@ function ProcessedContent({
     } catch (error: any) {
       console.error('Error fetching content:', error);
       setError(error.message || 'Failed to load document content');
+      setIsGeneratingDocument(false);
       setLoading(false);
     }
   };
@@ -419,8 +511,7 @@ function ProcessedContent({
         const { error: updateError } = await supabase
           .from('completed_documents')
           .update({
-            content,
-            updated_at: new Date().toISOString()
+            content
           })
           .eq('id', existingDoc.id);
         
@@ -435,8 +526,7 @@ function ProcessedContent({
             project_id: projectId,
             document_id: documentId,
             content,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            created_at: new Date().toISOString()
           });
         
         if (insertError) {
@@ -507,8 +597,7 @@ function ProcessedContent({
         .from('completed_documents')
         .update({
           file_url: data.fileUrl,
-          file_type: format,
-          updated_at: new Date().toISOString()
+          file_type: format
         })
         .eq('document_id', documentId)
         .eq('project_id', projectId);
@@ -693,10 +782,24 @@ function ProcessedContent({
         <Toolbar editor={editor} />
         {loading ? (
           <div className="animate-pulse space-y-4 p-4">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-            <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+            {isGeneratingDocument ? (
+              <>
+                <div className="flex items-center justify-center p-6 text-center">
+                  <div className="space-y-4">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                    <p className="text-sm text-gray-500">Generating document content...</p>
+                    <p className="text-xs text-gray-400">This may take a moment</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+              </>
+            )}
           </div>
         ) : error ? (
           <div className="text-red-500 p-4">Error loading content: {error}</div>
