@@ -6,7 +6,7 @@ import { Document, DocumentField, AgencyType, DocumentSourceType } from '@/types
 import { use } from 'react';
 import QuestionView from '@/components/projects/attachments/question-view';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Bold, Italic, List, Heading, Download, Save, FileOutput } from 'lucide-react';
+import { ArrowLeft, Loader2, Bold, Italic, List, Heading, Download, Save, FileOutput, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -21,6 +21,10 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BackButton } from "@/components/ui/back-button";
+import { AIEditInput } from '@/components/projects/attachments/ai-edit-dialog';
+import { EditHighlighter } from '@/components/projects/attachments/edit-highlighter';
+import { EditSuggestion } from '@/app/api/attachments/ai-edit/route';
+import { Mark } from '@tiptap/core';
 
 // Define the stored document type that matches what's in attachments
 interface StoredDocument {
@@ -213,6 +217,10 @@ function ProcessedContent({
   const [fileUrl, setFileUrl] = useState<string | undefined>(undefined);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isNewlyGenerated, setIsNewlyGenerated] = useState(false);
+  const [aiEditLoading, setAIEditLoading] = useState(false);
+  const [editSuggestions, setEditSuggestions] = useState<EditSuggestion[] | null>(null);
+  const [isApplyingEdits, setIsApplyingEdits] = useState(false);
+  const [isGeneratingDocument, setIsGeneratingDocument] = useState(false);
   const supabase = createClient();
   
   // Reference to track content changes
@@ -226,7 +234,37 @@ function ProcessedContent({
 
   const editor = useEditor({
     extensions: [
-      StarterKit
+      StarterKit,
+      Mark.create({
+        name: 'diffRemoved',
+        inclusive: true,
+        parseHTML() {
+          return [
+            {
+              tag: 'span',
+              class: 'ai-edit-diff-removed',
+            },
+          ]
+        },
+        renderHTML({ HTMLAttributes }) {
+          return ['span', { class: 'ai-edit-diff-removed' }, 0]
+        },
+      }),
+      Mark.create({
+        name: 'diffAdded',
+        inclusive: true,
+        parseHTML() {
+          return [
+            {
+              tag: 'span',
+              class: 'ai-edit-diff-added',
+            },
+          ]
+        },
+        renderHTML({ HTMLAttributes }) {
+          return ['span', { class: 'ai-edit-diff-added' }, 0]
+        },
+      }),
     ],
     editorProps: {
       attributes: {
@@ -305,8 +343,98 @@ function ProcessedContent({
         return;
       }
       
-      // If no completed document, generate content from the document fields
-      console.log('No completed document found, generating content from fields');
+      // If no completed document, try to generate it via the API
+      console.log('No completed document found, calling generation API');
+      setIsGeneratingDocument(true);
+      
+      try {
+        // Call the document generation API
+        const response = await fetch('/api/documents/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            documentId,
+            projectId,
+          }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Successfully generated document content via API');
+          setInitialContent(data.content);
+          setIsGeneratingDocument(false);
+          setLoading(false);
+          
+          // Check if the document was created in the database
+          const { data: createdDoc } = await supabase
+            .from('completed_documents')
+            .select('file_type, file_url')
+            .eq('document_id', documentId)
+            .eq('project_id', projectId)
+            .maybeSingle();
+            
+          if (createdDoc) {
+            setFileType(createdDoc.file_type as FileType);
+            setFileUrl(createdDoc.file_url);
+          }
+          
+          return;
+        } else {
+          // Check if this is a race condition error (500 with duplicate key)
+          const errorText = await response.text();
+          console.error('Failed to generate document via API:', errorText);
+          
+          // Even if the API call failed, check if the document was created anyway
+          // (this handles the race condition where another request succeeded)
+          const { data: createdDoc } = await supabase
+            .from('completed_documents')
+            .select('content, file_type, file_url')
+            .eq('document_id', documentId)
+            .eq('project_id', projectId)
+            .maybeSingle();
+            
+          if (createdDoc) {
+            console.log('Document was created despite API error, using it');
+            setInitialContent(createdDoc.content);
+            setFileType(createdDoc.file_type as FileType);
+            setFileUrl(createdDoc.file_url);
+            setIsGeneratingDocument(false);
+            setLoading(false);
+            return;
+          }
+          
+          setIsGeneratingDocument(false);
+          // Continue with fallback content generation
+        }
+      } catch (genError) {
+        console.error('Error calling document generation API:', genError);
+        
+        // Check if the document was created despite the error
+        const { data: createdDoc } = await supabase
+          .from('completed_documents')
+          .select('content, file_type, file_url')
+          .eq('document_id', documentId)
+          .eq('project_id', projectId)
+          .maybeSingle();
+          
+        if (createdDoc) {
+          console.log('Document was created despite API error, using it');
+          setInitialContent(createdDoc.content);
+          setFileType(createdDoc.file_type as FileType);
+          setFileUrl(createdDoc.file_url);
+          setIsGeneratingDocument(false);
+          setLoading(false);
+          return;
+        }
+        
+        setIsGeneratingDocument(false);
+        // Continue with fallback content generation
+      }
+      
+      // Fallback: Generate content from the document fields
+      console.log('Falling back to generating content from fields');
       
       // Get the document fields from the project's attachments
       const { data: project, error: projectError } = await supabase
@@ -353,6 +481,7 @@ function ProcessedContent({
     } catch (error: any) {
       console.error('Error fetching content:', error);
       setError(error.message || 'Failed to load document content');
+      setIsGeneratingDocument(false);
       setLoading(false);
     }
   };
@@ -382,8 +511,7 @@ function ProcessedContent({
         const { error: updateError } = await supabase
           .from('completed_documents')
           .update({
-            content,
-            updated_at: new Date().toISOString()
+            content
           })
           .eq('id', existingDoc.id);
         
@@ -398,8 +526,7 @@ function ProcessedContent({
             project_id: projectId,
             document_id: documentId,
             content,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            created_at: new Date().toISOString()
           });
         
         if (insertError) {
@@ -470,8 +597,7 @@ function ProcessedContent({
         .from('completed_documents')
         .update({
           file_url: data.fileUrl,
-          file_type: format,
-          updated_at: new Date().toISOString()
+          file_type: format
         })
         .eq('document_id', documentId)
         .eq('project_id', projectId);
@@ -489,6 +615,118 @@ function ProcessedContent({
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Add function to request AI edits
+  const requestAIEdit = async (instruction: string) => {
+    if (!editor) return;
+    
+    setAIEditLoading(true);
+    
+    try {
+      const content = editor.getHTML();
+      
+      console.log('Requesting AI edit with instruction:', instruction);
+      
+      // Import the getHTMLSummary function
+      const { getHTMLSummary } = await import('@/utils/html-parser');
+      
+      // Get HTML summary for better context
+      const htmlSummary = getHTMLSummary(content);
+      console.log('HTML summary generated with tag types:', Object.keys(htmlSummary.tagsByType || {}).length);
+      
+      const requestData = {
+        content,
+        instruction,
+        documentId,
+        projectId,
+        htmlSummary
+      };
+      
+      const response = await fetch('/api/attachments/ai-edit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error requesting AI edit:', errorText);
+        throw new Error(`Error requesting AI edit: ${response.status} ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Received edit suggestions:', data.suggestions);
+      
+      // Set the suggestions for highlighting
+      setEditSuggestions(data.suggestions);
+      
+    } catch (error) {
+      console.error('Error requesting AI edit:', error);
+      setEditSuggestions(null);
+    } finally {
+      setAIEditLoading(false);
+    }
+  };
+
+  // Add functions to apply or discard edits
+  const applyAIEdits = async () => {
+    console.log('Applying AI edits:', editSuggestions);
+    
+    if (!editor || !editSuggestions?.length) {
+      return;
+    }
+    
+    // Make a copy of the suggestions to avoid state mutation issues
+    const suggestions = [...editSuggestions];
+    
+    // Set applying mode before clearing suggestions
+    setIsApplyingEdits(true);
+    
+    // First, clear all edit suggestions to remove decorations
+    setEditSuggestions(null);
+    
+    // Give the editor a moment to remove the decorations
+    setTimeout(() => {
+      // Re-apply the suggestions in apply mode
+      setEditSuggestions(suggestions);
+      onContentChanged();
+      
+      // Reset applying mode and clear suggestions after a moment
+      setTimeout(() => {
+        setIsApplyingEdits(false);
+        setEditSuggestions(null);
+      }, 100);
+    }, 50);
+  };
+
+  const discardAIEdits = () => {
+    console.log('Discarding edit suggestions');
+    setEditSuggestions(null);
+    setIsApplyingEdits(false);
+  };
+
+  // Helper function to calculate text similarity
+  const calculateTextSimilarity = (text1: string, text2: string): number => {
+    if (!text1 || !text2) return 0;
+    if (text1 === text2) return 1;
+    
+    // Simple implementation using character-level differences
+    const maxLength = Math.max(text1.length, text2.length);
+    let differences = 0;
+    
+    for (let i = 0; i < Math.min(text1.length, text2.length); i++) {
+      if (text1[i] !== text2[i]) {
+        differences++;
+      }
+    }
+    
+    // Add the length difference as differences
+    differences += Math.abs(text1.length - text2.length);
+    
+    return 1 - (differences / maxLength);
   };
 
   return (
@@ -540,19 +778,49 @@ function ProcessedContent({
         error={exportError}
       />
       
-      <div className="border">
+      <div className="border relative">
         <Toolbar editor={editor} />
         {loading ? (
           <div className="animate-pulse space-y-4 p-4">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-            <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+            {isGeneratingDocument ? (
+              <>
+                <div className="flex items-center justify-center p-6 text-center">
+                  <div className="space-y-4">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                    <p className="text-sm text-gray-500">Generating document content...</p>
+                    <p className="text-xs text-gray-400">This may take a moment</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+              </>
+            )}
           </div>
         ) : error ? (
           <div className="text-red-500 p-4">Error loading content: {error}</div>
         ) : (
-          <EditorContent editor={editor} />
+          <div className="relative">
+            <EditorContent editor={editor} />
+            {editSuggestions && (
+              <EditHighlighter
+                editor={editor}
+                editSuggestions={editSuggestions}
+                mode={isApplyingEdits ? 'apply' : 'preview'}
+              />
+            )}
+            <AIEditInput
+              onRequestEdit={requestAIEdit}
+              isLoading={aiEditLoading}
+              editSuggestions={editSuggestions}
+              onApplyEdits={applyAIEdits}
+              onDiscardEdits={discardAIEdits}
+            />
+          </div>
         )}
       </div>
     </div>

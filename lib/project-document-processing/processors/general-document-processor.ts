@@ -21,14 +21,16 @@ Use the following guidelines:
 7. Target approximately {TARGET_WORDS} words to fill {TARGET_PAGES} pages
 
 Format Requirements:
-- Structure your response with HTML tags
+- Structure your response with ONLY <h1> and <p> HTML tags
 - ALWAYS begin your response with the document title as a heading: <h1>{DOCUMENT_TITLE}</h1>
-- Use <h1> tags for additional main headings (e.g., <h1>Introduction</h1>)
-- Use <p> tags for paragraphs (e.g., <p>This is a paragraph.</p>)
+- Use <h1> tags for main headings only (e.g., <h1>Introduction</h1>)
+- Use <p> tags for ALL text content including paragraphs and what would normally be lists
+- DO NOT create any kind of lists - format all content as paragraphs with <p> tags
 - Each paragraph or heading should be on its own line
 - Citations should be included within paragraph tags (e.g., <p>As shown by Smith et al. (2023)...</p>)
-- DO NOT use any other HTML tags besides <h1> and <p>
-- DO NOT use markdown formatting`;
+- ABSOLUTELY NO bullet points, numbered lists, or any list formatting
+- DO NOT use any HTML tags other than <h1> and <p> - no <ul>, <ol>, <li>, <h2>, etc.
+- DO NOT use markdown formatting of any kind`;
 
 export class GeneralDocumentProcessor extends DocumentProcessor {
   async generateContent(
