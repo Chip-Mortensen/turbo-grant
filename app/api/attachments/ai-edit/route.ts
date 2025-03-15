@@ -16,6 +16,20 @@ export interface EditSuggestion {
   reason: string;
 }
 
+interface NodeEdit {
+  tagType: string;
+  tagIndex: number;
+  originalContent: string;
+  newContent: string;
+  explanation?: string;
+}
+
+export interface EditSuggestion {
+  type: 'replace';
+  edits: NodeEdit[];
+  reason: string;
+}
+
 interface RequestData {
   content: string;
   instruction: string;
@@ -51,60 +65,56 @@ IMPORTANT GUIDELINES:
 3. DO NOT change the tag type, only the content inside the tags
 4. Include a brief reason for each suggested edit
 5. Focus on high-impact edits that significantly improve the document
-6. Limit to 3-5 thoughtful suggestions
+6. You may edit as many nodes as necessary to fulfill the user's request
+7. For broad requests like "improve tone" or "fix grammar", edit multiple nodes as needed
 
-For each edit, return:
+For each edit, provide:
 - tagType: The HTML tag type (p, h1, li, etc.)
 - tagIndex: The index of that tag type (0-based)
 - originalContent: The complete original tag with its content
 - newContent: The complete replacement tag with its content
-- reason: A brief explanation of your improvement
+- explanation: A brief explanation of this specific change
 
-Example 1:
-If a paragraph needs to be more concise, you might suggest:
+Group all edits into a single suggestion with:
+- type: Always "replace"
+- edits: An array of all the individual node edits
+- reason: An overall explanation for all the changes
+
+Example response format:
 {
   "type": "replace",
-  "tagType": "p",
-  "tagIndex": 2,
-  "originalContent": "<p>This paragraph contains a lot of unnecessary words and could be written in a much more concise and straightforward way to improve readability for the end user.</p>",
-  "newContent": "<p>This paragraph is now more concise and readable.</p>",
-  "reason": "Made the text more concise by removing redundant phrases"
+  "edits": [
+    {
+      "tagType": "p",
+      "tagIndex": 2,
+      "originalContent": "<p>This paragraph needs improvement.</p>",
+      "newContent": "<p>This paragraph has been improved.</p>",
+      "explanation": "Made the text more concise"
+    },
+    {
+      "tagType": "h1",
+      "tagIndex": 0,
+      "originalContent": "<h1>Old Title</h1>",
+      "newContent": "<h1>Improved Title</h1>",
+      "explanation": "Made the title more descriptive"
+    }
+  ],
+  "reason": "Improved clarity and conciseness throughout the document"
 }
 
-Example 2:
-If a heading needs a technical term corrected:
-{
-  "type": "replace",
-  "tagType": "h3",
-  "tagIndex": 1,
-  "originalContent": "<h3>Understanding Artificial Intelligence Learning</h3>",
-  "newContent": "<h3>Understanding Machine Learning</h3>",
-  "reason": "Corrected terminology to be more technically precise"
-}
-
-Example 3:
-If a list item needs more detail:
-{
-  "type": "replace",
-  "tagType": "li",
-  "tagIndex": 4,
-  "originalContent": "<li>Submit your application</li>",
-  "newContent": "<li>Submit your application with all required documents through the online portal by the May 15th deadline</li>",
-  "reason": "Added specific details about submission requirements and deadline"
-}
-
-Format your response as a JSON array of edit suggestion objects.`;
+Format your response as a JSON object with the structure shown above.`;
     
     console.log('System prompt length:', systemPrompt.length);
     
     // Call OpenAI API
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: 'gpt-4o',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `HTML CONTENT:\n${content}\n\nINSTRUCTION: ${instruction}` }
       ],
       temperature: 0.7,
+      max_completion_tokens: 5000,
     });
     
     // Get assistant's response
@@ -116,12 +126,24 @@ Format your response as a JSON array of edit suggestion objects.`;
     try {
       // Parse the JSON response
       if (assistantResponse) {
-        const jsonStart = assistantResponse.indexOf('[');
-        const jsonEnd = assistantResponse.lastIndexOf(']');
+        const jsonStart = assistantResponse.indexOf('{');
+        const jsonEnd = assistantResponse.lastIndexOf('}');
         
         if (jsonStart !== -1 && jsonEnd !== -1 && jsonStart < jsonEnd) {
           const jsonString = assistantResponse.substring(jsonStart, jsonEnd + 1);
-          suggestions = JSON.parse(jsonString);
+          const parsedResponse = JSON.parse(jsonString);
+          
+          // Handle both old and new format
+          if (Array.isArray(parsedResponse)) {
+            // Old format - array of suggestions
+            suggestions = parsedResponse;
+          } else if (parsedResponse.type === 'replace' && Array.isArray(parsedResponse.edits)) {
+            // New format - single suggestion with multiple edits
+            suggestions = [parsedResponse];
+          } else {
+            // Unexpected format
+            throw new Error('Unexpected response format from AI');
+          }
         } else {
           // Fallback for responses without proper JSON formatting
           suggestions = JSON.parse(assistantResponse);

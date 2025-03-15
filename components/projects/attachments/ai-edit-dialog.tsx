@@ -38,6 +38,15 @@ export function AIEditInput({
     setInstruction('');
   };
 
+  function getEditCount(suggestions: EditSuggestion[]): number {
+    return suggestions.reduce((count, suggestion) => {
+      if (suggestion.edits) {
+        return count + suggestion.edits.length;
+      }
+      return count + 1;
+    }, 0);
+  }
+
   return (
     <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-md z-10">
       {!editSuggestions ? (
@@ -71,7 +80,12 @@ export function AIEditInput({
         <div className="flex items-center justify-between">
           <div className="text-sm">
             <span className="font-medium">AI edit suggestions ready.</span> 
-            <span className="text-gray-600 ml-2">Green = additions, Red = removals</span>
+            <span className="text-gray-600 ml-2">
+              {getEditCount(editSuggestions) > 1 
+                ? `${getEditCount(editSuggestions)} changes suggested` 
+                : "1 change suggested"} 
+              (Green = additions, Red = removals)
+            </span>
           </div>
           <div className="flex gap-2">
             <Button 
