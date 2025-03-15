@@ -3,12 +3,11 @@ import { notFound } from 'next/navigation';
 import { FundingOpportunityDetails } from '@/components/projects/funding-opportunities/funding-opportunity-details';
 
 interface PageProps {
-  params: { projectId: string; foaId: string };
+  params: Promise<{ projectId: string; foaId: string }>;
 }
 
 export default async function Page({ params }: PageProps) {
-  const projectId = params.projectId;
-  const foaId = params.foaId;
+  const { projectId, foaId } = await params;
   
   // Initialize Supabase client
   const supabase = await createClient();
