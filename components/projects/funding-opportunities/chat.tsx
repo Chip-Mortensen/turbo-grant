@@ -121,6 +121,14 @@ export function Chat({ foaId, projectId }: ChatProps) {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    setMessages([{
+      role: 'assistant',
+      content: 'Ask me about details in this funding opportunity',
+      id: 'welcome'
+    }]);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
