@@ -6,7 +6,7 @@ import { Document, DocumentField, AgencyType, DocumentSourceType } from '@/types
 import { use } from 'react';
 import QuestionView from '@/components/projects/attachments/question-view';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Bold, Italic, List, Heading, Download, Save, FileOutput } from 'lucide-react';
+import { ArrowLeft, Loader2, Bold, Italic, List, Heading, Download, Save, FileOutput, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -21,6 +21,10 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BackButton } from "@/components/ui/back-button";
+import { AIEditInput } from '@/components/projects/attachments/ai-edit-dialog';
+import { EditHighlighter } from '@/components/projects/attachments/edit-highlighter';
+import { EditSuggestion } from '@/app/api/attachments/ai-edit/route';
+import { Mark } from '@tiptap/core';
 
 // Define the stored document type that matches what's in attachments
 interface StoredDocument {
@@ -213,6 +217,9 @@ function ProcessedContent({
   const [fileUrl, setFileUrl] = useState<string | undefined>(undefined);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isNewlyGenerated, setIsNewlyGenerated] = useState(false);
+  const [aiEditLoading, setAIEditLoading] = useState(false);
+  const [editSuggestions, setEditSuggestions] = useState<EditSuggestion[] | null>(null);
+  const [isApplyingEdits, setIsApplyingEdits] = useState(false);
   const supabase = createClient();
   
   // Reference to track content changes
@@ -226,7 +233,37 @@ function ProcessedContent({
 
   const editor = useEditor({
     extensions: [
-      StarterKit
+      StarterKit,
+      Mark.create({
+        name: 'diffRemoved',
+        inclusive: true,
+        parseHTML() {
+          return [
+            {
+              tag: 'span',
+              class: 'ai-edit-diff-removed',
+            },
+          ]
+        },
+        renderHTML({ HTMLAttributes }) {
+          return ['span', { class: 'ai-edit-diff-removed' }, 0]
+        },
+      }),
+      Mark.create({
+        name: 'diffAdded',
+        inclusive: true,
+        parseHTML() {
+          return [
+            {
+              tag: 'span',
+              class: 'ai-edit-diff-added',
+            },
+          ]
+        },
+        renderHTML({ HTMLAttributes }) {
+          return ['span', { class: 'ai-edit-diff-added' }, 0]
+        },
+      }),
     ],
     editorProps: {
       attributes: {
@@ -491,6 +528,118 @@ function ProcessedContent({
     }
   };
 
+  // Add function to request AI edits
+  const requestAIEdit = async (instruction: string) => {
+    if (!editor) return;
+    
+    setAIEditLoading(true);
+    
+    try {
+      const content = editor.getHTML();
+      
+      console.log('Requesting AI edit with instruction:', instruction);
+      
+      // Import the getHTMLSummary function
+      const { getHTMLSummary } = await import('@/utils/html-parser');
+      
+      // Get HTML summary for better context
+      const htmlSummary = getHTMLSummary(content);
+      console.log('HTML summary generated with tag types:', Object.keys(htmlSummary.tagsByType || {}).length);
+      
+      const requestData = {
+        content,
+        instruction,
+        documentId,
+        projectId,
+        htmlSummary
+      };
+      
+      const response = await fetch('/api/attachments/ai-edit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error requesting AI edit:', errorText);
+        throw new Error(`Error requesting AI edit: ${response.status} ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Received edit suggestions:', data.suggestions);
+      
+      // Set the suggestions for highlighting
+      setEditSuggestions(data.suggestions);
+      
+    } catch (error) {
+      console.error('Error requesting AI edit:', error);
+      setEditSuggestions(null);
+    } finally {
+      setAIEditLoading(false);
+    }
+  };
+
+  // Add functions to apply or discard edits
+  const applyAIEdits = async () => {
+    console.log('Applying AI edits:', editSuggestions);
+    
+    if (!editor || !editSuggestions?.length) {
+      return;
+    }
+    
+    // Make a copy of the suggestions to avoid state mutation issues
+    const suggestions = [...editSuggestions];
+    
+    // Set applying mode before clearing suggestions
+    setIsApplyingEdits(true);
+    
+    // First, clear all edit suggestions to remove decorations
+    setEditSuggestions(null);
+    
+    // Give the editor a moment to remove the decorations
+    setTimeout(() => {
+      // Re-apply the suggestions in apply mode
+      setEditSuggestions(suggestions);
+      onContentChanged();
+      
+      // Reset applying mode and clear suggestions after a moment
+      setTimeout(() => {
+        setIsApplyingEdits(false);
+        setEditSuggestions(null);
+      }, 100);
+    }, 50);
+  };
+
+  const discardAIEdits = () => {
+    console.log('Discarding edit suggestions');
+    setEditSuggestions(null);
+    setIsApplyingEdits(false);
+  };
+
+  // Helper function to calculate text similarity
+  const calculateTextSimilarity = (text1: string, text2: string): number => {
+    if (!text1 || !text2) return 0;
+    if (text1 === text2) return 1;
+    
+    // Simple implementation using character-level differences
+    const maxLength = Math.max(text1.length, text2.length);
+    let differences = 0;
+    
+    for (let i = 0; i < Math.min(text1.length, text2.length); i++) {
+      if (text1[i] !== text2[i]) {
+        differences++;
+      }
+    }
+    
+    // Add the length difference as differences
+    differences += Math.abs(text1.length - text2.length);
+    
+    return 1 - (differences / maxLength);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -540,7 +689,7 @@ function ProcessedContent({
         error={exportError}
       />
       
-      <div className="border">
+      <div className="border relative">
         <Toolbar editor={editor} />
         {loading ? (
           <div className="animate-pulse space-y-4 p-4">
@@ -552,7 +701,23 @@ function ProcessedContent({
         ) : error ? (
           <div className="text-red-500 p-4">Error loading content: {error}</div>
         ) : (
-          <EditorContent editor={editor} />
+          <div className="relative">
+            <EditorContent editor={editor} />
+            {editSuggestions && (
+              <EditHighlighter
+                editor={editor}
+                editSuggestions={editSuggestions}
+                mode={isApplyingEdits ? 'apply' : 'preview'}
+              />
+            )}
+            <AIEditInput
+              onRequestEdit={requestAIEdit}
+              isLoading={aiEditLoading}
+              editSuggestions={editSuggestions}
+              onApplyEdits={applyAIEdits}
+              onDiscardEdits={discardAIEdits}
+            />
+          </div>
         )}
       </div>
     </div>
