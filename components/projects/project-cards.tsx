@@ -1,7 +1,7 @@
 'use client';
 
 import { ProjectCard } from "@/components/ui/project-card";
-import { FileText, Image, Video, DollarSign, Paperclip, Wrench, Link as LinkIcon, SendHorizontal } from "lucide-react";
+import { FileText, Image, Video, DollarSign, Paperclip, Wrench, Link as LinkIcon, SendHorizontal, ClipboardList } from "lucide-react";
 import { useProjectCompletion } from "@/hooks/use-project-completion";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +46,16 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         isComplete={completionStatus.chalkTalk}
         isLoading={loadingStates.chalkTalk}
       />
+      {allRequiredComplete && (
+        <ProjectCard
+          title="Application Factors"
+          description="Identify factors to match with funding opportunities"
+          href={`/projects/${projectId}/application-factors`}
+          icon={ClipboardList}
+          isComplete={completionStatus.applicationFactors}
+          isLoading={loadingStates.applicationFactors}
+        />
+      )}
       {allRequiredComplete && (
         <ProjectCard
           title="Funding Opportunity"

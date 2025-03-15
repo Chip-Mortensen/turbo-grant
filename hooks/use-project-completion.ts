@@ -13,7 +13,8 @@ export function useProjectCompletion(projectId: string) {
     foa: true,
     attachments: true,
     equipment: true,
-    sources: true
+    sources: true,
+    applicationFactors: true
   });
 
   const [completionStatus, setCompletionStatus] = useState({
@@ -23,7 +24,8 @@ export function useProjectCompletion(projectId: string) {
     foa: false,
     attachments: false,
     equipment: false,
-    sources: false
+    sources: false,
+    applicationFactors: false
   });
 
   // Track if we've seen FOA selected
@@ -45,7 +47,7 @@ export function useProjectCompletion(projectId: string) {
         supabase.from('research_descriptions').select('id').eq('project_id', projectId).limit(1),
         supabase.from('scientific_figures').select('id').eq('project_id', projectId).limit(1),
         supabase.from('chalk_talks').select('id').eq('project_id', projectId).limit(1),
-        supabase.from('research_projects').select('foa, attachments').eq('id', projectId).single(),
+        supabase.from('research_projects').select('foa, attachments, application_factors').eq('id', projectId).single(),
         supabase.from('recommended_equipment').select('id').eq('project_id', projectId).limit(1),
         supabase.from('project_sources').select('id').eq('project_id', projectId).limit(1)
       ]);
@@ -53,6 +55,11 @@ export function useProjectCompletion(projectId: string) {
       // Check if all attachments are completed
       const attachmentsComplete = projectRes.data?.attachments
         ? Object.values(projectRes.data.attachments).every((doc: any) => doc.completed === true)
+        : false;
+
+      // Check if application factors are completed
+      const applicationFactorsComplete = projectRes.data?.application_factors
+        ? projectRes.data.application_factors.completed === true
         : false;
 
       // Check if equipment and sources exist
@@ -84,7 +91,8 @@ export function useProjectCompletion(projectId: string) {
         foa: hasFoa,
         attachments: attachmentsComplete,
         equipment: hasEquipment,
-        sources: hasSources
+        sources: hasSources,
+        applicationFactors: applicationFactorsComplete
       });
 
       // Update loading states
@@ -97,7 +105,8 @@ export function useProjectCompletion(projectId: string) {
         // Show loading spinner for equipment if FOA is selected and we don't have equipment yet
         equipment: hasFoa && !hasEquipment,
         // Show loading spinner for sources if FOA is selected and we don't have sources yet
-        sources: hasFoa && !hasSources
+        sources: hasFoa && !hasSources,
+        applicationFactors: false
       });
     };
 
