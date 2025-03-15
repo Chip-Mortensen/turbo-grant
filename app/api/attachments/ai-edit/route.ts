@@ -17,10 +17,14 @@ export interface EditSuggestion {
 }
 
 interface NodeEdit {
+  operation: 'replace' | 'add' | 'delete';
   tagType: string;
-  tagIndex: number;
-  originalContent: string;
-  newContent: string;
+  tagIndex?: number;
+  originalContent?: string;
+  newContent?: string;
+  position?: 'before' | 'after';
+  referenceNodeType?: string;
+  referenceNodeIndex?: number;
   explanation?: string;
 }
 
@@ -68,12 +72,30 @@ IMPORTANT GUIDELINES:
 6. You may edit as many nodes as necessary to fulfill the user's request
 7. For broad requests like "improve tone" or "fix grammar", edit multiple nodes as needed
 
-For each edit, provide:
-- tagType: The HTML tag type (p, h1, li, etc.)
-- tagIndex: The index of that tag type (0-based)
-- originalContent: The complete original tag with its content
-- newContent: The complete replacement tag with its content
-- explanation: A brief explanation of this specific change
+AVAILABLE OPERATIONS:
+1. Replace existing content:
+   - operation: "replace"
+   - tagType: The HTML tag type (p, h1)
+   - tagIndex: The index of that tag type (0-based)
+   - originalContent: The complete original tag with its content
+   - newContent: The complete replacement tag with its content
+   - explanation: A brief explanation of this specific change
+
+2. Add new content:
+   - operation: "add"
+   - tagType: The type of node to add (p, h1)
+   - newContent: The content of the new node
+   - position: Where to add it ("before" or "after")
+   - referenceNodeType: The type of node to position relative to
+   - referenceNodeIndex: The index of the reference node
+   - explanation: Why this content is being added
+
+3. Delete content:
+   - operation: "delete"
+   - tagType: The type of node to delete
+   - tagIndex: The index of the node to delete
+   - originalContent: The content being deleted (for confirmation)
+   - explanation: Why this content is being removed
 
 Group all edits into a single suggestion with:
 - type: Always "replace"
@@ -85,6 +107,7 @@ Example response format:
   "type": "replace",
   "edits": [
     {
+      "operation": "replace",
       "tagType": "p",
       "tagIndex": 2,
       "originalContent": "<p>This paragraph needs improvement.</p>",
@@ -92,15 +115,26 @@ Example response format:
       "explanation": "Made the text more concise"
     },
     {
+      "operation": "add",
       "tagType": "h1",
-      "tagIndex": 0,
-      "originalContent": "<h1>Old Title</h1>",
-      "newContent": "<h1>Improved Title</h1>",
-      "explanation": "Made the title more descriptive"
+      "newContent": "<h1>New Section Title</h1>",
+      "position": "after",
+      "referenceNodeType": "h1",
+      "referenceNodeIndex": 2,
+      "explanation": "Added a new section to cover important topic X"
+    },
+    {
+      "operation": "delete",
+      "tagType": "p",
+      "tagIndex": 5,
+      "originalContent": "<p>This paragraph is redundant and can be removed.</p>",
+      "explanation": "Removed redundant information that was already covered"
     }
   ],
   "reason": "Improved clarity and conciseness throughout the document"
 }
+
+IMPORTANT: Only include edits where there is an actual change. For replace operations, ensure newContent is different from originalContent.
 
 Format your response as a JSON object with the structure shown above.`;
     
@@ -119,7 +153,7 @@ Format your response as a JSON object with the structure shown above.`;
     
     // Get assistant's response
     const assistantResponse = response.choices[0].message.content;
-    console.log('OpenAI response:', assistantResponse);
+    console.log('OpenAI response received');
     
     let suggestions: EditSuggestion[] = [];
     
@@ -139,7 +173,34 @@ Format your response as a JSON object with the structure shown above.`;
             suggestions = parsedResponse;
           } else if (parsedResponse.type === 'replace' && Array.isArray(parsedResponse.edits)) {
             // New format - single suggestion with multiple edits
-            suggestions = [parsedResponse];
+            
+            // Filter out invalid edits
+            parsedResponse.edits = parsedResponse.edits.filter((edit: NodeEdit) => {
+              // For replace operations, ensure originalContent and newContent are different
+              if (edit.operation === 'replace' && edit.originalContent === edit.newContent) {
+                return false;
+              }
+              
+              // For add operations, ensure required fields are present
+              if (edit.operation === 'add' && (!edit.newContent || !edit.position || 
+                  edit.referenceNodeType === undefined || edit.referenceNodeIndex === undefined)) {
+                return false;
+              }
+              
+              // For delete operations, ensure required fields are present
+              if (edit.operation === 'delete' && (edit.tagType === undefined || edit.tagIndex === undefined)) {
+                return false;
+              }
+              
+              return true;
+            });
+            
+            // Only include the suggestion if it has at least one valid edit
+            if (parsedResponse.edits.length > 0) {
+              suggestions = [parsedResponse];
+            } else {
+              suggestions = [];
+            }
           } else {
             // Unexpected format
             throw new Error('Unexpected response format from AI');
@@ -150,7 +211,7 @@ Format your response as a JSON object with the structure shown above.`;
         }
       }
       
-      console.log('Parsed suggestions:', suggestions);
+      console.log(`Parsed ${suggestions.length} suggestions with a total of ${suggestions.reduce((count, s) => count + (s.edits?.length || 1), 0)} edits`);
     } catch (error) {
       console.error('Error parsing suggestions:', error);
       return NextResponse.json({ error: 'Failed to parse AI suggestions' }, { status: 500 });
