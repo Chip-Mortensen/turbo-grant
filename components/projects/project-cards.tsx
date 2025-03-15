@@ -46,7 +46,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
         isComplete={completionStatus.chalkTalk}
         isLoading={loadingStates.chalkTalk}
       />
-      {allRequiredComplete && (
+      {completionStatus.description && (
         <ProjectCard
           title="Application Factors"
           description="Identify factors to match with funding opportunities"
