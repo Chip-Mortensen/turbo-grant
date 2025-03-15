@@ -13,7 +13,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
   const { completionStatus, loadingStates } = useProjectCompletion(projectId);
   const allRequiredComplete = completionStatus.description && 
     completionStatus.figures && 
-    completionStatus.chalkTalk;
+    completionStatus.chalkTalk && completionStatus.applicationFactors;
 
   // Show equipment and sources cards if FOA is selected or if they're loading
   const showEquipmentCard = completionStatus.foa || loadingStates.equipment;
