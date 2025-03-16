@@ -673,33 +673,39 @@ function ProcessedContent({
 
   // Add functions to apply or discard edits
   const applyAIEdits = async () => {
-    console.log('Applying AI edits:', editSuggestions);
+    console.log('Applying AI edits, count:', editSuggestions?.length || 0);
     
     if (!editor || !editSuggestions?.length) {
       return;
     }
     
-    // Make a copy of the suggestions to avoid state mutation issues
-    const suggestions = [...editSuggestions];
+    // Log the document content before applying edits (truncated)
+    const beforeHtml = editor.getHTML();
+    console.log(`Document content before edits (${beforeHtml.length} chars): ${beforeHtml.substring(0, 100)}...`);
     
-    // Set applying mode before clearing suggestions
+    // Simply set the applying mode and let the EditHighlighter component handle the rest
     setIsApplyingEdits(true);
     
-    // First, clear all edit suggestions to remove decorations
-    setEditSuggestions(null);
-    
-    // Give the editor a moment to remove the decorations
+    // After a brief delay to ensure the edits are applied, reset the state
     setTimeout(() => {
-      // Re-apply the suggestions in apply mode
-      setEditSuggestions(suggestions);
-      onContentChanged();
+      // Log the document content after applying edits (truncated)
+      const afterHtml = editor.getHTML();
+      console.log(`Document content after edits (${afterHtml.length} chars): ${afterHtml.substring(0, 100)}...`);
       
-      // Reset applying mode and clear suggestions after a moment
-      setTimeout(() => {
-        setIsApplyingEdits(false);
-        setEditSuggestions(null);
-      }, 100);
-    }, 50);
+      // Check if the content has actually changed
+      const contentBefore = contentRef.current.current;
+      const contentAfter = editor.getHTML();
+      
+      if (contentBefore === contentAfter) {
+        console.warn('Warning: Document content did not change after applying edits!');
+      } else {
+        console.log(`Document content successfully changed (${contentBefore?.length || 0} -> ${contentAfter.length} chars)`);
+      }
+      
+      setEditSuggestions(null);
+      setIsApplyingEdits(false);
+      onContentChanged();
+    }, 500); // Increased timeout to ensure edits have time to apply
   };
 
   const discardAIEdits = () => {

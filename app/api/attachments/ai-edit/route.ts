@@ -71,6 +71,14 @@ IMPORTANT GUIDELINES:
 5. Focus on high-impact edits that significantly improve the document
 6. You may edit as many nodes as necessary to fulfill the user's request
 7. For broad requests like "improve tone" or "fix grammar", edit multiple nodes as needed
+8. When condensing information across multiple paragraphs, use a combination of DELETE and ADD operations rather than multiple REPLACE operations
+
+CONDENSING INFORMATION:
+When asked to condense information (especially across multiple paragraphs):
+1. DELETE the original paragraphs that contain redundant or verbose content
+2. ADD a new, concise paragraph that captures the essential information
+3. This approach is preferred over multiple REPLACE operations when significant condensation is needed
+4. Example: If paragraphs 2, 3, and 4 contain related information that can be condensed, delete all three and add one new paragraph with the condensed content
 
 AVAILABLE OPERATIONS:
 1. Replace existing content:
@@ -132,6 +140,44 @@ Example response format:
     }
   ],
   "reason": "Improved clarity and conciseness throughout the document"
+}
+
+Example of condensing multiple paragraphs:
+{
+  "type": "replace",
+  "edits": [
+    {
+      "operation": "delete",
+      "tagType": "p",
+      "tagIndex": 3,
+      "originalContent": "<p>First paragraph with detailed information about a topic.</p>",
+      "explanation": "Removing verbose content to be condensed"
+    },
+    {
+      "operation": "delete",
+      "tagType": "p",
+      "tagIndex": 4,
+      "originalContent": "<p>Second paragraph continuing the explanation with more details.</p>",
+      "explanation": "Removing verbose content to be condensed"
+    },
+    {
+      "operation": "delete",
+      "tagType": "p",
+      "tagIndex": 5,
+      "originalContent": "<p>Third paragraph with final points about the topic.</p>",
+      "explanation": "Removing verbose content to be condensed"
+    },
+    {
+      "operation": "add",
+      "tagType": "p",
+      "newContent": "<p>Concise summary covering all key points from the three original paragraphs.</p>",
+      "position": "after",
+      "referenceNodeType": "p",
+      "referenceNodeIndex": 2,
+      "explanation": "Added condensed version that captures all essential information"
+    }
+  ],
+  "reason": "Condensed three verbose paragraphs into one concise paragraph while preserving all key information"
 }
 
 IMPORTANT: Only include edits where there is an actual change. For replace operations, ensure newContent is different from originalContent.
