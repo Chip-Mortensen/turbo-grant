@@ -45,12 +45,14 @@ export function EditHighlighter({ editor, editSuggestions, mode = 'preview' }: E
         background-color: rgba(239, 68, 68, 0.2) !important;
         text-decoration: line-through !important;
         color: rgb(220, 38, 38) !important;
+        display: inline !important;
       }
       
       .ProseMirror .ai-edit-new-node {
         background-color: rgba(34, 197, 94, 0.1) !important;
         border-left: 3px solid rgb(22, 163, 74) !important;
         padding-left: 8px !important;
+        margin: 8px 0 !important;
       }
       
       .ProseMirror .ai-edit-deleted-node {
@@ -62,24 +64,36 @@ export function EditHighlighter({ editor, editSuggestions, mode = 'preview' }: E
       
       .ProseMirror .ai-edit-preview-wrapper {
         position: relative;
-        margin: 8px 0;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        margin: 0 !important;
+        margin-bottom: 12px !important;
+      }
+      
+      .ProseMirror .ai-edit-diff-container {
+        padding: 4px !important;
+        line-height: 1.5 !important;
+      }
+      
+      .ProseMirror .ai-edit-diff-content {
+        white-space: normal !important;
+        word-wrap: break-word !important;
       }
       
       .ProseMirror .ai-edit-preview-original {
-        margin-bottom: 8px;
+        margin-bottom: 8px !important;
       }
       
       .ProseMirror .ai-edit-preview-new {
-        margin-top: 8px;
+        margin-top: 0 !important;
       }
       
       .ProseMirror .ai-edit-preview-divider {
-        height: 1px;
-        background-color: #ccc;
-        margin: 8px 0;
+        height: 1px !important;
+        background-color: #ccc !important;
+        margin: 4px 0 !important;
+      }
+      
+      .ProseMirror p[data-replaced="true"] {
+        display: none !important;
       }
     `;
     
@@ -355,9 +369,9 @@ export function EditHighlighter({ editor, editSuggestions, mode = 'preview' }: E
               // Create decorations
               const decorations: Decoration[] = [];
               
-              // Process replacements
+              // Process replacements - use inline decorations instead of widgets
               allEdits
-                .filter(edit => edit.operation === 'replace' && edit.tagType === 'p' && edit.tagIndex !== undefined && edit.newContent)
+                .filter(edit => edit.operation === 'replace' && (edit.tagType === 'p' || edit.tagType === 'h1') && edit.tagIndex !== undefined && edit.newContent)
                 .forEach(edit => {
                   const index = edit.tagIndex;
                   if (index >= 0 && index < paragraphs.length) {
@@ -365,40 +379,60 @@ export function EditHighlighter({ editor, editSuggestions, mode = 'preview' }: E
                     const originalText = node.textContent;
                     const newContent = edit.newContent.replace(/<\/?[^>]+(>|$)/g, "");
                     
-                    // Create a widget decoration that shows both the original and new content
-                    const decoration = Decoration.widget(pos, () => {
+                    console.log(`Processing replacement for ${node.type.name} ${index}: "${originalText.substring(0, 20)}..." -> "${newContent.substring(0, 20)}..."`);
+                    
+                    // Add a node decoration to hide the original paragraph
+                    const hideDecoration = Decoration.node(pos, pos + node.nodeSize, {
+                      class: '',
+                      'data-replaced': 'true'
+                    });
+                    
+                    // Add a widget at the beginning of the paragraph to show the diff
+                    const diffWidget = Decoration.widget(pos, () => {
                       const container = document.createElement('div');
                       container.className = 'ai-edit-preview-wrapper';
+                      container.setAttribute('data-edit-index', String(index));
                       
-                      const original = document.createElement('div');
-                      original.className = 'ai-edit-diff-removed ai-edit-preview-original';
-                      original.textContent = originalText;
-                      container.appendChild(original);
+                      // Create a diff view
+                      const diffContainer = document.createElement('div');
+                      diffContainer.className = 'ai-edit-diff-container';
                       
-                      const divider = document.createElement('div');
-                      divider.className = 'ai-edit-preview-divider';
-                      divider.style.height = '1px';
-                      divider.style.backgroundColor = '#ccc';
-                      divider.style.margin = '4px 0';
-                      container.appendChild(divider);
+                      // Split the texts into words for a simple diff
+                      const originalWords = originalText.split(/\s+/);
+                      const newWords = newContent.split(/\s+/);
                       
-                      const newText = document.createElement('div');
-                      newText.className = 'ai-edit-diff-added ai-edit-preview-new';
-                      newText.textContent = newContent;
-                      container.appendChild(newText);
+                      // Simple diff algorithm to identify added/removed words
+                      const diff = simpleDiff(originalWords, newWords);
+                      
+                      // Create the diff HTML
+                      const diffHtml = document.createElement('div');
+                      diffHtml.className = 'ai-edit-diff-content';
+                      
+                      diff.forEach(part => {
+                        const span = document.createElement('span');
+                        if (part.added) {
+                          span.className = 'ai-edit-diff-added';
+                          span.textContent = part.value + ' ';
+                        } else if (part.removed) {
+                          span.className = 'ai-edit-diff-removed';
+                          span.textContent = part.value + ' ';
+                        } else {
+                          span.textContent = part.value + ' ';
+                        }
+                        diffHtml.appendChild(span);
+                      });
+                      
+                      container.appendChild(diffHtml);
                       
                       return container;
                     });
                     
-                    // Add a node decoration to hide the original paragraph
-                    const hideDecoration = Decoration.node(pos, pos + node.nodeSize, {
-                      style: 'display: none;'
-                    });
-                    
-                    decorations.push(decoration);
                     decorations.push(hideDecoration);
+                    decorations.push(diffWidget);
                     
-                    console.log(`Added decoration for paragraph at index ${index}`);
+                    console.log(`Added diff widget for ${node.type.name} at index ${index}`);
+                  } else {
+                    console.warn(`Replace index ${index} out of range (0-${paragraphs.length - 1})`);
                   }
                 });
               
@@ -647,4 +681,80 @@ export function EditHighlighter({ editor, editSuggestions, mode = 'preview' }: E
   }, [editor]);
 
   return null;
+}
+
+function simpleDiff(oldWords: string[], newWords: string[]) {
+  const result: {value: string, added?: boolean, removed?: boolean}[] = [];
+  
+  // Use a more sophisticated diff approach that preserves context
+  // This is a simplified version of the Myers diff algorithm
+  
+  // First, find the longest common subsequence
+  const lcsMatrix = Array(oldWords.length + 1).fill(null).map(() => 
+    Array(newWords.length + 1).fill(0)
+  );
+  
+  // Fill the LCS matrix
+  for (let i = 1; i <= oldWords.length; i++) {
+    for (let j = 1; j <= newWords.length; j++) {
+      if (oldWords[i - 1] === newWords[j - 1]) {
+        lcsMatrix[i][j] = lcsMatrix[i - 1][j - 1] + 1;
+      } else {
+        lcsMatrix[i][j] = Math.max(lcsMatrix[i - 1][j], lcsMatrix[i][j - 1]);
+      }
+    }
+  }
+  
+  // Backtrack to find the diff
+  let i = oldWords.length;
+  let j = newWords.length;
+  const diff: {value: string, added?: boolean, removed?: boolean}[] = [];
+  
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && oldWords[i - 1] === newWords[j - 1]) {
+      // Words match - unchanged
+      diff.unshift({ value: oldWords[i - 1] });
+      i--;
+      j--;
+    } else if (j > 0 && (i === 0 || lcsMatrix[i][j - 1] >= lcsMatrix[i - 1][j])) {
+      // Word added
+      diff.unshift({ value: newWords[j - 1], added: true });
+      j--;
+    } else if (i > 0 && (j === 0 || lcsMatrix[i][j - 1] < lcsMatrix[i - 1][j])) {
+      // Word removed
+      diff.unshift({ value: oldWords[i - 1], removed: true });
+      i--;
+    }
+  }
+  
+  // Improve the diff by merging consecutive unchanged words for better readability
+  const improvedDiff: {value: string, added?: boolean, removed?: boolean}[] = [];
+  let currentGroup: {value: string, added?: boolean, removed?: boolean} | null = null;
+  
+  for (const item of diff) {
+    if (!currentGroup) {
+      currentGroup = { ...item };
+      continue;
+    }
+    
+    // If the current item has the same status as the current group, merge them
+    if (
+      (item.added && currentGroup.added) || 
+      (item.removed && currentGroup.removed) || 
+      (!item.added && !item.removed && !currentGroup.added && !currentGroup.removed)
+    ) {
+      currentGroup.value += ' ' + item.value;
+    } else {
+      // Different status, push the current group and start a new one
+      improvedDiff.push(currentGroup);
+      currentGroup = { ...item };
+    }
+  }
+  
+  // Don't forget to push the last group
+  if (currentGroup) {
+    improvedDiff.push(currentGroup);
+  }
+  
+  return improvedDiff;
 } 
