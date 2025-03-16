@@ -103,6 +103,11 @@ export default async function AuthButton() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
+            <Link href="/vectorize" className="cursor-pointer w-full">
+              Vectorize
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link href="/documents" className="cursor-pointer w-full">
               Documents
             </Link>
