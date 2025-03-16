@@ -36,7 +36,7 @@ const QUESTION_TOPICS: Record<string, string> = {
   'research_location': 'Geographical considerations for where the research will be conducted'
 };
 
-function getSystemPrompt(researchDescription: string, currentQuestion?: string, criteria?: string, autoAnalyze?: boolean, questions?: QuestionAnswer[], currentQuestionContext?: string): string {
+function getSystemPrompt(researchDescription: string, currentQuestion?: string, criteria?: string, autoAnalyze?: boolean, questions?: QuestionAnswer[], currentQuestionContext?: string, chalkTalkTranscription?: string): string {
   const basePrompt = `You are an AI assistant helping a researcher identify key factors for matching their research with appropriate funding opportunities. You MUST ALWAYS respond in JSON format.
 
   CRITICAL - RESPONSE FORMAT:
@@ -67,10 +67,20 @@ function getSystemPrompt(researchDescription: string, currentQuestion?: string, 
 
   // If we're doing batch analysis, use a different format
   if (questions) {
-    return `${basePrompt}
+    let promptWithChalkTalk = `${basePrompt}
     
     Your task is to analyze this research description and determine what information can be extracted to answer the following questions.
-    For each question, provide a JSON assessment.
+    For each question, provide a JSON assessment.`;
+
+    // Add chalk talk transcription if available
+    if (chalkTalkTranscription) {
+      promptWithChalkTalk += `
+    
+    Chalk Talk Transcription:
+    ${chalkTalkTranscription}`;
+    }
+
+    promptWithChalkTalk += `
     
     Questions to analyze:
     ${questions.map(q => `
@@ -98,6 +108,8 @@ function getSystemPrompt(researchDescription: string, currentQuestion?: string, 
     DO NOT include any markdown formatting.
     DO NOT add any explanatory text.
     ONLY return the JSON array.`;
+
+    return promptWithChalkTalk;
   }
 
   const contextAndRules = currentQuestion ? 
@@ -115,8 +127,9 @@ function getSystemPrompt(researchDescription: string, currentQuestion?: string, 
     5. Put ALL helpful responses, suggestions, and questions in the "message" field
     6. Keep the "finalAnswer" field concise and only containing information that meets the criteria
     7. Use the "message" field for any additional context, explanations, or follow-up questions
-    8. Never use a user's question as an answer
+    8. Never use a user's question as an answer.
     9. Only discuss NIH or NSF grants
+    10. Never mark an answer as complete if we just asked a question.
 
     IMPORTANT: Your response MUST be a single, valid JSON object with ALL required fields.` : '';
 
@@ -143,12 +156,33 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     // Handle batch analysis of all questions
     if (analyzeAll && questions) {
+      // Get chalk talk transcription if available
+      const supabase = await createClient();
+      let chalkTalkTranscription = '';
+      
+      try {
+        const { data: chalkTalks } = await supabase
+          .from('chalk_talks')
+          .select('transcription')
+          .eq('project_id', projectId)
+          .order('uploaded_at', { ascending: false })
+          .limit(1);
+          
+        if (chalkTalks && chalkTalks.length > 0 && chalkTalks[0].transcription) {
+          chalkTalkTranscription = chalkTalks[0].transcription;
+          console.log('Found chalk talk transcription, length:', chalkTalkTranscription.length);
+        }
+      } catch (error) {
+        console.error('Error fetching chalk talk transcription:', error);
+        // Continue without chalk talk transcription
+      }
+
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
-            content: getSystemPrompt(researchDescription || '', undefined, undefined, undefined, questions) 
+            content: getSystemPrompt(researchDescription || '', undefined, undefined, undefined, questions, undefined, chalkTalkTranscription) 
           }
         ],
         temperature: 0.1,
