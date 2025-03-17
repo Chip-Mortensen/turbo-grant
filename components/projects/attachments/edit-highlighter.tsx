@@ -58,6 +58,7 @@ export function EditHighlighter({ editor, editSuggestions, mode = 'preview' }: E
       .ProseMirror .ai-edit-deleted-node {
         background-color: rgba(239, 68, 68, 0.1) !important;
         border-left: 3px solid rgb(220, 38, 38) !important;
+        padding-left: 8px !important;
         text-decoration: line-through !important;
         color: rgb(220, 38, 38) !important;
       }
