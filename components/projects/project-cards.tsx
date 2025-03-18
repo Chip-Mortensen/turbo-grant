@@ -1,7 +1,7 @@
 'use client';
 
 import { ProjectCard } from "@/components/ui/project-card";
-import { FileText, Image, Video, DollarSign, Paperclip, Wrench, Link as LinkIcon, SendHorizontal, ClipboardList } from "lucide-react";
+import { FileText, Image, Video, DollarSign, Paperclip, Wrench, Link as LinkIcon, SendHorizontal, ClipboardList, FileCheck } from "lucide-react";
 import { useProjectCompletion } from "@/hooks/use-project-completion";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +19,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
   const showEquipmentCard = completionStatus.foa || loadingStates.equipment;
   const showSourcesCard = completionStatus.foa || loadingStates.sources;
   const showAttachmentsCard = completionStatus.foa || loadingStates.attachments;
+  const showApplicationRequirementsCard = completionStatus.foa || loadingStates.applicationRequirements;
 
   return (
     <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
@@ -49,7 +50,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
       {completionStatus.description && (
         <ProjectCard
           title="Application Factors"
-          description="Identify factors to match with funding opportunities"
+          description="Identify factors for funding opportunities"
           href={`/projects/${projectId}/application-factors`}
           icon={ClipboardList}
           isComplete={completionStatus.applicationFactors}
@@ -64,6 +65,16 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           icon={DollarSign}
           isComplete={completionStatus.foa}
           isLoading={loadingStates.foa}
+        />
+      )}
+      {showApplicationRequirementsCard && (
+        <ProjectCard
+          title="Application Requirements"
+          description="Identify requirements for your application"
+          href={`/projects/${projectId}/application-requirements`}
+          icon={FileCheck}
+          isComplete={completionStatus.applicationRequirements}
+          isLoading={loadingStates.applicationRequirements}
         />
       )}
       {showEquipmentCard && (

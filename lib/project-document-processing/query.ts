@@ -261,4 +261,46 @@ export async function getChalkTalkText(projectId: string): Promise<string> {
     console.error('Error extracting chalk talk text:', error);
     throw error; // Re-throw the error to be handled by the caller
   }
+}
+
+/**
+ * Gets the full text content of document by retrieving all vector chunks
+ * and concatenating the text fields based on document filename
+ * @param fileName The filename of the document to retrieve text for
+ * @returns A promise that resolves to the full text as a string
+ * @throws Error if there's an issue retrieving the text
+ */
+export async function getDocumentText(fileName: string): Promise<string> {
+  try {
+    const client = await getPineconeClient();
+    const index = client.index(process.env.PINECONE_INDEX_NAME!);
+
+    const queryResponse = await index.query({
+      filter: {
+        fileName: fileName
+      },
+      topK: 1000,
+      includeMetadata: true,
+      vector: Array(3072).fill(0)
+    });
+
+    // Sort by chunkIndex if available
+    const sortedMatches = queryResponse.matches.sort((a, b) => {
+      const aIndex = a.metadata?.chunkIndex as number || 0;
+      const bIndex = b.metadata?.chunkIndex as number || 0;
+      return aIndex - bIndex;
+    });
+    
+    // Extract the 'text' field from each match's metadata and join them
+    const fullText = sortedMatches
+      .map(match => match.metadata?.['text'] as string || '')
+      .filter(text => text.trim() !== '') // Filter out empty strings
+      .join(' '); // Concatenate all text chunks
+    
+    return fullText;
+    
+  } catch (error) {
+    console.error('Error extracting document text:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
 } 
