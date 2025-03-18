@@ -194,7 +194,7 @@ function Toolbar({ editor }: { editor: any }) {
 
 // Define the EditStatusMap interface here, since importing from the component is causing issues
 interface EditStatusMap {
-  [editId: string]: 'approved' | 'denied' | 'pending';
+  [editId: string]: 'approved' | 'denied' | 'pending' | 'applied';
 }
 
 function ProcessedContent({ 
@@ -229,7 +229,13 @@ function ProcessedContent({
   const [editStatuses, setEditStatuses] = useState<EditStatusMap>({});
   const [editCounts, setEditCounts] = useState({ pending: 0, total: 0 });
   const [isAIEditOpen, setIsAIEditOpen] = useState(false);
+  const [processedEditIds, setProcessedEditIds] = useState<Set<string>>(new Set());
   const supabase = createClient();
+  
+  // Add a ref to track when we're in the middle of applying edits to prevent loops
+  const isApplyingRef = useRef(false);
+  // Create a dedicated variable to track which edits have been completed
+  const completedEditsRef = useRef(new Set<string>());
   
   // Reference to track content changes
   const contentRef = useRef<{
@@ -680,17 +686,93 @@ function ProcessedContent({
     }
   };
 
+  // Add this helper function to reset the edit state safely
+  const resetEditState = useCallback(() => {
+    console.log('Resetting edit state completely');
+    // Set the ref first to prevent any new edits from being triggered during cleanup
+    isApplyingRef.current = false;
+    setIsApplyingEdits(false);
+    setEditSuggestions(null);
+    setEditStatuses({});
+    setEditCounts({ pending: 0, total: 0 });
+    setProcessedEditIds(new Set());
+    completedEditsRef.current = new Set();
+  }, []);
+
   // Handle approving an edit
   const handleApproveEdit = (editId: string) => {
-    setEditStatuses((prev: EditStatusMap) => ({
+    // Skip if already completed to prevent double-processing
+    if (completedEditsRef.current.has(editId)) {
+      console.log(`Edit ${editId} has already been completed, skipping`);
+      return;
+    }
+
+    // Guard against applying edits while we're already in a process
+    if (isApplyingRef.current) {
+      console.log('Already applying edits, skipping approval request');
+      return;
+    }
+    
+    // Skip if this edit is already processed
+    if (processedEditIds.has(editId)) {
+      console.log(`Edit ${editId} has already been processed, skipping`);
+      return;
+    }
+
+    console.log(`Approving edit: ${editId}`);
+    // Mark this edit as processed to prevent re-processing
+    setProcessedEditIds(prev => {
+      const newSet = new Set(prev);
+      newSet.add(editId);
+      return newSet;
+    });
+
+    // Mark as completed in our ref
+    completedEditsRef.current.add(editId);
+
+    // Update the edit status
+    setEditStatuses(prev => ({
       ...prev,
       [editId]: 'approved'
     }));
+
+    // For individual edits, we now let EditHighlighter handle application without mode switching
+    // The EditHighlighter component will directly apply the edit without changing modes
+    setHasUnsavedChanges(true);
   };
   
   // Handle denying an edit
   const handleDenyEdit = (editId: string) => {
-    setEditStatuses((prev: EditStatusMap) => ({
+    // Skip if already completed
+    if (completedEditsRef.current.has(editId)) {
+      console.log(`Edit ${editId} has already been completed, skipping`);
+      return;
+    }
+    
+    // Guard against applying edits while we're already in a process
+    if (isApplyingRef.current) {
+      console.log('Already applying edits, skipping denial request');
+      return;
+    }
+    
+    // Skip if this edit is already processed
+    if (processedEditIds.has(editId)) {
+      console.log(`Edit ${editId} has already been processed, skipping`);
+      return;
+    }
+
+    console.log(`Denying edit: ${editId}`);
+    // Mark this edit as processed
+    setProcessedEditIds(prev => {
+      const newSet = new Set(prev);
+      newSet.add(editId);
+      return newSet;
+    });
+
+    // Mark as completed in our ref
+    completedEditsRef.current.add(editId);
+
+    setEditStatuses(prev => ({
       ...prev,
       [editId]: 'denied'
     }));
@@ -698,55 +780,137 @@ function ProcessedContent({
   
   // Handle applying all remaining edits
   const handleApproveAllRemaining = () => {
-    if (!editSuggestions) return;
+    console.log('handleApproveAllRemaining called');
+    
+    if (!editSuggestions) {
+      console.log('No edit suggestions to approve');
+      return;
+    }
     
     // If there are no pending edits left, clear suggestions and return early
     if (editCounts.pending === 0) {
       console.log('No pending edits remaining, clearing suggestions');
-      setEditSuggestions(null);
-      setEditStatuses({});
-      setEditCounts({ pending: 0, total: 0 });
+      resetEditState();
       return;
     }
     
-    console.log(`Approving ${editCounts.pending} remaining edits`);
+    // Create a direct map of all edits that should be approved
+    const newStatuses: EditStatusMap = { ...editStatuses };
+    let hasChanges = false;
     
-    // For each edit that's still pending, mark it as approved
-    const newStatuses = { ...editStatuses };
-    
+    // Mark all PENDING edits as approved
     editSuggestions.forEach(edit => {
       const id = ('id' in edit) ? (edit as any).id as string : '';
-      if (id && (!newStatuses[id] || newStatuses[id] === 'pending')) {
-        newStatuses[id] = 'approved';
+      if (id) {
+        const currentStatus = editStatuses[id] || 'pending';
+        // Only change edits that are pending
+        if (currentStatus === 'pending') {
+          console.log(`Setting edit ${id} from 'pending' to 'approved'`);
+          newStatuses[id] = 'approved';
+          hasChanges = true;
+          
+          // Mark as completed in our tracking set
+          completedEditsRef.current.add(id);
+        }
       }
     });
     
-    // Set the new statuses first
+    if (!hasChanges) {
+      console.log('No pending edits to approve');
+      return;
+    }
+    
+    // First reset any previous apply state to ensure a clean start
+    isApplyingRef.current = false;
+    
+    // Set the new statuses and trigger applying mode
     setEditStatuses(newStatuses);
     
-    // Then set applying mode to apply approved edits
-    setIsApplyingEdits(true);
+    // Use a small delay to ensure state updates
+    setTimeout(() => {
+      console.log('Switching to apply mode for batch approval');
+      // Now switch to apply mode
+      isApplyingRef.current = true;
+      setIsApplyingEdits(true);
+    }, 20);
   };
-  
-  // Apply edits function - only used when Apply button is clicked in the AI edit dialog
-  const applyEdits = () => {
-    console.log('Applying all edits via Apply Changes button');
+
+  // In the component, add the function at component scope
+  const afterEditsApplied = () => {
+    console.log('All edits have been applied, cleaning up state');
     
-    // Apply all remaining edits
-    // Approve all remaining pending edits
-    handleApproveAllRemaining();
+    // Reset all state after edits are applied
+    setEditSuggestions(null);
+    isApplyingRef.current = false;
+    setIsApplyingEdits(false);
+    setEditStatuses({});
+    setProcessedEditIds(new Set());
+    completedEditsRef.current = new Set();
+    
+    console.log('State cleanup complete');
+  };
+
+  // Add a content changed handler at component level
+  const handleContentChange = () => {
+    console.log('Content changed detected from EditHighlighter');
+    setHasUnsavedChanges(true);
+  };
+
+  // Then update applyEdits to no longer define the function
+  const applyEdits = () => {
+    if (!editSuggestions) {
+      console.log('No edit suggestions to apply');
+      return;
+    }
+    
+    console.log(`Applying ${editSuggestions.length} edit suggestions`);
+    
+    // SEQUENTIAL APPROACH: Apply edits in a clear, deterministic sequence
+    
+    // First, close the dialog immediately for good UX
+    setIsAIEditOpen(false);
+    
+    // Create a local copy of suggestions to work with
+    const suggestionsToProcess = [...editSuggestions];
+    
+    // Create a new status map with all edits set to approved
+    const newStatuses: EditStatusMap = {};
+    let editCount = 0;
+    
+    // Mark all edits as approved
+    suggestionsToProcess.forEach(suggestion => {
+      if ('edits' in suggestion && suggestion.edits) {
+        suggestion.edits.forEach(edit => {
+          const id = ('id' in edit) ? (edit as any).id : '';
+          if (id) {
+            newStatuses[id] = 'approved';
+            editCount++;
+          }
+        });
+      } else if ('id' in suggestion) {
+        const id = (suggestion as any).id;
+        newStatuses[id] = 'approved';
+        editCount++;
+      }
+    });
+    
+    console.log(`Marked ${editCount} individual edits as approved`);
+    
+    // Apply the status changes
+    setEditStatuses(newStatuses);
+    
+    // Enable apply mode to trigger the edit application
+    console.log('Enabling apply mode');
+    isApplyingRef.current = true;
+    setIsApplyingEdits(true);
     
     // Mark content as changed
     setHasUnsavedChanges(true);
-    
-    // Notify parent about changes
-    onContentChanged();
   };
 
   // Discard edits function
   const discardEdits = () => {
-    setEditSuggestions(null);
-    setEditStatuses({});
+    resetEditState();
   };
 
   // Helper function to calculate text similarity
@@ -770,12 +934,9 @@ function ProcessedContent({
     return 1 - (differences / maxLength);
   };
 
-  const handleStatusChange = useCallback((pendingCount: number, totalCount: number) => {
-    // Avoid unnecessary state updates
-    if (editCounts.pending !== pendingCount || editCounts.total !== totalCount) {
-      setEditCounts({ pending: pendingCount, total: totalCount });
-    }
-  }, [editCounts]);
+  const handleStatusChange = (pending: number, total: number) => {
+    setEditCounts({ pending, total });
+  };
 
   const handleSaveContent = useCallback((content: string) => {
     if (contentRef.current) {
@@ -784,22 +945,12 @@ function ProcessedContent({
     setHasUnsavedChanges(true);
   }, []);
 
-  // Add the following function to handle content change notifications from EditHighlighter
-  const handleEditHighlighterContentChange = useCallback(() => {
-    setHasUnsavedChanges(true);
-    
-    // Check if all edits have been handled and if we're in applying mode
-    if (isApplyingEdits && editCounts.total > 0 && editCounts.pending === 0) {
-      console.log('All edits processed while in applying mode, clearing suggestions');
-      // Reset UI after a short delay to allow editor to update
-      setTimeout(() => {
-        setIsApplyingEdits(false);
-        setEditSuggestions(null);
-        setEditStatuses({});
-        setEditCounts({ pending: 0, total: 0 });
-      }, 500);
+  // Add an effect to reset the applying ref when isApplyingEdits state changes to false
+  useEffect(() => {
+    if (!isApplyingEdits) {
+      isApplyingRef.current = false;
     }
-  }, [editSuggestions, editCounts]);
+  }, [isApplyingEdits]);
 
   return (
     <div className="space-y-4">
@@ -886,17 +1037,15 @@ function ProcessedContent({
               onApproveEdit={handleApproveEdit}
               onDenyEdit={handleDenyEdit}
               onApproveAll={handleApproveAllRemaining}
-              autoApply={true}
-              onContentChange={handleEditHighlighterContentChange}
-              onStatusChange={(pending: number, total: number) => {
-                setEditCounts({ pending, total });
-              }}
+              onContentChange={handleContentChange}
+              onStatusChange={handleStatusChange}
+              onApplied={afterEditsApplied}
             />
             <AIEditInput
               onRequestEdit={requestAIEdit}
               isLoading={aiEditLoading}
               editSuggestions={editSuggestions}
-              onApplyEdits={handleApproveAllRemaining}
+              onApplyEdits={applyEdits}
               onDiscardEdits={discardEdits}
               pendingCount={editCounts.pending}
               totalCount={editCounts.total}

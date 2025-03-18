@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Wand2, Check, X } from "lucide-react";
@@ -36,10 +36,15 @@ export function AIEditInput({
   };
 
   const handleApplyEdits = () => {
-    console.log('Applying remaining edits');
-    onApplyEdits();
-    // Close dialog after applying edits to prevent looping
+    // Reset first for responsive feel
+    setInstruction('');
     setOpen(false);
+    
+    // Then trigger the actual edit application
+    // This ensures UI clears before any heavy processing happens
+    requestAnimationFrame(() => {
+      onApplyEdits();
+    });
   };
 
   const handleDiscardEdits = () => {
