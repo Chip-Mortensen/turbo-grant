@@ -772,10 +772,20 @@ function ProcessedContent({
     // Mark as completed in our ref
     completedEditsRef.current.add(editId);
 
+    // Update the edit status
     setEditStatuses(prev => ({
       ...prev,
       [editId]: 'denied'
     }));
+
+    // When denying an edit, we want to immediately hide it from the UI
+    // to create the same visual effect as approving it
+    setTimeout(() => {
+      // This forces the EditHighlighter to refresh and immediately hide the rejected edit
+      setEditStatuses(prev => ({ ...prev }));
+      // Also notify that there was a content change to update UI
+      handleContentChange();
+    }, 10);
   };
   
   // Handle applying all remaining edits
@@ -873,28 +883,41 @@ function ProcessedContent({
     // Create a local copy of suggestions to work with
     const suggestionsToProcess = [...editSuggestions];
     
-    // Create a new status map with all edits set to approved
-    const newStatuses: EditStatusMap = {};
+    // Start with the current status map to preserve existing statuses
+    const newStatuses: EditStatusMap = { ...editStatuses };
     let editCount = 0;
     
-    // Mark all edits as approved
+    // Only mark pending edits as approved, preserving existing status for others
     suggestionsToProcess.forEach(suggestion => {
       if ('edits' in suggestion && suggestion.edits) {
         suggestion.edits.forEach(edit => {
           const id = ('id' in edit) ? (edit as any).id : '';
           if (id) {
-            newStatuses[id] = 'approved';
-            editCount++;
+            // Only override if the status is pending or undefined
+            const currentStatus = editStatuses[id];
+            if (!currentStatus || currentStatus === 'pending') {
+              newStatuses[id] = 'approved';
+              editCount++;
+            } else {
+              console.log(`Preserving existing status for edit ${id}: ${currentStatus}`);
+            }
           }
         });
       } else if ('id' in suggestion) {
         const id = (suggestion as any).id;
-        newStatuses[id] = 'approved';
-        editCount++;
+        // Only override if the status is pending or undefined
+        const currentStatus = editStatuses[id];
+        if (!currentStatus || currentStatus === 'pending') {
+          newStatuses[id] = 'approved';
+          editCount++;
+        } else {
+          console.log(`Preserving existing status for edit ${id}: ${currentStatus}`);
+        }
       }
     });
     
     console.log(`Marked ${editCount} individual edits as approved`);
+    console.log('Status map after applying edits:', newStatuses);
     
     // Apply the status changes
     setEditStatuses(newStatuses);

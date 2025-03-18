@@ -45,18 +45,23 @@ export function EditStyles() {
       .ProseMirror .ai-edit-preview-wrapper {
         position: relative;
         margin: 0 !important;
-        margin-bottom: 12px !important;
         padding-top: 24px !important; /* Space for the control buttons */
+        padding-bottom: 0 !important;
+        line-height: inherit !important;
       }
       
       .ProseMirror .ai-edit-diff-container {
-        padding: 4px !important;
-        line-height: 1.5 !important;
+        padding: 0 !important;
+        line-height: inherit !important;
+        margin: 0 !important;
       }
       
       .ProseMirror .ai-edit-diff-content {
         white-space: normal !important;
         word-wrap: break-word !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: inherit !important;
       }
       
       .ProseMirror .ai-edit-preview-original {

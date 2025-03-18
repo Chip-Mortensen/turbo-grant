@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { EditOperation } from './types';
+import { EditOperation, EditStatusMap } from './types';
 
 interface EditOperationsHandlerProps {
   editor: any;
   editOperations: EditOperation[];
+  editStatuses?: EditStatusMap;
   onComplete?: () => void;
 }
 
@@ -13,6 +14,7 @@ let isCurrentlyApplyingEdits = false;
 export function EditOperationsHandler({ 
   editor, 
   editOperations, 
+  editStatuses = {},
   onComplete 
 }: EditOperationsHandlerProps) {
   // Track if edits have been applied for this instance
@@ -21,9 +23,19 @@ export function EditOperationsHandler({
   // First do some logging when component mounts
   useEffect(() => {
     console.log(`EditOperationsHandler: Processing ${editOperations.length} operations`);
+    console.log(`EditStatuses passed to handler:`, editStatuses);
     
-    if (editOperations.length === 0) {
-      console.log('No edit operations to apply, completing immediately');
+    // Filter out denied edits before processing
+    const acceptedOperations = editOperations.filter(op => {
+      const status = editStatuses[op.editId];
+      console.log(`Checking edit ${op.editId}, status: ${status}`);
+      return status !== 'denied';
+    });
+    
+    console.log(`After filtering denied edits: ${acceptedOperations.length} operations to apply`);
+    
+    if (acceptedOperations.length === 0) {
+      console.log('No accepted edit operations to apply, completing immediately');
       if (onComplete) onComplete();
       return;
     }
@@ -52,7 +64,14 @@ export function EditOperationsHandler({
         // Apply each edit operation to the HTML
         let hasChanges = false;
         
-        editOperations.forEach(edit => {
+        acceptedOperations.forEach(edit => {
+          // Double-check status again just in case it changed
+          const status = editStatuses[edit.editId];
+          if (status === 'denied') {
+            console.log(`Skipping denied edit: ${edit.editId}`);
+            return;
+          }
+          
           if (edit.operation === 'replace' && edit.tagType && edit.tagIndex !== undefined && edit.newContent) {
             const elements = edit.tagType === 'p' 
               ? Array.from(tempDiv.querySelectorAll('p'))
@@ -61,6 +80,7 @@ export function EditOperationsHandler({
             if (edit.tagIndex < elements.length) {
               const element = elements[edit.tagIndex];
               if (element) {
+                console.log(`Applying edit ${edit.editId}: replacing content in ${edit.tagType} at index ${edit.tagIndex}`);
                 element.textContent = edit.newContent.replace(/<\/?[^>]+(>|$)/g, "");
                 hasChanges = true;
               }
@@ -91,7 +111,7 @@ export function EditOperationsHandler({
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [editOperations, onComplete]);
+  }, [editOperations, editStatuses, onComplete]);
 
   // Clean up global flag when component unmounts
   useEffect(() => {

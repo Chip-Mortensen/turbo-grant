@@ -216,6 +216,21 @@ export function EditHighlighter({
   
   // Handle denial of an individual edit
   const handleDenyEdit = (editId: string) => {
+    // Skip if already being processed
+    if (currentlyApplyingEdits.has(editId)) {
+      console.log(`Edit ${editId} is currently being processed, skipping duplicate request`);
+      return;
+    }
+    
+    // Find the edit by ID
+    const edit = findEditById(editOperations, editId);
+    if (!edit) return;
+    
+    // Add to currently processing set
+    currentlyApplyingEdits.add(editId);
+    console.log(`Denying edit and removing from UI: ${editId}`);
+    
+    // Update the status right away
     if (externalOnDenyEdit) {
       externalOnDenyEdit(editId);
     } else {
@@ -224,6 +239,19 @@ export function EditHighlighter({
         [editId]: 'denied'
       }));
     }
+    
+    // Mark as applied in our tracking sets to immediately hide it from the UI
+    appliedOperationIds.add(editId);
+    
+    // Notify parent of the content change (not really changing content, but updating UI)
+    if (onContentChange) {
+      onContentChange();
+    }
+    
+    // Remove from currently processing set after a short delay
+    setTimeout(() => {
+      currentlyApplyingEdits.delete(editId);
+    }, 10);
   };
   
   // Handle approval of all pending edits
@@ -356,24 +384,31 @@ export function EditHighlighter({
   const operationsToApply = useMemo(() => {
     // When in apply mode, apply everything except denied or already applied
     if (mode === 'apply') {
-      // Apply all edits that haven't been applied yet (maximum performance)
+      // Apply all edits that haven't been applied yet and aren't denied
       return editOperations.filter(edit => {
-        // Only apply if not already applied
-        return !appliedOperationIds.has(edit.editId);
+        // Get the current status
+        const status = editStatuses[edit.editId] || 'pending';
+        // Log each operation's status for debugging
+        console.log(`Filter for apply: Edit ${edit.editId}, status: ${status}, already applied: ${appliedOperationIds.has(edit.editId)}`);
+        // Only apply if not already applied and not denied
+        return !appliedOperationIds.has(edit.editId) && status !== 'denied';
       });
     }
     
     // When applying a single edit, use only that one
     if (applyingEditId && applyingEditId !== 'all') {
       const edit = findEditById(editOperations, applyingEditId);
-      // Skip if already in the applied set
+      // Skip if already in the applied set or denied
       if (edit && !appliedOperationIds.has(edit.editId)) {
-        return [edit];
+        const status = editStatuses[edit.editId] || 'pending';
+        if (status !== 'denied') {
+          return [edit];
+        }
       }
     }
     
     return [];
-  }, [mode, editOperations, applyingEditId]);
+  }, [mode, editOperations, applyingEditId, editStatuses]);
 
   // Capture approved operations to avoid re-applying them
   useEffect(() => {
@@ -507,6 +542,7 @@ export function EditHighlighter({
         <EditOperationsHandler 
           editor={editor} 
           editOperations={operationsToApply} 
+          editStatuses={editStatuses}
           onComplete={() => {
             // Mark all edits as applied
             operationsToApply.forEach(edit => {
