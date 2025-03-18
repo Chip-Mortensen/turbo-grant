@@ -10,6 +10,9 @@ interface AIEditInputProps {
   editSuggestions: EditSuggestion[] | null;
   onApplyEdits: () => void;
   onDiscardEdits: () => void;
+  pendingCount?: number;
+  totalCount?: number;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function AIEditInput({
@@ -17,7 +20,10 @@ export function AIEditInput({
   isLoading,
   editSuggestions,
   onApplyEdits,
-  onDiscardEdits
+  onDiscardEdits,
+  pendingCount = 0,
+  totalCount = 0,
+  setOpen
 }: AIEditInputProps) {
   const [instruction, setInstruction] = useState('');
 
@@ -25,12 +31,20 @@ export function AIEditInput({
     e.preventDefault();
     if (instruction.trim()) {
       await onRequestEdit(instruction);
+      setInstruction('');
     }
   };
 
   const handleApplyEdits = () => {
-    onApplyEdits();
+    // Reset first for responsive feel
     setInstruction('');
+    setOpen(false);
+    
+    // Then trigger the actual edit application
+    // This ensures UI clears before any heavy processing happens
+    requestAnimationFrame(() => {
+      onApplyEdits();
+    });
   };
 
   const handleDiscardEdits = () => {
@@ -72,6 +86,10 @@ export function AIEditInput({
     return summary;
   }
 
+  // Get the pending/total counts
+  const displayPendingCount = pendingCount || (editSuggestions ? getEditCount(editSuggestions) : 0);
+  const displayTotalCount = totalCount || (editSuggestions ? getEditCount(editSuggestions) : 0); 
+
   return (
     <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-md z-10">
       {!editSuggestions ? (
@@ -108,14 +126,18 @@ export function AIEditInput({
             <span className="text-gray-600 ml-2">
               {(() => {
                 const summary = getEditSummary(editSuggestions);
+                const countDisplay = displayPendingCount !== displayTotalCount 
+                  ? `${displayPendingCount}/${displayTotalCount} remaining` 
+                  : '';
+                
                 if (summary.total === 1) {
-                  return "1 change suggested";
+                  return `1 change suggested ${countDisplay}`;
                 } else {
                   let details = [];
                   if (summary.replace > 0) details.push(`${summary.replace} edits`);
                   if (summary.add > 0) details.push(`${summary.add} additions`);
                   if (summary.delete > 0) details.push(`${summary.delete} deletions`);
-                  return `${summary.total} changes (${details.join(', ')})`;
+                  return `${summary.total} changes (${details.join(', ')}) ${countDisplay}`.trim();
                 }
               })()}
               {' '}(Green = additions, Red = removals)
@@ -135,6 +157,7 @@ export function AIEditInput({
               size="sm"
               onClick={handleApplyEdits}
               className="flex items-center"
+              disabled={displayPendingCount === 0}
             >
               <Check className="mr-1 h-4 w-4" />
               Apply Changes
