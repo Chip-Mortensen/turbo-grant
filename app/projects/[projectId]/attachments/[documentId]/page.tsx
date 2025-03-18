@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Document, DocumentField, AgencyType, DocumentSourceType } from '@/types/documents';
 import { use } from 'react';
@@ -22,7 +22,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BackButton } from "@/components/ui/back-button";
 import { AIEditInput } from '@/components/projects/attachments/ai-edit-dialog';
-import { EditHighlighter } from '@/components/projects/attachments/edit-highlighter';
+import EditHighlighter from '@/components/projects/attachments/edit-highlighter';
 import { EditSuggestion } from '@/app/api/attachments/ai-edit/route';
 import { Mark } from '@tiptap/core';
 
@@ -192,6 +192,11 @@ function Toolbar({ editor }: { editor: any }) {
   );
 }
 
+// Define the EditStatusMap interface here, since importing from the component is causing issues
+interface EditStatusMap {
+  [editId: string]: 'approved' | 'denied' | 'pending';
+}
+
 function ProcessedContent({ 
   documentId, 
   projectId, 
@@ -221,6 +226,9 @@ function ProcessedContent({
   const [editSuggestions, setEditSuggestions] = useState<EditSuggestion[] | null>(null);
   const [isApplyingEdits, setIsApplyingEdits] = useState(false);
   const [isGeneratingDocument, setIsGeneratingDocument] = useState(false);
+  const [editStatuses, setEditStatuses] = useState<EditStatusMap>({});
+  const [editCounts, setEditCounts] = useState({ pending: 0, total: 0 });
+  const [isAIEditOpen, setIsAIEditOpen] = useState(false);
   const supabase = createClient();
   
   // Reference to track content changes
@@ -315,8 +323,9 @@ function ProcessedContent({
       editor.commands.setContent(initialContent);
       contentRef.current.initial = initialContent;
       contentRef.current.current = initialContent;
+      onContentChanged();
     }
-  }, [editor, initialContent]);
+  }, [editor, initialContent, onContentChanged]);
 
   const fetchContent = async () => {
     try {
@@ -671,47 +680,73 @@ function ProcessedContent({
     }
   };
 
-  // Add functions to apply or discard edits
-  const applyAIEdits = async () => {
-    console.log('Applying AI edits, count:', editSuggestions?.length || 0);
+  // Handle approving an edit
+  const handleApproveEdit = (editId: string) => {
+    setEditStatuses((prev: EditStatusMap) => ({
+      ...prev,
+      [editId]: 'approved'
+    }));
+  };
+  
+  // Handle denying an edit
+  const handleDenyEdit = (editId: string) => {
+    setEditStatuses((prev: EditStatusMap) => ({
+      ...prev,
+      [editId]: 'denied'
+    }));
+  };
+  
+  // Handle applying all remaining edits
+  const handleApproveAllRemaining = () => {
+    if (!editSuggestions) return;
     
-    if (!editor || !editSuggestions?.length) {
+    // If there are no pending edits left, clear suggestions and return early
+    if (editCounts.pending === 0) {
+      console.log('No pending edits remaining, clearing suggestions');
+      setEditSuggestions(null);
+      setEditStatuses({});
+      setEditCounts({ pending: 0, total: 0 });
       return;
     }
     
-    // Log the document content before applying edits (truncated)
-    const beforeHtml = editor.getHTML();
-    console.log(`Document content before edits (${beforeHtml.length} chars): ${beforeHtml.substring(0, 100)}...`);
+    console.log(`Approving ${editCounts.pending} remaining edits`);
     
-    // Simply set the applying mode and let the EditHighlighter component handle the rest
-    setIsApplyingEdits(true);
+    // For each edit that's still pending, mark it as approved
+    const newStatuses = { ...editStatuses };
     
-    // After a brief delay to ensure the edits are applied, reset the state
-    setTimeout(() => {
-      // Log the document content after applying edits (truncated)
-      const afterHtml = editor.getHTML();
-      console.log(`Document content after edits (${afterHtml.length} chars): ${afterHtml.substring(0, 100)}...`);
-      
-      // Check if the content has actually changed
-      const contentBefore = contentRef.current.current;
-      const contentAfter = editor.getHTML();
-      
-      if (contentBefore === contentAfter) {
-        console.warn('Warning: Document content did not change after applying edits!');
-      } else {
-        console.log(`Document content successfully changed (${contentBefore?.length || 0} -> ${contentAfter.length} chars)`);
+    editSuggestions.forEach(edit => {
+      const id = ('id' in edit) ? (edit as any).id as string : '';
+      if (id && (!newStatuses[id] || newStatuses[id] === 'pending')) {
+        newStatuses[id] = 'approved';
       }
-      
-      setEditSuggestions(null);
-      setIsApplyingEdits(false);
-      onContentChanged();
-    }, 500); // Increased timeout to ensure edits have time to apply
+    });
+    
+    // Set the new statuses first
+    setEditStatuses(newStatuses);
+    
+    // Then set applying mode to apply approved edits
+    setIsApplyingEdits(true);
+  };
+  
+  // Apply edits function - only used when Apply button is clicked in the AI edit dialog
+  const applyEdits = () => {
+    console.log('Applying all edits via Apply Changes button');
+    
+    // Apply all remaining edits
+    // Approve all remaining pending edits
+    handleApproveAllRemaining();
+    
+    // Mark content as changed
+    setHasUnsavedChanges(true);
+    
+    // Notify parent about changes
+    onContentChanged();
   };
 
-  const discardAIEdits = () => {
-    console.log('Discarding edit suggestions');
+  // Discard edits function
+  const discardEdits = () => {
     setEditSuggestions(null);
-    setIsApplyingEdits(false);
+    setEditStatuses({});
   };
 
   // Helper function to calculate text similarity
@@ -734,6 +769,37 @@ function ProcessedContent({
     
     return 1 - (differences / maxLength);
   };
+
+  const handleStatusChange = useCallback((pendingCount: number, totalCount: number) => {
+    // Avoid unnecessary state updates
+    if (editCounts.pending !== pendingCount || editCounts.total !== totalCount) {
+      setEditCounts({ pending: pendingCount, total: totalCount });
+    }
+  }, [editCounts]);
+
+  const handleSaveContent = useCallback((content: string) => {
+    if (contentRef.current) {
+      contentRef.current.current = content;
+    }
+    setHasUnsavedChanges(true);
+  }, []);
+
+  // Add the following function to handle content change notifications from EditHighlighter
+  const handleEditHighlighterContentChange = useCallback(() => {
+    setHasUnsavedChanges(true);
+    
+    // Check if all edits have been handled and if we're in applying mode
+    if (isApplyingEdits && editCounts.total > 0 && editCounts.pending === 0) {
+      console.log('All edits processed while in applying mode, clearing suggestions');
+      // Reset UI after a short delay to allow editor to update
+      setTimeout(() => {
+        setIsApplyingEdits(false);
+        setEditSuggestions(null);
+        setEditStatuses({});
+        setEditCounts({ pending: 0, total: 0 });
+      }, 500);
+    }
+  }, [editSuggestions, editCounts]);
 
   return (
     <div className="space-y-4">
@@ -812,19 +878,29 @@ function ProcessedContent({
         ) : (
           <div className="relative">
             <EditorContent editor={editor} />
-            {editSuggestions && (
-              <EditHighlighter
-                editor={editor}
-                editSuggestions={editSuggestions}
-                mode={isApplyingEdits ? 'apply' : 'preview'}
-              />
-            )}
+            <EditHighlighter
+              editor={editor}
+              editSuggestions={editSuggestions}
+              mode={isApplyingEdits ? 'apply' : 'preview'}
+              editStatuses={editStatuses}
+              onApproveEdit={handleApproveEdit}
+              onDenyEdit={handleDenyEdit}
+              onApproveAll={handleApproveAllRemaining}
+              autoApply={true}
+              onContentChange={handleEditHighlighterContentChange}
+              onStatusChange={(pending: number, total: number) => {
+                setEditCounts({ pending, total });
+              }}
+            />
             <AIEditInput
               onRequestEdit={requestAIEdit}
               isLoading={aiEditLoading}
               editSuggestions={editSuggestions}
-              onApplyEdits={applyAIEdits}
-              onDiscardEdits={discardAIEdits}
+              onApplyEdits={handleApproveAllRemaining}
+              onDiscardEdits={discardEdits}
+              pendingCount={editCounts.pending}
+              totalCount={editCounts.total}
+              setOpen={setIsAIEditOpen}
             />
           </div>
         )}
@@ -1142,9 +1218,7 @@ export default function DocumentQuestionsPage({
           onChangesSaved={() => {
             setHasUnsavedChanges(false);
           }}
-          onContentChanged={() => {
-            setHasUnsavedChanges(true);
-          }}
+          onContentChanged={() => handleContentChange(true)}
         />
       </div>
     </div>
