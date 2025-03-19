@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar } from '@/components/ui/avatar';
-import { SendHorizontal, Loader2, Bot, User, CheckCircle2 } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { SendHorizontal, Loader2, CheckCircle2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { cn } from '@/lib/utils';
 import { organizationTypeLabels } from '@/types/enum-types';
@@ -611,8 +611,8 @@ export function ApplicationFactorsChat({
                     )}
                   >
                     {message.role === 'assistant' && (
-                      <Avatar className="h-8 w-8 bg-primary">
-                        <Bot className="h-4 w-4 text-primary-foreground" />
+                      <Avatar>
+                        <AvatarFallback>TG</AvatarFallback>
                       </Avatar>
                     )}
                     <div className="flex flex-col gap-2 max-w-[80%]">
@@ -634,8 +634,8 @@ export function ApplicationFactorsChat({
                       )}
                     </div>
                     {message.role === 'user' && (
-                      <Avatar className="h-8 w-8 bg-muted">
-                        <User className="h-4 w-4" />
+                      <Avatar>
+                        <AvatarFallback>U</AvatarFallback>
                       </Avatar>
                     )}
                   </div>
@@ -643,8 +643,8 @@ export function ApplicationFactorsChat({
               })}
               {isLoading && (
                 <div className="flex justify-start gap-3">
-                  <Avatar className="h-8 w-8 bg-primary">
-                    <Bot className="h-4 w-4 text-primary-foreground" />
+                  <Avatar>
+                    <AvatarFallback>TG</AvatarFallback>
                   </Avatar>
                   <div className="rounded-lg px-4 py-2 bg-muted flex items-center">
                     <Loader2 className="h-4 w-4 animate-spin" />

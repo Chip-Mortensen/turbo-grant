@@ -11,6 +11,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "@google/generative-ai": "^0.24.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@pinecone-database/pinecone": "^5.0.0",
     "@radix-ui/react-checkbox": "^1.1.4",
@@ -52,6 +53,8 @@
     "react": "19.0.0",
     "react-datepicker": "^8.1.0",
     "react-dom": "19.0.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "supabase": "^2.15.8",
     "tus-js-client": "^4.3.1",
     "uuid": "^11.1.0"
