@@ -186,6 +186,8 @@ export function PluginManager({
       container.setAttribute('data-edit-index', String(index));
       container.setAttribute('data-edit-id', edit.editId);
       container.setAttribute('data-edit-status', status);
+      container.setAttribute('data-edit-operation', 'replace');
+      container.setAttribute('data-tag-type', edit.tagType || '');
       
       // Add the control buttons for pending edits
       if (status === 'pending') {
@@ -281,6 +283,9 @@ export function PluginManager({
       }`;
       wrapper.setAttribute('data-edit-id', edit.editId);
       wrapper.setAttribute('data-edit-status', status);
+      wrapper.setAttribute('data-edit-operation', 'delete');
+      wrapper.setAttribute('data-edit-index', String(index));
+      wrapper.setAttribute('data-tag-type', edit.tagType || '');
       
       // Add the control buttons for pending edits
       if (status === 'pending') {
@@ -311,13 +316,6 @@ export function PluginManager({
         statusBadge.textContent = status === 'approved' ? 'Approved' : 'Denied';
         wrapper.appendChild(statusBadge);
       }
-      
-      const label = document.createElement('div');
-      label.textContent = 'Delete this paragraph';
-      label.style.fontSize = '12px';
-      label.style.marginTop = '4px';
-      label.style.opacity = '0.7';
-      wrapper.appendChild(label);
       
       return wrapper;
     });
@@ -356,59 +354,61 @@ export function PluginManager({
     const { node, pos } = paragraphs[refIndex];
     const newContent = edit.newContent.replace(/<\/?[^>]+(>|$)/g, "");
     
+    // Calculate insertion position based on the reference node and position
+    const insertPos = position === 'before' ? pos : pos + node.nodeSize;
+    
     // Create a widget decoration that shows the new content
-    const decoration = Decoration.widget(
-      position === 'before' ? pos : pos + node.nodeSize, 
-      () => {
-        const wrapper = document.createElement('div');
-        wrapper.className = `ai-edit-preview-wrapper ${
-          status === 'approved' 
-            ? 'ai-edit-status-approved' 
-            : status === 'denied'
-              ? 'ai-edit-status-denied' 
-              : 'ai-edit-status-pending'
-        }`;
-        wrapper.setAttribute('data-edit-id', edit.editId);
-        wrapper.setAttribute('data-edit-status', status);
+    const decoration = Decoration.widget(insertPos, () => {
+      const wrapper = document.createElement('div');
+      wrapper.className = `ai-edit-preview-wrapper ${
+        status === 'approved' 
+          ? 'ai-edit-status-approved' 
+          : status === 'denied'
+            ? 'ai-edit-status-denied' 
+            : 'ai-edit-status-pending'
+      }`;
+      wrapper.setAttribute('data-edit-id', edit.editId);
+      wrapper.setAttribute('data-edit-status', status);
+      wrapper.setAttribute('data-edit-operation', 'add');
+      wrapper.setAttribute('data-position', position);
+      
+      // Add the control buttons for pending edits
+      if (status === 'pending') {
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'ai-edit-controls';
         
-        // Add the control buttons for pending edits
-        if (status === 'pending') {
-          const controlsDiv = document.createElement('div');
-          controlsDiv.className = 'ai-edit-controls';
-          
-          const approveButton = document.createElement('button');
-          approveButton.className = 'ai-edit-control-button ai-edit-approve-button';
-          approveButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
-          approveButton.setAttribute('data-edit-action', 'approve');
-          approveButton.setAttribute('data-edit-id', edit.editId);
-          approveButton.title = 'Approve this addition';
-          
-          const denyButton = document.createElement('button');
-          denyButton.className = 'ai-edit-control-button ai-edit-deny-button';
-          denyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
-          denyButton.setAttribute('data-edit-action', 'deny');
-          denyButton.setAttribute('data-edit-id', edit.editId);
-          denyButton.title = 'Deny this addition';
-          
-          controlsDiv.appendChild(approveButton);
-          controlsDiv.appendChild(denyButton);
-          wrapper.appendChild(controlsDiv);
-        } else {
-          // Add status badge
-          const statusBadge = document.createElement('div');
-          statusBadge.className = `ai-edit-status-badge ai-edit-status-${status}`;
-          statusBadge.textContent = status === 'approved' ? 'Approved' : 'Denied';
-          wrapper.appendChild(statusBadge);
-        }
+        const approveButton = document.createElement('button');
+        approveButton.className = 'ai-edit-control-button ai-edit-approve-button';
+        approveButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+        approveButton.setAttribute('data-edit-action', 'approve');
+        approveButton.setAttribute('data-edit-id', edit.editId);
+        approveButton.title = 'Approve this addition';
         
-        const newParagraph = document.createElement('p');
-        newParagraph.className = 'ai-edit-new-node';
-        newParagraph.textContent = newContent;
-        wrapper.appendChild(newParagraph);
+        const denyButton = document.createElement('button');
+        denyButton.className = 'ai-edit-control-button ai-edit-deny-button';
+        denyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+        denyButton.setAttribute('data-edit-action', 'deny');
+        denyButton.setAttribute('data-edit-id', edit.editId);
+        denyButton.title = 'Deny this addition';
         
-        return wrapper;
+        controlsDiv.appendChild(approveButton);
+        controlsDiv.appendChild(denyButton);
+        wrapper.appendChild(controlsDiv);
+      } else {
+        // Add status badge
+        const statusBadge = document.createElement('div');
+        statusBadge.className = `ai-edit-status-badge ai-edit-status-${status}`;
+        statusBadge.textContent = status === 'approved' ? 'Approved' : 'Denied';
+        wrapper.appendChild(statusBadge);
       }
-    );
+      
+      const newParagraph = document.createElement('p');
+      newParagraph.className = 'ai-edit-new-node';
+      newParagraph.textContent = newContent;
+      wrapper.appendChild(newParagraph);
+      
+      return wrapper;
+    });
     
     decorations.push(decoration);
   };

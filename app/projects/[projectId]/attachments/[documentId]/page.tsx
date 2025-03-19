@@ -975,6 +975,12 @@ function ProcessedContent({
     }
   }, [isApplyingEdits]);
 
+  useEffect(() => {
+    if (editSuggestions && editSuggestions.length > 0) {
+      console.log(`🔄 Loaded ${editSuggestions.length} edit suggestion groups with a total of ${editSuggestions.reduce((total, group) => total + group.edits.length, 0)} individual edits`);
+    }
+  }, [editSuggestions]);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
