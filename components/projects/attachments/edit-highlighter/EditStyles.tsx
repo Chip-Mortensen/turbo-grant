@@ -18,6 +18,7 @@ export function EditStyles() {
       
       /* Container for the control buttons */
       .ProseMirror .ai-edit-controls {
+        display: none !important;
         position: absolute;
         top: -24px;
         left: 0;
