@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { EditSuggestion } from '@/app/api/attachments/ai-edit/route';
 import { EditStyles } from './EditStyles';
 import { PluginManager } from './PluginManager';
@@ -120,99 +120,189 @@ export function EditHighlighter({
   }, [pendingCount, approvedCount, totalCount, onContentChange, mode, externalOnApproveAll]);
   
   // Handle approval of an individual edit
-  const handleApproveEdit = (editId: string) => {
+  const handleApproveEdit = useCallback((editId: string) => {
     // Skip if already being processed
     if (currentlyApplyingEdits.has(editId)) {
       console.log(`Edit ${editId} is currently being applied, skipping duplicate request`);
       return;
     }
-    
+
+    if (!editor) {
+      console.error('Editor reference not available');
+      return;
+    }
+
     // Find the edit by ID
     const edit = findEditById(editOperations, editId);
-    if (!edit) return;
+    if (!edit) {
+      console.error('Cannot approve edit: no edit found with ID', editId);
+      return;
+    }
     
     // Add to currently processing set
     currentlyApplyingEdits.add(editId);
-    
-    // Update the status right away
-    if (externalOnApproveEdit) {
-      externalOnApproveEdit(editId);
-    } else {
-      setInternalEditStatuses(prev => ({
-        ...prev,
-        [editId]: 'approved'
-      }));
-    }
-    
-    // For individual edits, we'll now handle them inline without changing mode
-    if (autoApply) {
-      // Apply this specific edit through a direct application rather than mode switch
-      const editToApply = findEditById(editOperations, editId);
-      if (editToApply) {
-        // Instead of setting applyingEditId which would trigger mode changes,
-        // we'll apply this edit directly through IndividualEditHandler
-        // Create a temporary element to host the individual edit handler
-        const tempContainer = document.createElement('div');
-        tempContainer.style.display = 'none';
-        document.body.appendChild(tempContainer);
-        
-        // We'll use a direct DOM-based approach to apply the edit
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = editor.getHTML();
-        
-        // Apply the edit based on its type (this mimics the logic in IndividualEditHandler)
-        if (editToApply.operation === 'replace' && editToApply.tagType && editToApply.tagIndex !== undefined) {
-          const elements = editToApply.tagType === 'p' 
-            ? Array.from(tempDiv.querySelectorAll('p'))
-            : Array.from(tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+
+    try {
+      // Handle different operation types consistently
+      if (edit.operation === 'replace' && edit.tagType && edit.tagIndex !== undefined && edit.newContent) {
+        // Get all nodes of the specified type
+        const nodes: { node: any, pos: number }[] = [];
+        editor.state.doc.descendants((node: any, pos: number) => {
+          const isTargetNodeType = 
+            (edit.tagType === 'p' && node.type.name === 'paragraph') ||
+            (edit.tagType === 'h1' && node.type.name === 'heading');
           
-          if (editToApply.tagIndex < elements.length) {
-            const element = elements[editToApply.tagIndex];
-            if (element && editToApply.newContent) {
-              console.log(`Directly applying edit: replacing content at ${editToApply.tagType} index ${editToApply.tagIndex}`);
-              element.textContent = editToApply.newContent.replace(/<\/?[^>]+(>|$)/g, "");
-              
-              // Apply the change to the editor
-              editor.commands.setContent(tempDiv.innerHTML);
-              
-              // Mark as applied in our tracking sets
-              appliedOperationIds.add(editId);
-              
-              // Notify of content change
-              if (onContentChange) {
-                onContentChange();
-              }
-            }
+          if (isTargetNodeType) {
+            nodes.push({ node, pos });
           }
+          return true;
+        });
+        
+        // Sort nodes by position for correct indexing
+        nodes.sort((a, b) => a.pos - b.pos);
+        
+        // Find the target node
+        if (edit.tagIndex < nodes.length) {
+          const { node, pos } = nodes[edit.tagIndex];
+          console.log(`Approving replace edit: updating ${edit.tagType} at index ${edit.tagIndex}, pos ${pos}`);
+          
+          // Create a transaction to replace the content
+          const tr = editor.state.tr;
+          const start = pos;
+          const end = pos + node.nodeSize;
+          
+          // Create a new node with the updated content
+          const newNode = node.type.create(
+            node.attrs, 
+            editor.schema.text(edit.newContent.replace(/<\/?[^>]+(>|$)/g, ""))
+          );
+          
+          // Replace the node
+          tr.replaceWith(start, end, newNode);
+          editor.view.dispatch(tr);
         }
+      } else if (edit.operation === 'delete' && edit.tagType && edit.tagIndex !== undefined) {
+        // Get all nodes of the specified type
+        const nodes: { node: any, pos: number }[] = [];
+        editor.state.doc.descendants((node: any, pos: number) => {
+          if ((edit.tagType === 'p' && node.type.name === 'paragraph') ||
+              (edit.tagType === 'h1' && node.type.name === 'heading')) {
+            nodes.push({ node, pos });
+          }
+          return true;
+        });
         
-        // Clean up
-        document.body.removeChild(tempContainer);
+        // Sort nodes by position for correct indexing
+        nodes.sort((a, b) => a.pos - b.pos);
         
-        // Now mark this edit as handled
-        if (externalOnApproveEdit) {
-          // Mark as applied via external handler
+        // Find the target node
+        if (edit.tagIndex < nodes.length) {
+          const { node, pos } = nodes[edit.tagIndex];
+          console.log(`Approving delete edit: removing ${edit.tagType} at index ${edit.tagIndex}, pos ${pos}`);
+          
+          // Create a transaction to delete the node
+          const tr = editor.state.tr;
+          const start = pos;
+          const end = pos + node.nodeSize;
+          
+          // Delete the node
+          tr.delete(start, end);
+          editor.view.dispatch(tr);
+        }
+      } else if (edit.operation === 'add' && edit.tagType && edit.referenceNodeIndex !== undefined && edit.position && edit.newContent) {
+        // Get all nodes of the specified type
+        const nodes: { node: any, pos: number }[] = [];
+        editor.state.doc.descendants((node: any, pos: number) => {
+          if ((edit.tagType === 'p' && node.type.name === 'paragraph') ||
+              (edit.tagType === 'h1' && node.type.name === 'heading')) {
+            nodes.push({ node, pos });
+          }
+          return true;
+        });
+        
+        // Sort nodes by position for correct indexing
+        nodes.sort((a, b) => a.pos - b.pos);
+        
+        // Find the reference node
+        if (edit.referenceNodeIndex < nodes.length) {
+          const { node, pos } = nodes[edit.referenceNodeIndex];
+          console.log(`Approving add edit: adding ${edit.tagType} ${edit.position} reference node at index ${edit.referenceNodeIndex}, pos ${pos}`);
+          
+          // Create a transaction
+          const tr = editor.state.tr;
+          
+          // Create a new node with the content
+          const schema = editor.state.schema;
+          const newNode = edit.tagType === 'p' 
+            ? schema.nodes.paragraph.create(
+                null, 
+                schema.text(edit.newContent.replace(/<\/?[^>]+(>|$)/g, ""))
+              )
+            : schema.nodes.heading.create(
+                { level: 1 }, 
+                schema.text(edit.newContent.replace(/<\/?[^>]+(>|$)/g, ""))
+              );
+          
+          // Determine position to insert
+          const insertPos = edit.position === 'before' 
+            ? pos 
+            : pos + node.nodeSize;
+          
+          // Insert the node
+          tr.insert(insertPos, newNode);
+          editor.view.dispatch(tr);
+        }
+      } else {
+        console.error('Cannot approve edit: invalid operation type or missing fields', edit);
+        return;
+      }
+
+      // Update edit status to approved
+      if (externalOnApproveEdit) {
+        externalOnApproveEdit(editId);
+      } else {
+        setInternalEditStatuses(prev => ({
+          ...prev,
+          [editId]: 'approved'
+        }));
+      }
+
+      // Mark as applied in our tracking sets
+      appliedOperationIds.add(editId);
+
+      // Notify of content change
+      if (onContentChange) {
+        onContentChange();
+      }
+
+      console.log(`Edit ${editId} approved and applied successfully`);
+      
+      // Mark as applied via handlers
+      if (externalOnApproveEdit) {
+        setTimeout(() => {
+          externalOnApproveEdit(editId);
+          // Remove from currently processing set
+          currentlyApplyingEdits.delete(editId);
+        }, 10);
+      } else {
+        setInternalEditStatuses(prev => {
+          const result: EditStatusMap = {
+            ...prev,
+            [editId]: 'applied'
+          };
+          // Remove from currently processing set
           setTimeout(() => {
-            externalOnApproveEdit(editId);
-            // Remove from currently processing set
             currentlyApplyingEdits.delete(editId);
           }, 10);
-        } else {
-          setInternalEditStatuses(prev => {
-            const result: EditStatusMap = {
-              ...prev,
-              [editId]: 'applied'
-            };
-            // Remove from currently processing set
-            setTimeout(() => {
-              currentlyApplyingEdits.delete(editId);
-            }, 10);
-            return result;
-          });
-        }
+          return result;
+        });
       }
+    } catch (error) {
+      console.error('Error applying edit:', error);
+      // Remove from currently processing set
+      currentlyApplyingEdits.delete(editId);
     }
-  };
+  }, [editOperations, externalOnApproveEdit, onContentChange, setInternalEditStatuses]);
   
   // Handle denial of an individual edit
   const handleDenyEdit = (editId: string) => {

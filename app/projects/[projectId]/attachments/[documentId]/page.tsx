@@ -230,6 +230,8 @@ function ProcessedContent({
   const [editCounts, setEditCounts] = useState({ pending: 0, total: 0 });
   const [isAIEditOpen, setIsAIEditOpen] = useState(false);
   const [processedEditIds, setProcessedEditIds] = useState<Set<string>>(new Set());
+  const [contentInitialized, setContentInitialized] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const supabase = createClient();
   
   // Add a ref to track when we're in the middle of applying edits to prevent loops
@@ -286,6 +288,8 @@ function ProcessedContent({
       }
     },
     onUpdate: ({ editor }) => {
+      if (isExporting) return; // Don't update during export
+      
       const currentContent = editor.getHTML();
       contentRef.current.current = currentContent;
       
@@ -321,19 +325,24 @@ function ProcessedContent({
   }, [hasUnsavedChanges]);
 
   useEffect(() => {
-    fetchContent();
-  }, [documentId, projectId]);
+    if (!contentInitialized) {
+      fetchContent();
+    }
+  }, [documentId, projectId, contentInitialized]);
 
   useEffect(() => {
-    if (editor && initialContent) {
+    if (editor && initialContent && !contentInitialized) {
       editor.commands.setContent(initialContent);
       contentRef.current.initial = initialContent;
       contentRef.current.current = initialContent;
+      setContentInitialized(true);
       onContentChanged();
     }
-  }, [editor, initialContent, onContentChanged]);
+  }, [editor, initialContent, contentInitialized, onContentChanged]);
 
   const fetchContent = async () => {
+    if (contentInitialized) return; // Don't fetch if already initialized
+    
     try {
       setLoading(true);
       
@@ -568,6 +577,7 @@ function ProcessedContent({
 
   const handleExport = async (format: FileType) => {
     try {
+      setIsExporting(true);
       setIsGenerating(true);
       setExportError(undefined);
       
@@ -578,8 +588,12 @@ function ProcessedContent({
       
       // Check if we already have a file of this type
       if (fileType === format && fileUrl) {
+        setIsExporting(false);
         return fileUrl;
       }
+      
+      // Store current editor content to prevent it from being lost
+      const currentContent = editor ? editor.getHTML() : contentRef.current.current;
       
       // Generate the file
       const response = await fetch('/api/documents/export', {
@@ -588,7 +602,7 @@ function ProcessedContent({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content: contentRef.current.current,
+          content: currentContent,
           format,
           documentId,
           projectId,
@@ -612,7 +626,8 @@ function ProcessedContent({
         .from('completed_documents')
         .update({
           file_url: data.fileUrl,
-          file_type: format
+          file_type: format,
+          content: currentContent // Ensure content is also updated with latest edits
         })
         .eq('document_id', documentId)
         .eq('project_id', projectId);
@@ -629,6 +644,10 @@ function ProcessedContent({
       return undefined;
     } finally {
       setIsGenerating(false);
+      // Use a small delay before turning off export flag to ensure all state updates complete
+      setTimeout(() => {
+        setIsExporting(false);
+      }, 100);
     }
   };
 
@@ -975,6 +994,12 @@ function ProcessedContent({
     }
   }, [isApplyingEdits]);
 
+  useEffect(() => {
+    if (editSuggestions && editSuggestions.length > 0) {
+      console.log(`🔄 Loaded ${editSuggestions.length} edit suggestion groups with a total of ${editSuggestions.reduce((total, group) => total + group.edits.length, 0)} individual edits`);
+    }
+  }, [editSuggestions]);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -1016,7 +1041,13 @@ function ProcessedContent({
       
       <ExportDialog
         open={showExportDialog}
-        onOpenChange={setShowExportDialog}
+        onOpenChange={(open) => {
+          // When closing dialog, ensure we're not in exporting state
+          if (!open && isExporting) {
+            setIsExporting(false);
+          }
+          setShowExportDialog(open);
+        }}
         onExport={handleExport}
         isGenerating={isGenerating}
         existingFileType={fileType}

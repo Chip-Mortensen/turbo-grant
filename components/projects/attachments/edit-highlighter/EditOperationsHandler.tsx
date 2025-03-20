@@ -53,53 +53,165 @@ export function EditOperationsHandler({
       try {
         console.log('Applying all edit operations to editor');
         
-        // Instead of using dispatch directly, use the editor commands API
-        // Get the current HTML content
-        const currentContent = editor.getHTML();
+        // We need to apply edits directly to the editor state
+        // since some edits (add/delete) can't be handled by HTML manipulation
         
-        // Create a temporary div to modify the content
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = currentContent;
-        
-        // Apply each edit operation to the HTML
         let hasChanges = false;
         
-        acceptedOperations.forEach(edit => {
-          // Double-check status again just in case it changed
-          const status = editStatuses[edit.editId];
-          if (status === 'denied') {
-            console.log(`Skipping denied edit: ${edit.editId}`);
-            return;
-          }
+        // Process operations in a specific order: deletes first, then replacements, then adds
+        // This prevents index shifting problems
+        
+        // First collect operations by type
+        const deleteOps = acceptedOperations.filter(op => op.operation === 'delete');
+        const replaceOps = acceptedOperations.filter(op => op.operation === 'replace');
+        const addOps = acceptedOperations.filter(op => op.operation === 'add');
+        
+        console.log(`Processing operations in order: ${deleteOps.length} deletes, ${replaceOps.length} replacements, ${addOps.length} additions`);
+        
+        // Process delete operations first (in reverse order to avoid index shifting)
+        if (deleteOps.length > 0) {
+          // Sort in reverse order of index to avoid shifting issues
+          deleteOps.sort((a, b) => {
+            if (a.tagIndex === undefined || b.tagIndex === undefined) return 0;
+            return b.tagIndex - a.tagIndex;
+          });
           
-          if (edit.operation === 'replace' && edit.tagType && edit.tagIndex !== undefined && edit.newContent) {
-            const elements = edit.tagType === 'p' 
-              ? Array.from(tempDiv.querySelectorAll('p'))
-              : Array.from(tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+          for (const edit of deleteOps) {
+            if (edit.tagIndex === undefined) continue;
             
-            if (edit.tagIndex < elements.length) {
-              const element = elements[edit.tagIndex];
-              if (element) {
-                console.log(`Applying edit ${edit.editId}: replacing content in ${edit.tagType} at index ${edit.tagIndex}`);
-                element.textContent = edit.newContent.replace(/<\/?[^>]+(>|$)/g, "");
-                hasChanges = true;
+            // Get all nodes of the specified type
+            const nodes: { node: any, pos: number }[] = [];
+            editor.state.doc.descendants((node: any, pos: number) => {
+              if ((edit.tagType === 'p' && node.type.name === 'paragraph') ||
+                  (edit.tagType === 'h1' && node.type.name === 'heading')) {
+                nodes.push({ node, pos });
               }
+              return true;
+            });
+            
+            // Sort nodes by position for correct indexing
+            nodes.sort((a, b) => a.pos - b.pos);
+            
+            // Find the target node
+            if (edit.tagIndex < nodes.length) {
+              const { node, pos } = nodes[edit.tagIndex];
+              console.log(`Batch deleting node at index ${edit.tagIndex}, pos ${pos}`);
+              
+              // Create a transaction to delete the node
+              const tr = editor.state.tr;
+              const start = pos;
+              const end = pos + node.nodeSize;
+              
+              // Delete the node
+              tr.delete(start, end);
+              editor.view.dispatch(tr);
+              hasChanges = true;
             }
           }
-        });
+        }
         
-        // If we made any changes, update the editor content
-        if (hasChanges) {
-          // Use the proper editor API to set content
-          editor.commands.setContent(tempDiv.innerHTML);
+        // Process replace operations
+        if (replaceOps.length > 0) {
+          for (const edit of replaceOps) {
+            if (edit.tagIndex === undefined || !edit.newContent) continue;
+            
+            // Get all nodes of the specified type
+            const nodes: { node: any, pos: number }[] = [];
+            editor.state.doc.descendants((node: any, pos: number) => {
+              const isTargetNodeType = 
+                (edit.tagType === 'p' && node.type.name === 'paragraph') ||
+                (edit.tagType === 'h1' && node.type.name === 'heading');
+              
+              if (isTargetNodeType) {
+                nodes.push({ node, pos });
+              }
+              return true;
+            });
+            
+            // Sort nodes by position for correct indexing
+            nodes.sort((a, b) => a.pos - b.pos);
+            
+            // Find the target node
+            if (edit.tagIndex < nodes.length) {
+              const { node, pos } = nodes[edit.tagIndex];
+              console.log(`Batch replacing content in node at index ${edit.tagIndex}, pos ${pos}`);
+              
+              // Create a transaction to replace the content
+              const tr = editor.state.tr;
+              const start = pos;
+              const end = pos + node.nodeSize;
+              
+              // Create a new node with the updated content
+              const newNode = node.type.create(
+                node.attrs, 
+                editor.schema.text(edit.newContent.replace(/<\/?[^>]+(>|$)/g, ""))
+              );
+              
+              // Replace the node
+              tr.replaceWith(start, end, newNode);
+              editor.view.dispatch(tr);
+              hasChanges = true;
+            }
+          }
+        }
+        
+        // Process add operations last
+        if (addOps.length > 0) {
+          for (const edit of addOps) {
+            if (edit.referenceNodeIndex === undefined || !edit.position || !edit.newContent) continue;
+            
+            // Get all nodes of the specified type
+            const nodes: { node: any, pos: number }[] = [];
+            editor.state.doc.descendants((node: any, pos: number) => {
+              if ((edit.tagType === 'p' && node.type.name === 'paragraph') ||
+                  (edit.tagType === 'h1' && node.type.name === 'heading')) {
+                nodes.push({ node, pos });
+              }
+              return true;
+            });
+            
+            // Sort nodes by position for correct indexing
+            nodes.sort((a, b) => a.pos - b.pos);
+            
+            // Find the reference node
+            if (edit.referenceNodeIndex < nodes.length) {
+              const { node, pos } = nodes[edit.referenceNodeIndex];
+              console.log(`Batch adding ${edit.tagType} ${edit.position} reference node at index ${edit.referenceNodeIndex}, pos ${pos}`);
+              
+              // Create a transaction
+              const tr = editor.state.tr;
+              
+              // Create a new node with the content
+              const schema = editor.state.schema;
+              const newNode = edit.tagType === 'p' 
+                ? schema.nodes.paragraph.create(
+                    null, 
+                    schema.text(edit.newContent.replace(/<\/?[^>]+(>|$)/g, ""))
+                  )
+                : schema.nodes.heading.create(
+                    { level: 1 }, 
+                    schema.text(edit.newContent.replace(/<\/?[^>]+(>|$)/g, ""))
+                  );
+              
+              // Determine position to insert
+              const insertPos = edit.position === 'before' 
+                ? pos 
+                : pos + node.nodeSize;
+              
+              // Insert the node
+              tr.insert(insertPos, newNode);
+              editor.view.dispatch(tr);
+              hasChanges = true;
+            }
+          }
         }
         
         // Notify that all edits are applied
         if (isMounted && onComplete) {
           console.log('Edit operations completed successfully');
-          onComplete();
-        }
-      } catch (error) {
+        onComplete();
+      }
+    } catch (error) {
         console.error('Error applying edit operations:', error);
       }
     };
