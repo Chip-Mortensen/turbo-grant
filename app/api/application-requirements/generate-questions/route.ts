@@ -207,7 +207,41 @@ export async function POST(request: NextRequest): Promise<Response> {
         .single();
         
       if (project?.foa) {
-        foaDetails = project.foa;
+        // Get the full FOA details from the foas table
+        const { data: foaData, error: foaError } = await supabase
+          .from('foas')
+          .select('*')
+          .eq('id', project.foa)
+          .single();
+
+        if (foaError) {
+          console.error('Error fetching FOA details:', foaError);
+        } else if (foaData) {
+          foaDetails = foaData;
+          console.log('Retrieved FOA details from foas table:', {
+            id: foaData.id,
+            availableFields: Object.keys(foaData)
+          });
+
+          // Get FOA text from vector store using the FOA ID
+          try {
+            const foaText = await getFOAText(foaData.id);
+            if (foaText) {
+              // Properly combine FOA details with the text
+              foaDetails = {
+                ...foaDetails,
+                fullText: foaText,
+                _debug_info: `FOA details combined at ${new Date().toISOString()}`
+              };
+            } else {
+              console.warn(`getFOAText returned empty or null text for FOA ID: ${foaData.id}`);
+            }
+          } catch (error) {
+            console.error(`Error fetching FOA text for FOA ID ${foaData.id}:`, error);
+          }
+        }
+      } else {
+        console.warn('No FOA ID found in project data');
       }
       
       if (project?.application_factors) {
@@ -216,16 +250,6 @@ export async function POST(request: NextRequest): Promise<Response> {
       
       if (project?.application_requirements) {
         currentApplicationRequirements = project.application_requirements;
-      }
-      
-      // Get FOA text from vector store
-      try {
-        const foaText = await getFOAText(projectId);
-        if (foaText) {
-          foaDetails = { ...foaDetails, fullText: foaText };
-        }
-      } catch (error) {
-        console.error('Error fetching FOA text:', error);
       }
       
       // Get chalk talk content using getChalkTalkText
@@ -399,9 +423,16 @@ export async function POST(request: NextRequest): Promise<Response> {
     console.log(`- Required documents: ${finalRequiredDocuments.length}`);
     console.log(`- Questions: ${parsedResponse.questions.length}`);
     
+    // Remove duplicate questions based on the question field
+    const uniqueQuestions = parsedResponse.questions.filter((question, index, self) =>
+      index === self.findIndex((q) => q.question === question.question)
+    );
+
+    console.log(`- Unique questions after deduplication: ${uniqueQuestions.length}`);
+    
     // Return the final refined result
     return Response.json({
-      questions: parsedResponse.questions,
+      questions: uniqueQuestions,
       requiredDocuments: finalRequiredDocuments
     });
     

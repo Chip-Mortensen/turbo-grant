@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 // Function to get the appropriate document filename based on grant type
-function getDocumentFilenameByGrantType(grantType: string, grantAgency: string): string {
+function getDocumentFilenameByGrantType(grantType: string | object, grantAgency: string): string {
   // Default document for NSF grants
   if (grantAgency === 'NSF') {
     return 'nsf24_1.pdf';
@@ -20,7 +20,20 @@ function getDocumentFilenameByGrantType(grantType: string, grantAgency: string):
   
   // For NIH grants, determine the category and return the corresponding document
   if (grantAgency === 'NIH') {
-    const category = getNihGrantTypeCategory(grantType as NihGrantType);
+    // Handle the case where grantType is an object like { R01: true }
+    let grantTypeStr: string;
+    
+    if (typeof grantType === 'object' && grantType !== null) {
+      // Extract the first key from the object that has a truthy value
+      const keys = Object.keys(grantType);
+      grantTypeStr = keys.find(key => grantType[key as keyof typeof grantType]) || '';
+      console.log("Converting grant type object to string:", grantType, "->", grantTypeStr);
+    } else {
+      grantTypeStr = grantType as string;
+    }
+    
+    const category = getNihGrantTypeCategory(grantTypeStr as NihGrantType);
+    console.log("Grant type category for", grantTypeStr, ":", category);
     
     switch (category) {
       case 'Research':
@@ -79,12 +92,6 @@ export default async function ApplicationRequirementsPage({ params }: PageProps)
       .eq('id', projectId)
       .single();
 
-    // Get funding opportunities separately to avoid issues
-    const { data: fundingOpportunities } = await supabase
-      .from('funding_opportunities')
-      .select("*")
-      .eq('project_id', projectId);
-
     // Get the research description text from both sources
     let extractedText = "";
     if (project?.research_descriptions && project.research_descriptions.length > 0) {
@@ -114,12 +121,21 @@ export default async function ApplicationRequirementsPage({ params }: PageProps)
     // Get the appropriate document filename based on the grant type
     let documentFilename = 'nsf24_1.pdf'; // Default
     
-    if (fundingOpportunities && fundingOpportunities.length > 0) {
-      const fundingOpportunity = fundingOpportunities[0];
-      const grantType = fundingOpportunity.grant_type || '';
-      const grantAgency = fundingOpportunity.agency || '';
+    // Check if the project has a linked FOA
+    if (project?.foa) {
+      // Fetch the FOA data to get grant type and agency
+      const { data: foaData } = await supabase
+        .from('foas')
+        .select("agency, grant_type")
+        .eq('id', project.foa)
+        .single();
       
-      documentFilename = getDocumentFilenameByGrantType(grantType, grantAgency);
+      if (foaData) {        
+        console.log("foaData: ", foaData);
+        console.log("Calling getDocumentFilenameByGrantType with:", foaData.grant_type, foaData.agency);
+        documentFilename = getDocumentFilenameByGrantType(foaData.grant_type, foaData.agency);
+        console.log("Document filename selected:", documentFilename);
+      }
     }
 
     return (

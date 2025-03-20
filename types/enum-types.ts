@@ -418,6 +418,14 @@ export const getNihGrantTypeDescription = (grantType: NihGrantType): string => {
 
 // Helper function to get the category for a NIH grant type
 export const getNihGrantTypeCategory = (grantType: NihGrantType): NihGrantCategory => {
+  // Handle empty or invalid grant types
+  if (!grantType) {
+    console.warn("Empty or undefined NIH grant type provided");
+    return 'Other';
+  }
+  
+  console.log("Categorizing NIH grant type:", grantType);
+  
   if (getNihResearchGrantTypes().includes(grantType as NihResearchGrantType)) {
     return 'Research';
   } else if (getNihTrainingGrantTypes().includes(grantType as NihTrainingGrantType)) {
@@ -431,6 +439,7 @@ export const getNihGrantTypeCategory = (grantType: NihGrantType): NihGrantCatego
   } else if (getNihSbirSttrGrantTypes().includes(grantType as NihSbirSttrGrantType)) {
     return 'SBIR/STTR';
   } else {
+    console.warn(`Unable to categorize NIH grant type: ${grantType}`);
     return 'Other';
   }
 };

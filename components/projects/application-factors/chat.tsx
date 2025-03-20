@@ -66,13 +66,13 @@ const PREDEFINED_QUESTIONS: Omit<QuestionAnswer, 'answer' | 'completed'>[] = [
   },
   {
     id: 'project_management',
-    question: 'How is your project structured in terms of leadership and collaboration? (Please include specifics like single PI, multiple PIs, institutional collaborations, international partnerships, etc.)',
-    criteria: 'A complete answer should include the specifics like single PI, multiple PIs, institutional collaborations, international partnerships (not all of these apply). Uncertainty is acceptable as well.'
+    question: 'How is your project structured in terms of leadership and collaboration? (Please include specifics like Single PI, Multiple PIs, Institutional Collaborations, International Partnerships etc.)',
+    criteria: 'A complete answer should include the specifics like Single PI, Multiple PIs, Institutional Collaborations, International Partnerships (not all of these apply). Uncertainty is acceptable as well.'
   },
   {
     id: 'ethical_compliance',
-    question: 'Does your research involve human subjects, animal research, or other special ethical or regulatory considerations?',
-    criteria: 'A complete answer should specify if any types of research invloving human subjects, animal research, or other special ethical or regulatory considerations. Uncertainty is acceptable as well.'
+    question: 'Does your research involve any of the following: human subjects, animal research, or other special ethical or regulatory considerations?',
+    criteria: 'A complete answer should specify if the research includes human subjects, animal research, or other special ethical or regulatory considerations. Uncertainty is acceptable as well.'
   },
   {
     id: 'research_location',
