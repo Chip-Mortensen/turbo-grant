@@ -9,6 +9,7 @@ import { SendHorizontal, Loader2, CheckCircle2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { cn } from '@/lib/utils';
 import { organizationTypeLabels } from '@/types/enum-types';
+import { useRouter } from 'next/navigation';
 
 // Define the structure for questions and answers
 interface QuestionAnswer {
@@ -29,6 +30,14 @@ interface ApplicationFactors {
   progress?: number;
   totalQuestions?: number;
   completedQuestions?: number;
+  recommendedGrants?: {
+    agencyType: string;
+    organizationType: string;
+    recommendedGrants: Array<{
+      code: string;
+    }>;
+  };
+  recommendationsUpdatedAt?: string;
 }
 
 interface ChatMessage {
@@ -47,7 +56,7 @@ const PREDEFINED_QUESTIONS: Omit<QuestionAnswer, 'answer' | 'completed'>[] = [
   {
     id: 'agency_alignment',
     question: 'Which funding agency do you believe your research aligns with better - NIH (biomedical/health focus) or NSF (fundamental science/engineering) or both?',
-    criteria: 'An acceptable answer should indicate NIH, NSF, or both in some way. Uncertainty for which agency is acceptable as well.'
+    criteria: 'An acceptable answer should indicate NIH, NSF, or Both in some way. Uncertainty for which agency is acceptable as well.'
   },
   {
     id: 'specific_institute',
@@ -236,7 +245,7 @@ export function ApplicationFactorsChat({
         setMessages([
           {
             role: 'assistant',
-            content: summaryMessage + 'All questions have been answered. You can review the answers or proceed with the funding matching process.'
+            content: summaryMessage + 'All questions have been answered. You can review the answers. I\'m also analyzing your responses to recommend suitable grant types for your research.'
           }
         ]);
       } else {
@@ -272,14 +281,112 @@ export function ApplicationFactorsChat({
   // Save factors to database
   const saveFactors = async (updatedFactors: ApplicationFactors) => {
     try {
+      // Get the previous version to check for changes
+      const { data } = await supabase
+        .from('research_projects')
+        .select('application_factors')
+        .eq('id', projectId)
+        .single();
+      
+      const previousFactors = data?.application_factors as ApplicationFactors | undefined;
+      
+      // Check if we're updating an already completed set of factors
+      // or if specific important questions have been modified
+      const shouldRegenerateRecommendations = 
+        // If all questions are completed
+        updatedFactors.completed || 
+        // OR if the factors were previously completed and we're revising
+        (previousFactors?.completed && isRevising) ||
+        // OR if any crucial questions have been modified
+        (previousFactors?.questions && updatedFactors.questions && haveCrucialQuestionsChanged(
+          previousFactors.questions, 
+          updatedFactors.questions
+        ));
+      
+      // Update the database
       const { error } = await supabase
         .from('research_projects')
         .update({ application_factors: updatedFactors })
         .eq('id', projectId);
 
       if (error) console.error('Error saving application factors:', error);
+      
+      // Trigger grant recommendations if needed
+      if (shouldRegenerateRecommendations) {
+        fetchGrantRecommendations();
+      }
     } catch (error) {
       console.error('Error saving application factors:', error);
+    }
+  };
+  
+  // Check if crucial questions that affect grant recommendations have changed
+  const haveCrucialQuestionsChanged = (
+    prevQuestions: QuestionAnswer[], 
+    currentQuestions: QuestionAnswer[]
+  ): boolean => {
+    // Crucial question IDs that directly affect grant recommendations
+    const crucialQuestionIds = ['agency_alignment', 'applicant_characteristics', 'specific_institute', 'grant_type'];
+    
+    // Check if any crucial questions have different answers
+    return crucialQuestionIds.some(id => {
+      const prevQuestion = prevQuestions.find(q => q.id === id);
+      const currentQuestion = currentQuestions.find(q => q.id === id);
+      
+      // Check if both exist and have completed answers, but the answers differ
+      return prevQuestion?.completed && currentQuestion?.completed && 
+             prevQuestion.answer !== currentQuestion.answer;
+    });
+  };
+
+  // Function to fetch grant recommendations
+  const fetchGrantRecommendations = async () => {
+    try {
+      console.log('Fetching grant recommendations...');
+      const response = await fetch('/api/application-factors/grant-recommendations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Error fetching grant recommendations:', data.error);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Grant recommendations received:', data);
+      
+      // Once we receive the recommendations, update our local state
+      if (data.success && data.recommendations) {
+        // Ensure the recommendations match our expected format
+        const recommendedGrants = data.recommendations.recommendedGrants?.map((g: {code: string}) => ({
+          code: g.code || '',
+        })) || [];
+
+        const updatedFactors = {
+          ...factors,
+          recommendedGrants: {
+            agencyType: data.recommendations.agencyType || '',
+            organizationType: data.recommendations.organizationType || '',
+            recommendedGrants,
+          },
+          recommendationsUpdatedAt: new Date().toISOString()
+        };
+        
+        // Log the final state update
+        console.log('Updating application factors with recommendations:', {
+          agencyType: updatedFactors.recommendedGrants?.agencyType,
+          organizationType: updatedFactors.recommendedGrants?.organizationType,
+          recommendedGrants: updatedFactors.recommendedGrants?.recommendedGrants.map((g: {code: string}) => g.code),
+          totalRecommendations: updatedFactors.recommendedGrants?.recommendedGrants.length
+        });
+        
+        setFactors(updatedFactors);
+      }
+    } catch (error) {
+      console.error('Error fetching grant recommendations:', error);
     }
   };
 
@@ -287,14 +394,18 @@ export function ApplicationFactorsChat({
   const handleReturnToSummary = () => {
     setIsRevising(false);
     const isAllComplete = factors.questions?.every(q => q.completed) ?? false;
-    setFactors(prev => ({ 
-      ...prev, 
-      completed: isAllComplete 
-    }));
+    const updatedFactors = {
+      ...factors,
+      completed: isAllComplete
+    };
+    
+    setFactors(updatedFactors);
+    saveFactors(updatedFactors);
+    
     setMessages([
       {
         role: 'assistant',
-        content: 'All funding factor questions have been completed. You can review the answers or proceed with the funding matching process.'
+        content: 'All funding factor questions have been completed. You can review the answers. I\'m also analyzing your responses to recommend suitable grant types for your research.'
       }
     ]);
   };
@@ -436,7 +547,7 @@ export function ApplicationFactorsChat({
             ...prev,
             {
               role: 'assistant',
-              content: 'Thank you! All questions have been completed. You can now review your answers or proceed with the funding matching process.'
+              content: 'Thank you! All questions have been completed. You can now review your answers. I\'m also analyzing your responses to recommend suitable grant types for your research.'
             }
           ]);
         }

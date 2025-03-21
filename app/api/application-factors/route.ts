@@ -127,7 +127,7 @@ function getSystemPrompt(researchDescription: string, currentQuestion?: string, 
     5. Put ALL helpful responses, suggestions, and questions in the "message" field
     6. Keep the "finalAnswer" field concise and only containing information that meets the criteria
     7. Use the "message" field for any additional context, explanations, or follow-up questions
-    8. Never use a user's question as an answer.
+    8. Never use a user's question as an answer. Even if you've offered suggestions. 
     9. Only discuss NIH or NSF grants
     10. Never mark an answer as complete if we just asked a question.
 

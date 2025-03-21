@@ -54,6 +54,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
   const [animalTrials, setAnimalTrials] = useState<boolean | null>(null);
   const [humanTrials, setHumanTrials] = useState<boolean | null>(null);
   const [deadlineDate, setDeadlineDate] = useState<Date | null>(null);
+  const [filterByRecommendedGrants, setFilterByRecommendedGrants] = useState<boolean>(true);
   
   // Organization eligibility filters
   const [orgEligibilityFilters, setOrgEligibilityFilters] = useState<Record<OrganizationType, boolean | null>>(initOrgEligibilityFilters());
@@ -142,6 +143,11 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
         params.append('deadlineDate', deadlineDate.toISOString());
       }
       
+      // Add recommended grants filter
+      if (filterByRecommendedGrants) {
+        params.append('recommendedGrants', 'true');
+      }
+      
       // Organization eligibility params - add all non-null filters
       const activeOrgFilters = Object.entries(orgEligibilityFilters)
         .filter(([_, value]) => value !== null)
@@ -176,6 +182,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     animalTrials, 
     humanTrials,
     deadlineDate,
+    filterByRecommendedGrants,
     orgEligibilityFilters,
     projectId,
     offset,
@@ -203,6 +210,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     animalTrials, 
     humanTrials,
     deadlineDate,
+    filterByRecommendedGrants,
     orgEligibilityFilters,
     offset,
     limit,
@@ -219,6 +227,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     animalTrials, 
     humanTrials,
     deadlineDate,
+    filterByRecommendedGrants,
     orgEligibilityFilters
   ]);
   
@@ -234,6 +243,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     setAnimalTrials(null);
     setHumanTrials(null);
     setDeadlineDate(null);
+    setFilterByRecommendedGrants(true);
     
     // Reset all organization eligibility filters
     setOrgEligibilityFilters(initOrgEligibilityFilters());
@@ -246,6 +256,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
     animalTrials !== null,
     humanTrials !== null,
     deadlineDate !== null,
+    filterByRecommendedGrants,
     ...Object.values(orgEligibilityFilters).map(value => value !== null)
   ].filter(Boolean).length;
   
@@ -261,6 +272,86 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
           className="pl-10"
         />
       </div>
+      
+      {/* Additional filter indicators/pills below the search bar */}
+      {activeFilterCount > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted-foreground">Active filters:</span>
+          
+          {agency && (
+            <Badge variant="outline" className="flex items-center gap-1 text-xs">
+              Agency: {agency}
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => setAgency(null)}
+              />
+            </Badge>
+          )}
+          
+          {(awardRange[0] > 0 || awardRange[1] < 5000000) && (
+            <Badge variant="outline" className="flex items-center gap-1 text-xs">
+              Award: {formatCurrency(awardRange[0])} - {formatCurrency(awardRange[1])}
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => setAwardRange([0, 5000000])}
+              />
+            </Badge>
+          )}
+          
+          {animalTrials === true && (
+            <Badge variant="outline" className="flex items-center gap-1 text-xs">
+              Animal Trials
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => setAnimalTrials(null)}
+              />
+            </Badge>
+          )}
+          
+          {humanTrials === true && (
+            <Badge variant="outline" className="flex items-center gap-1 text-xs">
+              Human Trials
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => setHumanTrials(null)}
+              />
+            </Badge>
+          )}
+          
+          {deadlineDate !== null && (
+            <Badge variant="outline" className="flex items-center gap-1 text-xs">
+              Due by: {formatDate(deadlineDate.toISOString())}
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => setDeadlineDate(null)}
+              />
+            </Badge>
+          )}
+          
+          {filterByRecommendedGrants && (
+            <Badge variant="outline" className="flex items-center gap-1 text-xs bg-blue-50">
+              Recommended Grants Only
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => setFilterByRecommendedGrants(false)}
+              />
+            </Badge>
+          )}
+          
+          {Object.entries(orgEligibilityFilters)
+            .filter(([_, value]) => value !== null)
+            .map(([type, value]) => (
+              <Badge key={type} variant="outline" className="flex items-center gap-1 text-xs">
+                {organizationTypeLabels[type as OrganizationType]}: {value ? 'Yes' : 'No'}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => updateOrgFilter(type as OrganizationType, null)}
+                />
+              </Badge>
+            ))
+          }
+        </div>
+      )}
       
       {/* Error message */}
       {searchError && (
@@ -381,7 +472,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
                   <Label>
                     Eligibility
                   </Label>
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 border rounded-md p-2 scrollbar-hide">
                     {Object.entries(organizationTypeLabels).map(([type, label]) => (
                       <div key={type} className="flex items-center space-x-2">
                         <Checkbox 
@@ -397,6 +488,29 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
                         </Label>
                       </div>
                     ))}
+                  </div>
+                </div>
+                
+                {/* Recommended Grants Filter */}
+                <div className="space-y-3">
+                  <Label>Recommended Grants</Label>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="recommendedGrants" 
+                      checked={filterByRecommendedGrants}
+                      onCheckedChange={(checked) => {
+                        if (checked === 'indeterminate') return;
+                        setFilterByRecommendedGrants(checked ? true : false);
+                      }}
+                    />
+                    <Label htmlFor="recommendedGrants" className="text-sm font-normal flex items-center">
+                      Show only recommended grants
+                      {filterByRecommendedGrants && (
+                        <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                          Active
+                        </span>
+                      )}
+                    </Label>
                   </div>
                 </div>
               </div>
@@ -470,6 +584,18 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
                                 <Badge variant="secondary" className="text-xs">
                                   {foa.agency}
                                 </Badge>
+                                
+                                {/* Grant Types */}
+                                {foa.grant_type && typeof foa.grant_type === 'object' && 
+                                  Object.entries(foa.grant_type)
+                                    .filter(([_, value]) => value === true)
+                                    .map(([type]) => (
+                                      <Badge key={type} variant="secondary" className="text-xs">
+                                        {type}
+                                      </Badge>
+                                    ))
+                                }
+                                
                                 {(foa.award_floor !== null || foa.award_ceiling !== null) && (
                                   <Badge variant="secondary" className="text-xs">
                                     Award: {formatCurrency(foa.award_floor ?? 0)} {foa.award_ceiling !== null ? `- ${formatCurrency(foa.award_ceiling)}` : ''}

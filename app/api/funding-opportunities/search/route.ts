@@ -11,6 +11,27 @@ function normalizeScore(score: number): number {
   return Math.round(normalized * 100 * 100) / 100;
 }
 
+// Helper function to filter FOAs by recommended grants
+function filterByRecommendedGrants(foas: any[], recommendedGrantCodes: string[]) {
+  if (!recommendedGrantCodes.length) return foas;
+  
+  const filteredResults = foas.filter(foa => {
+    if (!foa.grant_type) return false;
+    
+    // Check if any of the FOA's grant types match the recommended grant codes
+    return recommendedGrantCodes.some(code => {
+      const codeRegex = new RegExp(`\\b${code}\\b`, 'i');
+      // Check in grant_type object keys
+      return Object.keys(foa.grant_type).some(grantType => 
+        codeRegex.test(grantType) || grantType.includes(code)
+      );
+    });
+  });
+  
+  console.log(`Filtered results by recommended grants: ${filteredResults.length} of ${foas.length}`);
+  return filteredResults;
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Parse search parameters
@@ -27,6 +48,7 @@ export async function GET(request: NextRequest) {
                          searchParams.get('animalTrials') === 'false' ? false : null;
     const humanTrials = searchParams.get('humanTrials') === 'true' ? true : 
                         searchParams.get('humanTrials') === 'false' ? false : null;
+    const recommendedGrants = searchParams.get('recommendedGrants') === 'true' ? true : false;
     
     // Parse deadline date
     const deadlineDate = searchParams.get('deadlineDate') ? new Date(searchParams.get('deadlineDate')!) : null;
@@ -57,6 +79,41 @@ export async function GET(request: NextRequest) {
         foas: [],
         total: 0
       }, { status: 401 });
+    }
+
+    // If filtering by recommended grants, fetch the project's recommended grants
+    let recommendedGrantCodes: string[] = [];
+    if (recommendedGrants && projectId) {
+      try {
+        // Get the recommended grants from the project's application factors
+        const { data: projectData, error: projectError } = await supabase
+          .from('research_projects')
+          .select('application_factors')
+          .eq('id', projectId)
+          .single();
+        
+        if (projectError) {
+          console.error('Error fetching project data:', projectError);
+        } else if (projectData?.application_factors?.recommendedGrants?.recommendedGrants) {
+          // Extract grant codes
+          recommendedGrantCodes = projectData.application_factors.recommendedGrants.recommendedGrants
+            .map((grant: { code: string }) => grant.code)
+            .filter(Boolean);
+          
+          console.log('Filtering by recommended grants:', recommendedGrantCodes);
+        }
+      } catch (error) {
+        console.error('Error processing recommended grants:', error);
+      }
+      
+      // If no recommended grants found, but filter is enabled, return empty results early
+      if (recommendedGrants && recommendedGrantCodes.length === 0) {
+        return NextResponse.json({
+          foas: [],
+          total: 0,
+          error: null
+        });
+      }
     }
 
     try {
@@ -235,6 +292,17 @@ export async function GET(request: NextRequest) {
           ?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
           || [];
 
+        // Filter by recommended grants if needed
+        if (recommendedGrants && recommendedGrantCodes.length > 0) {
+          const finalResults = filterByRecommendedGrants(sortedFoas, recommendedGrantCodes);
+          
+          return NextResponse.json({
+            foas: finalResults,
+            total: finalResults.length,
+            error: null
+          });
+        }
+        
         return NextResponse.json({
           foas: sortedFoas,
           total: allFoaIds.length,
@@ -301,6 +369,17 @@ export async function GET(request: NextRequest) {
         }))
         .filter(Boolean)
         .sort((a, b) => (b.score || 0) - (a.score || 0)); // Sort by score for text queries
+
+      // Filter by recommended grants if needed  
+      if (recommendedGrants && recommendedGrantCodes.length > 0) {
+        const finalResults = filterByRecommendedGrants(sortedFoas, recommendedGrantCodes);
+        
+        return NextResponse.json({
+          foas: finalResults,
+          total: finalResults.length,
+          error: null
+        });
+      }
       
       return NextResponse.json({
         foas: sortedFoas,
