@@ -293,17 +293,21 @@ function ProcessedContent({
       const currentContent = editor.getHTML();
       contentRef.current.current = currentContent;
       
-      // Compare with initial content
-      const hasChanges = currentContent !== contentRef.current.initial;
-      
-      // Update local state
-      setHasUnsavedChanges(hasChanges);
-      
-      // Communicate with parent component
-      if (hasChanges) {
-        onContentChanged();
-      } else {
-        onChangesSaved();
+      // Compare with initial content - only consider changes if content is initialized
+      if (contentRef.current.initial !== null) {
+        const hasChanges = currentContent !== contentRef.current.initial;
+        
+        console.log('Editor content updated, hasChanges:', hasChanges);
+        
+        // Update local state
+        setHasUnsavedChanges(hasChanges);
+        
+        // Communicate with parent component
+        if (hasChanges) {
+          onContentChanged();
+        } else {
+          onChangesSaved();
+        }
       }
     }
   });
@@ -336,9 +340,9 @@ function ProcessedContent({
       contentRef.current.initial = initialContent;
       contentRef.current.current = initialContent;
       setContentInitialized(true);
-      onContentChanged();
+      onChangesSaved();
     }
-  }, [editor, initialContent, contentInitialized, onContentChanged]);
+  }, [editor, initialContent, contentInitialized, onChangesSaved]);
 
   const fetchContent = async () => {
     if (contentInitialized) return; // Don't fetch if already initialized
@@ -803,7 +807,7 @@ function ProcessedContent({
       // This forces the EditHighlighter to refresh and immediately hide the rejected edit
       setEditStatuses(prev => ({ ...prev }));
       // Also notify that there was a content change to update UI
-      handleContentChange();
+      updateContentChangeStatus();
     }, 10);
   };
   
@@ -880,9 +884,10 @@ function ProcessedContent({
   };
 
   // Add a content changed handler at component level
-  const handleContentChange = () => {
+  const updateContentChangeStatus = () => {
     console.log('Content changed detected from EditHighlighter');
     setHasUnsavedChanges(true);
+    onContentChanged();
   };
 
   // Then update applyEdits to no longer define the function
@@ -1091,7 +1096,7 @@ function ProcessedContent({
               onApproveEdit={handleApproveEdit}
               onDenyEdit={handleDenyEdit}
               onApproveAll={handleApproveAllRemaining}
-              onContentChange={handleContentChange}
+              onContentChange={updateContentChangeStatus}
               onStatusChange={handleStatusChange}
               onApplied={afterEditsApplied}
             />
