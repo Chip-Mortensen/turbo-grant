@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { CheckCircle } from 'lucide-react';
 import { AttachmentsManager } from '@/components/projects/attachments/attachments-manager';
 import { BackButton } from "@/components/ui/back-button"
+import { CreateCustomDocumentDialogButton } from '@/components/projects/attachments/create-custom-document-dialog-button';
 
 export const metadata: Metadata = {
   title: 'Project Attachments | Turbo Grant',
@@ -41,14 +42,17 @@ export default async function AttachmentsPage({ params }: PageProps) {
     <div className="container py-6 space-y-4">
       <BackButton href={`/projects/${projectId}`} />
       
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">Project Attachments</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage documents needed for your proposal to {project.foa?.title || 'the selected funding opportunity'}
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold">Project Attachments</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage documents needed for your proposal to {project.foa?.title || 'the selected funding opportunity'}
+          </p>
+        </div>
+        <CreateCustomDocumentDialogButton projectId={projectId} />
       </div>
       
-      <AttachmentsManager projectId={projectId} />
+      <AttachmentsManager projectId={projectId} hideCreateButton={true} />
     </div>
   );
 } 
