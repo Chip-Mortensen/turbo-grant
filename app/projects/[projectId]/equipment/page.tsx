@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import EquipmentList from "@/components/projects/equipment/equipment-list";
 import { BackButton } from "@/components/ui/back-button";
+import EquipmentAnalysisTrigger from "@/components/projects/equipment/equipment-analysis-trigger";
 
 interface PageProps {
   params: Promise<{ projectId: string }>
@@ -20,6 +21,9 @@ export default async function EquipmentPage({ params }: PageProps) {
   return (
     <div className="container py-6 space-y-6">
       <BackButton href={`/projects/${projectId}`} />
+      
+      {/* Client component that triggers equipment analysis */}
+      <EquipmentAnalysisTrigger projectId={projectId} />
       
       <EquipmentList projectId={projectId} />
     </div>
