@@ -1447,12 +1447,11 @@ export function ApplicationRequirementsChat({
 
   // Add the missing return statement with the component UI
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full mx-auto">
       <Card className="w-full">
         <CardContent className="p-6">
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Application Requirements</h2>
               {isRevising && (
                 <Button
                   variant="outline"
@@ -1469,9 +1468,9 @@ export function ApplicationRequirementsChat({
                 {renderCompletionStatus()}
                 
                 {requirements.requiredDocuments && requirements.requiredDocuments.length > 0 && (
-                  <div className="w-full max-w-3xl">
+                  <div className="w-full">
                     <h4 className="text-lg font-semibold mb-3">Required Documents</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                       {requirements.requiredDocuments
                         .filter((doc: RequiredDocument) => doc.isRequired)
                         .map((doc: RequiredDocument, index: number) => (
@@ -1506,7 +1505,7 @@ export function ApplicationRequirementsChat({
                   </div>
                 )}
 
-                <div className="w-full max-w-3xl space-y-6">
+                <div className="w-full space-y-6">
                   <h4 className="text-lg font-semibold">Application Requirements</h4>
                   
                   {/* Options Questions Section */}

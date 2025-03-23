@@ -67,16 +67,6 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.foa}
         />
       )}
-      {showApplicationRequirementsCard && (
-        <ProjectCard
-          title="Application Requirements"
-          description="Identify requirements for your application"
-          href={`/projects/${projectId}/application-requirements`}
-          icon={FileCheck}
-          isComplete={completionStatus.applicationRequirements}
-          isLoading={loadingStates.applicationRequirements}
-        />
-      )}
       {showEquipmentCard && (
         <ProjectCard
           title="Equipment"
@@ -105,6 +95,16 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           icon={Paperclip}
           isComplete={completionStatus.attachments}
           isLoading={loadingStates.attachments}
+        />
+      )}
+      {showApplicationRequirementsCard && (
+        <ProjectCard
+          title="Application Requirements"
+          description="Identify requirements for your application"
+          href={`/projects/${projectId}/application-requirements`}
+          icon={FileCheck}
+          isComplete={completionStatus.applicationRequirements}
+          isLoading={loadingStates.applicationRequirements}
         />
       )}
     </div>
