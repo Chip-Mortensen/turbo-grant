@@ -58,7 +58,8 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
       // 1. Fetch all documents applicable to this FOA's agency and grant type
       const { data: documents, error: docsError } = await supabase
         .from('documents')
-        .select('*');
+        .select('*')
+        .is('project_id', null);
       
       if (docsError) {
         console.error('Error fetching documents:', docsError);
