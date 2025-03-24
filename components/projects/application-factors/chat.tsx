@@ -56,7 +56,7 @@ const PREDEFINED_QUESTIONS: Omit<QuestionAnswer, 'answer' | 'completed'>[] = [
   {
     id: 'agency_alignment',
     question: 'Which funding agency do you believe your research aligns with better - NIH (biomedical/health focus) or NSF (fundamental science/engineering) or both?',
-    criteria: 'An acceptable answer should indicate NIH, NSF, or Both in some way. Uncertainty for which agency is acceptable as well.'
+    criteria: 'An acceptable answer should indicate NIH, NSF, or Both in some way. As an answer please just say NIH, NSF, or Both. Uncertainty for which agency is acceptable as well.'
   },
   {
     id: 'specific_institute',
@@ -76,7 +76,7 @@ const PREDEFINED_QUESTIONS: Omit<QuestionAnswer, 'answer' | 'completed'>[] = [
   {
     id: 'project_management',
     question: 'How is your project structured in terms of leadership and collaboration? (Please include specifics like Single PI, Multiple PIs, Institutional Collaborations, International Partnerships etc.)',
-    criteria: 'A complete answer should include the specifics like Single PI, Multiple PIs, Institutional Collaborations, International Partnerships (not all of these apply). Uncertainty is acceptable as well.'
+    criteria: 'An answer should include at least one of the following: Single PI, Multiple PIs, Institutional Collaborations, International Partnerships (not all of these apply). Including just one of these is sufficient. Uncertainty is acceptable as well.'
   },
   {
     id: 'ethical_compliance',
@@ -192,13 +192,26 @@ export function ApplicationFactorsChat({
 
       const data = await response.json();
       
+      // Add debug logging to see the complete response
+      console.log('Analyze All Questions - API Response:', JSON.stringify(data, null, 2));
+      
       const updatedQuestions = [...factors.questions];
       let autoExtractedCount = 0;
       let uncertaintyCount = 0;
       
       data.results.forEach((result: any) => {
         const questionIndex = updatedQuestions.findIndex(q => q.id === result.questionId);
-        if (questionIndex === -1) return;
+        if (questionIndex === -1) {
+          console.log(`Question ID ${result.questionId} not found in questions array`);
+          return;
+        }
+        
+        console.log(`Processing question ID ${result.questionId}:`, {
+          isAnswerComplete: result.isAnswerComplete,
+          isUncertaintyExpressed: result.isUncertaintyExpressed,
+          finalAnswer: result.finalAnswer,
+          currentQuestion: updatedQuestions[questionIndex].question.substring(0, 50) + '...'
+        });
         
         if (result.isAnswerComplete && result.finalAnswer) {
           updatedQuestions[questionIndex] = {
@@ -209,6 +222,16 @@ export function ApplicationFactorsChat({
           };
           
           result.isUncertaintyExpressed ? uncertaintyCount++ : autoExtractedCount++;
+          console.log(`Auto-extracted answer for ${result.questionId}:`, {
+            answer: result.finalAnswer,
+            type: result.isUncertaintyExpressed ? 'uncertainty-expressed' : 'auto-extracted'
+          });
+        } else {
+          console.log(`No auto-extracted answer for ${result.questionId}`, {
+            isAnswerComplete: result.isAnswerComplete,
+            hasFinalAnswer: !!result.finalAnswer,
+            missingCriteria: result.missingCriteria
+          });
         }
       });
       
@@ -251,6 +274,7 @@ export function ApplicationFactorsChat({
       } else {
         const nextQuestion = updatedQuestions[firstUnansweredIndex];
         setMessages([
+          ...messages,
           {
             role: 'assistant',
             content: summaryMessage + (autoExtractedCount > 0 || uncertaintyCount > 0 ? 'For the remaining questions, I\'ll need more specific information from you.' : 'Let\'s go through them one by one.') + '\n\n' + nextQuestion.question
@@ -267,6 +291,7 @@ export function ApplicationFactorsChat({
       const currentQuestion = factors.questions?.[firstUnansweredIndex];
       
       setMessages([
+        ...messages,
         {
           role: 'assistant',
           content: `Sorry, there was an error analyzing your research description. Let's proceed with the questions one by one.\n\n${currentQuestion?.question || ''}`
@@ -278,42 +303,81 @@ export function ApplicationFactorsChat({
     }
   };
 
-  // Save factors to database
+  // Function to save application factors
   const saveFactors = async (updatedFactors: ApplicationFactors) => {
     try {
-      // Get the previous version to check for changes
-      const { data } = await supabase
-        .from('research_projects')
-        .select('application_factors')
-        .eq('id', projectId)
-        .single();
+      const previousFactors = factors;
       
-      const previousFactors = data?.application_factors as ApplicationFactors | undefined;
+      // Check if we have a forced recommendation update flag
+      const forceRecommendationUpdate = (updatedFactors as any).forceRecommendationUpdate === true;
       
-      // Check if we're updating an already completed set of factors
-      // or if specific important questions have been modified
+      // Determine if we should regenerate recommendations
+      // We should regenerate if:
+      // 1. We have a forced update OR
+      // 2. We're not in revision mode AND either:
+      //    a. All questions are completed OR
+      //    b. Crucial questions have changed
       const shouldRegenerateRecommendations = 
-        // If all questions are completed
-        updatedFactors.completed || 
-        // OR if the factors were previously completed and we're revising
-        (previousFactors?.completed && isRevising) ||
-        // OR if any crucial questions have been modified
-        (previousFactors?.questions && updatedFactors.questions && haveCrucialQuestionsChanged(
-          previousFactors.questions, 
-          updatedFactors.questions
-        ));
+        forceRecommendationUpdate || 
+        (
+          !isRevising && 
+          (
+            // If all questions are completed
+            updatedFactors.completed || 
+            // OR if any crucial questions have been modified
+            (previousFactors?.questions && updatedFactors.questions && haveCrucialQuestionsChanged(
+              previousFactors.questions, 
+              updatedFactors.questions
+            ))
+          )
+        );
       
-      // Update the database
-      const { error } = await supabase
+      console.log('Should regenerate recommendations:', shouldRegenerateRecommendations, 
+        forceRecommendationUpdate ? '(forced update)' : '');
+      
+      // Clean up temporary flags before saving
+      const cleanedFactors = {
+        ...updatedFactors
+      };
+      
+      // Remove temporary properties before saving to database
+      if ('forceRecommendationUpdate' in cleanedFactors) {
+        delete (cleanedFactors as any).forceRecommendationUpdate;
+      }
+      
+      // Save to database
+      const { data, error } = await supabase
         .from('research_projects')
-        .update({ application_factors: updatedFactors })
+        .update({ application_factors: cleanedFactors })
         .eq('id', projectId);
 
-      if (error) console.error('Error saving application factors:', error);
+      if (error) {
+        console.error('Error saving application factors:', error);
+        throw new Error(`Failed to save application factors: ${error.message}`);
+      } else {
+        console.log('Successfully saved application factors to database');
+        
+        // Verify the data was saved correctly by fetching it back
+        const { data: verifyData, error: verifyError } = await supabase
+          .from('research_projects')
+          .select('application_factors')
+          .eq('id', projectId)
+          .single();
+          
+        if (verifyError) {
+          console.error('Error verifying saved data:', verifyError);
+        } else {
+          const savedFactors = verifyData?.application_factors as ApplicationFactors | undefined;
+          console.log('Verified saved data:', {
+            agencyAlignment: savedFactors?.questions?.find(q => q.id === 'agency_alignment')?.answer
+          });
+        }
+      }
       
       // Trigger grant recommendations if needed
       if (shouldRegenerateRecommendations) {
-        fetchGrantRecommendations();
+        // If it's a forced update, make sure to pass true to override revision mode
+        fetchGrantRecommendations(forceRecommendationUpdate);
       }
     } catch (error) {
       console.error('Error saving application factors:', error);
@@ -340,8 +404,18 @@ export function ApplicationFactorsChat({
   };
 
   // Function to fetch grant recommendations
-  const fetchGrantRecommendations = async () => {
+  const fetchGrantRecommendations = async (forceUpdate = false): Promise<boolean> => {
     try {
+      // If forceUpdate is true, always proceed regardless of revision mode
+      if (forceUpdate) {
+        console.log('Forcing grant recommendations update regardless of revision mode');
+      }
+      // Otherwise skip fetching recommendations if we're in revision mode
+      else if (isRevising) {
+        console.log('Skipping grant recommendations while in ongoing revision mode');
+        return false;
+      }
+
       console.log('Fetching grant recommendations...');
       const response = await fetch('/api/application-factors/grant-recommendations', {
         method: 'POST',
@@ -352,7 +426,7 @@ export function ApplicationFactorsChat({
       if (!response.ok) {
         const data = await response.json();
         console.error('Error fetching grant recommendations:', data.error);
-        return;
+        return false;
       }
 
       const data = await response.json();
@@ -365,8 +439,35 @@ export function ApplicationFactorsChat({
           code: g.code || '',
         })) || [];
 
+        // For NSF or both agencies, ensure "research" is added as a separate grant code
+        const agencyType = data.recommendations.agencyType || '';
+        if (agencyType.toLowerCase() === 'nsf' || agencyType.toLowerCase().includes('both')) {
+          console.log('Adding "research" as a grant code for NSF/Both agency types');
+          
+          // Check if research is already in the list (case insensitive)
+          const hasResearch = recommendedGrants.some((grant: {code: string}) => 
+            grant.code.toLowerCase() === "research"
+          );
+          
+          // Add research as a separate grant code if not already present
+          if (!hasResearch) {
+            console.log('Frontend: Adding research as a separate grant code');
+            recommendedGrants.push({ code: 'research' });
+          }
+        }
+
+        // Get the most current state to avoid stale data issues
+        // This is crucial to prevent overwriting with outdated state
+        const { data: currentData } = await supabase
+          .from('research_projects')
+          .select('application_factors')
+          .eq('id', projectId)
+          .single();
+          
+        const currentFactors = currentData?.application_factors as ApplicationFactors || factors;
+
         const updatedFactors = {
-          ...factors,
+          ...currentFactors, // Use latest factors from DB instead of potentially stale state
           recommendedGrants: {
             agencyType: data.recommendations.agencyType || '',
             organizationType: data.recommendations.organizationType || '',
@@ -380,34 +481,150 @@ export function ApplicationFactorsChat({
           agencyType: updatedFactors.recommendedGrants?.agencyType,
           organizationType: updatedFactors.recommendedGrants?.organizationType,
           recommendedGrants: updatedFactors.recommendedGrants?.recommendedGrants.map((g: {code: string}) => g.code),
-          totalRecommendations: updatedFactors.recommendedGrants?.recommendedGrants.length
         });
-        
-        setFactors(updatedFactors);
+
+        // First save to database to ensure persistence
+        const { error: saveError } = await supabase
+          .from('research_projects')
+          .update({ application_factors: updatedFactors })
+          .eq('id', projectId);
+          
+        if (saveError) {
+          console.error('Error saving updated recommendations:', saveError);
+        } else {
+          console.log('Successfully saved recommendations to database');
+          
+          // Then update local state to reflect changes
+          setFactors(updatedFactors);
+          return true;
+        }
       }
+      return false;
     } catch (error) {
       console.error('Error fetching grant recommendations:', error);
+      return false;
     }
   };
 
   // Add this function to handle returning to the summary view
-  const handleReturnToSummary = () => {
-    setIsRevising(false);
-    const isAllComplete = factors.questions?.every(q => q.completed) ?? false;
-    const updatedFactors = {
-      ...factors,
-      completed: isAllComplete
-    };
+  const handleReturnToSummary = (updatedData?: ApplicationFactors, forceRecommendationUpdate = false) => {
+    console.log('Returning to summary view after revision');
     
-    setFactors(updatedFactors);
-    saveFactors(updatedFactors);
-    
-    setMessages([
-      {
-        role: 'assistant',
-        content: 'All funding factor questions have been completed. You can review the answers. I\'m also analyzing your responses to recommend suitable grant types for your research.'
-      }
-    ]);
+    // IMPORTANT: Get the current latest state, don't rely on closure variables
+    supabase
+      .from('research_projects')
+      .select('application_factors')
+      .eq('id', projectId)
+      .single()
+      .then(async ({ data, error }) => {
+        if (error) {
+          console.error('Error fetching latest factors data:', error);
+          return;
+        }
+        
+        // Use the provided data (if available) or latest data from the database
+        const latestFactors = updatedData || data?.application_factors as ApplicationFactors;
+        const currentQuestions = latestFactors?.questions || factors.questions || [];
+        const isAllComplete = currentQuestions.every(q => q.completed) ?? false;
+        
+        console.log('Using latest data from database:', { 
+          isAllComplete,
+          agencyAlignment: currentQuestions.find(q => q.id === 'agency_alignment')?.answer 
+        });
+        
+        const finalFactors = {
+          ...(latestFactors || factors),
+          questions: currentQuestions,
+          completed: isAllComplete,
+          updatedAt: new Date().toISOString()
+        };
+        
+        // Check if we need to do a forced update of recommendations
+        if (forceRecommendationUpdate) {
+          console.log('Applying forced recommendation update due to agency alignment change');
+          
+          try {
+            // Save with forceRecommendationUpdate flag to trigger immediate update
+            await saveFactors({
+              ...finalFactors,
+              forceRecommendationUpdate: true
+            } as any);
+            
+            // After saving, we need to wait for grant recommendations to complete
+            // and ensure our UI state is updated with the latest data
+            setTimeout(async () => {
+              // Get the latest data after recommendations have been updated
+              const { data: refreshedData, error: refreshError } = await supabase
+                .from('research_projects')
+                .select('application_factors')
+                .eq('id', projectId)
+                .single();
+                
+              if (!refreshError && refreshedData?.application_factors) {
+                console.log('Retrieved updated data after recommendation refresh');
+                
+                // Update UI with the latest data that includes recommendations
+                setFactors(refreshedData.application_factors as ApplicationFactors);
+                
+                // Show completion message
+                setMessages([
+                  {
+                    role: 'assistant',
+                    content: 'All funding factor questions have been completed. You can review the answers. I\'m also analyzing your responses to recommend suitable grant types for your research.'
+                  }
+                ]);
+              }
+            }, 1000); // Short delay to allow recommendations to complete
+          } catch (error) {
+            console.error('Error applying forced recommendation update:', error);
+            
+            // Show completion message even if there was an error
+            setMessages([
+              {
+                role: 'assistant',
+                content: 'All funding factor questions have been completed. You can review the answers. I\'m also analyzing your responses to recommend suitable grant types for your research.'
+              }
+            ]);
+          }
+        } else {
+          // Set the state with latest data
+          setFactors(finalFactors);
+          
+          // If no forced update, still check for agency alignment changes
+          const agencyAlignmentChanged = 
+            factors.questions?.find(q => q.id === 'agency_alignment')?.answer !== 
+            currentQuestions.find(q => q.id === 'agency_alignment')?.answer;
+            
+          if (agencyAlignmentChanged) {
+            console.log('Agency alignment changed, refreshing grant recommendations');
+            // Force update regardless of revision mode
+            fetchGrantRecommendations(true).then(async () => {
+              // Get the latest data after recommendations have been updated
+              setTimeout(async () => {
+                const { data: refreshedData, error: refreshError } = await supabase
+                  .from('research_projects')
+                  .select('application_factors')
+                  .eq('id', projectId)
+                  .single();
+                  
+                if (!refreshError && refreshedData?.application_factors) {
+                  console.log('Retrieved updated data after direct recommendation refresh');
+                  // Update UI with the latest data that includes recommendations
+                  setFactors(refreshedData.application_factors as ApplicationFactors);
+                }
+              }, 1000); // Short delay to allow recommendations to complete
+            });
+          }
+          
+          // Show completion message
+          setMessages([
+            {
+              role: 'assistant',
+              content: 'All funding factor questions have been completed. You can review the answers. I\'m also analyzing your responses to recommend suitable grant types for your research.'
+            }
+          ]);
+        }
+      });
   };
 
   // Modify handleSendMessage to handle revision mode
@@ -480,6 +697,16 @@ export function ApplicationFactorsChat({
       // 2. The question is not already completed (prevent modifying completed answers)
       if (isRevising || !existingQuestion.completed) {
         if (data.isAnswerComplete) {
+          // Log details about the question we're updating
+          const questionBeingUpdated = factors.questions?.find(q => q.id === currentQuestion.id);
+          console.log('Question being revised:', {
+            id: questionBeingUpdated?.id,
+            currentAnswer: questionBeingUpdated?.answer,
+            newAnswer: data.finalAnswer,
+            isRevising
+          });
+          
+          console.log('Updating answer with complete response:', data.finalAnswer);
           updatedQuestions[currentIndex] = {
             ...existingQuestion,
             answer: data.finalAnswer || userMessage.content,
@@ -487,14 +714,19 @@ export function ApplicationFactorsChat({
               (isRevising ? 'manually-answered' : existingQuestion.answerType || 'manually-answered'),
             completed: true
           };
-        } else if (!isRevising) {
-          // Only clear the answer if we're not in revision mode and it's a follow-up question
-          updatedQuestions[currentIndex] = {
-            ...existingQuestion,
-            answer: '',
-            answerType: undefined,
-            completed: false
-          };
+        } else {
+          // Handle follow-up questions
+          if (!isRevising) {
+            // Only clear the answer if we're not in revision mode and it's a follow-up question
+            updatedQuestions[currentIndex] = {
+              ...existingQuestion,
+              answer: '',
+              answerType: undefined,
+              completed: false
+            };
+          }
+          // If in revision mode and answer is incomplete, we don't modify the existing answer
+          console.log('Answer is incomplete, keeping original answer during revision');
         }
       }
 
@@ -519,7 +751,43 @@ export function ApplicationFactorsChat({
         if (isRevising) {
           // Only return to summary if we have a complete answer during revision
           if (data.finalAnswer) {
-            handleReturnToSummary();
+            console.log('Revision completed with valid final answer:', data.finalAnswer);
+            
+            // Check if agency alignment was changed
+            const agencyAlignmentChanged = updatedFactors.questions?.some(q => 
+              q.id === 'agency_alignment' && 
+              q.answer !== factors.questions?.find(fq => fq.id === 'agency_alignment')?.answer
+            );
+            
+            // Set isRevising to false first to avoid API errors
+            setIsRevising(false);
+            
+            console.log('Saving final revision to database before returning to summary');
+            
+            try {
+              // Save with forced recommendation update if agency alignment changed
+              if (agencyAlignmentChanged) {
+                console.log('Agency alignment changed during revision, forcing immediate recommendation update');
+                
+                // Skip the regular save and go straight to returning to summary
+                // The handleReturnToSummary function will handle the database update and recommendation refresh
+                handleReturnToSummary(updatedFactors, agencyAlignmentChanged);
+              } else {
+                // Normal save for non-critical fields and update the summary view
+                await saveFactors(updatedFactors);
+                handleReturnToSummary();
+              }
+            } catch (saveError) {
+              console.error('Failed to save changes before returning to summary:', saveError);
+              // Show error message to user
+              setMessages(prev => [
+                ...prev,
+                { 
+                  role: 'assistant', 
+                  content: 'Sorry, there was an error saving your changes. Please try again.' 
+                }
+              ]);
+            }
           } else {
             // If no final answer yet, continue the conversation
             setMessages(prev => [
@@ -528,7 +796,7 @@ export function ApplicationFactorsChat({
             ]);
           }
         } else if (!isAllComplete) {
-          // Only move to next question if the current one is complete
+          // Only move to next question if the current one is complete and we're not revising
           const nextQuestionIndex = findNextUnansweredQuestion(updatedQuestions, currentIndex);
           const nextQuestion = updatedQuestions[nextQuestionIndex];
           
@@ -541,14 +809,6 @@ export function ApplicationFactorsChat({
           setMessages(prev => [
             ...prev,
             { role: 'assistant', content: `Thank you. ${nextQuestion.question}` }
-          ]);
-        } else {
-          setMessages(prev => [
-            ...prev,
-            {
-              role: 'assistant',
-              content: 'Thank you! All questions have been completed. You can now review your answers. I\'m also analyzing your responses to recommend suitable grant types for your research.'
-            }
           ]);
         }
       } else {
@@ -655,6 +915,8 @@ export function ApplicationFactorsChat({
                     key={index} 
                     className="bg-muted/30 rounded-lg p-4 space-y-3 border transition-all hover:shadow-md hover:border-primary/50 cursor-pointer group"
                     onClick={() => {
+                      console.log(`Starting revision for question ${index}: ${q.question}`);
+                      console.log('Current answer:', q.answer);
                       setIsRevising(true);
                       setFactors(prev => ({
                         ...prev,

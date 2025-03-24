@@ -98,8 +98,6 @@ function getSystemPrompt(researchDescription: string, applicationFactors: Applic
     grantsToShow = [...nihGrantsInfo, ...nsfGrantsInfo];
   }
 
-  console.log('grantsToShow', grantsToShow);
-
   return `You are an AI assistant helping a researcher identify appropriate grant types based on their research and application factors.
 
     Research Description:
@@ -255,11 +253,19 @@ export async function POST(request: NextRequest): Promise<Response> {
       
       // Determine agency type
       let agencyType = 'Both';
-      if (agencyAlignment.toLowerCase().includes('nih') && !agencyAlignment.toLowerCase().includes('nsf')) {
+      const agencyLower = agencyAlignment.toLowerCase();
+      console.log('Raw agency alignment from answer:', agencyAlignment);
+      console.log('Lowercase agency alignment:', agencyLower);
+      
+      if (agencyLower.includes('nih') && !agencyLower.includes('nsf')) {
         agencyType = 'NIH';
-      } else if (agencyAlignment.toLowerCase().includes('nsf') && !agencyAlignment.toLowerCase().includes('nih')) {
+      } else if (agencyLower.includes('nsf') && !agencyLower.includes('nih')) {
         agencyType = 'NSF';
+      } else if (agencyLower.includes('both') || (agencyLower.includes('nsf') && agencyLower.includes('nih'))) {
+        agencyType = 'Both';
       }
+      
+      console.log('Determined agency type:', agencyType);
       
       // Make sure user-specified grants are prioritized
       let recommendedGrants = recommendations.recommendedGrants || [];
@@ -276,6 +282,25 @@ export async function POST(request: NextRequest): Promise<Response> {
             existingCodes.add(code);
           }
         }
+      }
+
+      // For NSF or both agencies, ensure "research" is added as a grant code
+      if (agencyType === 'NSF' || agencyType === 'Both') {
+        console.log('Backend: Adding "research" as a grant code for agency type:', agencyType);
+        console.log('Before modification, grant codes:', recommendedGrants.map((g: {code: string}) => g.code));
+        
+        // Check if research is already in the list (case insensitive)
+        const hasResearch = recommendedGrants.some((grant: {code: string}) => 
+          grant.code.toLowerCase() === "research"
+        );
+        
+        // Add research as a separate grant code if not already present
+        if (!hasResearch) {
+          console.log('Backend: Adding research as a separate grant code');
+          recommendedGrants.push({ code: 'research' });
+        }
+        
+        console.log('After modification, grant codes:', recommendedGrants.map((g: {code: string}) => g.code));
       }
 
       // Update the application factors with the recommendations

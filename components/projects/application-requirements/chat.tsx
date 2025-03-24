@@ -165,17 +165,11 @@ export function ApplicationRequirementsChat({
         if (!hasExistingQuestions || (applicationRequirements.questions && applicationRequirements.questions.length === 0)) {
           // Set the state as completed
           setRequirements({
-            ...applicationRequirements,
             completed: true,
+            updatedAt: new Date().toISOString(),
+            currentQuestionIndex: 0,
             questions: applicationRequirements.questions || []
           });
-          
-          setMessages([
-            {
-              role: 'assistant',
-              content: 'Analysis complete. No application requirement questions were identified for your project. You can proceed with the application process.'
-            }
-          ]);
           
           setIsInitialAnalysisComplete(true);
           return;
@@ -259,14 +253,11 @@ export function ApplicationRequirementsChat({
             }
           ]);
         } else {
-          // No questions, or all questions are completed
-          setRequirements(prev => ({ ...prev, completed: true }));
-          setMessages([
-            {
-              role: 'assistant',
-              content: 'All application requirement questions have been completed. You can review the answers or edit them if needed.'
-            }
-          ]);
+          // All chat questions are complete
+          setRequirements(prev => ({
+            ...prev,
+            completed: true
+          }));
         }
         
         setIsInitialAnalysisComplete(true);
@@ -396,14 +387,6 @@ export function ApplicationRequirementsChat({
         
         // Save to database
         await saveRequirements(completedRequirements);
-        
-        // Show completed summary message
-        setMessages([
-          {
-            role: 'assistant',
-            content: 'Analysis complete. No application requirement questions were identified for your project. You can proceed with the application process.'
-          }
-        ]);
         
         setIsInitialAnalysisComplete(true);
         return;
@@ -793,20 +776,14 @@ export function ApplicationRequirementsChat({
               ...prev,
               completed: true
             }));
-            
-            setMessages([
-              {
-                role: 'assistant',
-                content: 'All questions have been completed. You can now review your answers or proceed with the application process.'
-              }
-            ]);
           }
         } else {
+          // For follow-up questions, keep the same question index
           setMessages(prev => [
             ...prev,
             {
               role: 'assistant',
-              content: 'Thank you! All questions have been completed. You can now review your answers or proceed with the application process.'
+              content: data.message || 'Please provide more details to complete this question.'
             }
           ]);
         }
@@ -1254,13 +1231,6 @@ export function ApplicationRequirementsChat({
         // Set state and save to database
         setRequirements(updatedRequirements);
         saveRequirements(updatedRequirements);
-        
-        setMessages([
-          {
-            role: 'assistant',
-            content: 'All application requirement questions have been completed. You can review the answers or proceed with the application process.'
-          }
-        ]);
       }
     }
   };

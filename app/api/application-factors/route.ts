@@ -70,7 +70,11 @@ function getSystemPrompt(researchDescription: string, currentQuestion?: string, 
     let promptWithChalkTalk = `${basePrompt}
     
     Your task is to analyze this research description and determine what information can be extracted to answer the following questions.
-    For each question, provide a JSON assessment.`;
+    For each question, provide a JSON assessment.
+    
+    IMPORTANT AUTO-EXTRACTION GUIDELINES:
+    - Please use all of the information to answer each of the questions.
+    `;
 
     // Add chalk talk transcription if available
     if (chalkTalkTranscription) {
@@ -177,12 +181,23 @@ export async function POST(request: NextRequest): Promise<Response> {
         // Continue without chalk talk transcription
       }
 
+      // Log information about the request
+      console.log('Batch Analysis Request:', {
+        projectId,
+        researchDescriptionLength: researchDescription?.length || 0,
+        numberOfQuestions: questions.length,
+        hasChalkTalk: !!chalkTalkTranscription
+      });
+
+      const systemPrompt = getSystemPrompt(researchDescription || '', undefined, undefined, undefined, questions, undefined, chalkTalkTranscription);
+      console.log('System prompt excerpt (first 500 chars):', systemPrompt.substring(0, 500) + '...');
+
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
-            content: getSystemPrompt(researchDescription || '', undefined, undefined, undefined, questions, undefined, chalkTalkTranscription) 
+            content: systemPrompt 
           }
         ],
         temperature: 0.1,
@@ -204,12 +219,26 @@ export async function POST(request: NextRequest): Promise<Response> {
           // Log the parsed assessments
           console.log('Batch Analysis - Parsed OpenAI Response:', JSON.stringify(assessments, null, 2));
         } catch (parseError) {
+          console.log('Failed direct parsing, attempting to clean the response');
           // If direct parsing fails, try cleaning the response
           const cleanedResponse = response
             .replace(/```json\n?|```\n?/g, '')
+            .replace(/^[\s\n]*\[/, '[')
+            .replace(/\][\s\n]*$/, ']')
             .trim();
           
-          assessments = JSON.parse(cleanedResponse);
+          try {
+            assessments = JSON.parse(cleanedResponse);
+          } catch (secondError) {
+            // Try extracting just the JSON array
+            console.log('Second parsing attempt failed, trying to extract JSON array');
+            const arrayMatch = cleanedResponse.match(/\[[\s\S]*\]/);
+            if (arrayMatch) {
+              assessments = JSON.parse(arrayMatch[0]);
+            } else {
+              throw new Error('Could not extract JSON array from response');
+            }
+          }
           
           // Verify again it's an array
           if (!Array.isArray(assessments)) {
@@ -220,11 +249,34 @@ export async function POST(request: NextRequest): Promise<Response> {
           console.log('Batch Analysis - Parsed OpenAI Response (after cleaning):', JSON.stringify(assessments, null, 2));
         }
         
+        // Enhance assessments to ensure all required fields are present
+        const enhancedAssessments = assessments.map(assessment => {
+          // Make sure meetsCriteria is available, defaulting to isAnswerComplete if missing
+          if (assessment.meetsCriteria === undefined) {
+            assessment.meetsCriteria = assessment.isAnswerComplete || false;
+          }
+          
+          // If finalAnswer exists but isAnswerComplete is false, update it
+          if (assessment.finalAnswer && assessment.finalAnswer.trim() && !assessment.isAnswerComplete) {
+            assessment.isAnswerComplete = true;
+          }
+          
+          // Ensure missingCriteria is always an array
+          if (!assessment.missingCriteria || !Array.isArray(assessment.missingCriteria)) {
+            assessment.missingCriteria = [];
+          }
+          
+          return assessment;
+        });
+        
+        console.log('Enhanced assessments:', JSON.stringify(enhancedAssessments, null, 2));
+        
         return Response.json({
-          results: assessments.map(assessment => ({
+          results: enhancedAssessments.map(assessment => ({
             questionId: assessment.questionId,
-            isAnswerComplete: assessment.meetsCriteria || assessment.isUncertaintyExpressed,
-            finalAnswer: assessment.finalAnswer,
+            isAnswerComplete: assessment.isAnswerComplete || assessment.meetsCriteria || assessment.isUncertaintyExpressed || (!!assessment.finalAnswer && assessment.finalAnswer.trim().length > 0),
+            finalAnswer: assessment.finalAnswer || '',
+            isUncertaintyExpressed: assessment.isUncertaintyExpressed || false,
             missingCriteria: assessment.missingCriteria || []
           }))
         });
