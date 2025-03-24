@@ -308,6 +308,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           generationConfig: {
             temperature: 0.2,
             maxOutputTokens: 100000,
+            responseMimeType: "application/json",
           },
         });
         
