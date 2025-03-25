@@ -20,11 +20,11 @@ function filterByRecommendedGrants(foas: any[], recommendedGrantCodes: string[])
     
     // Check if any of the FOA's grant types match the recommended grant codes
     return recommendedGrantCodes.some(code => {
-      const codeRegex = new RegExp(`\\b${code}\\b`, 'i');
-      // Check in grant_type object keys
-      return Object.keys(foa.grant_type).some(grantType => 
-        codeRegex.test(grantType) || grantType.includes(code)
-      );
+      // In Pinecone metadata, grant types are stored as grant_R01, grant_R03, etc.
+      // But in Supabase they are stored without the prefix
+      const grantKey = `grant_${code}`;
+      return foa.grant_type[code] === true || // Check Supabase format
+             (grantKey in foa.grant_type && foa.grant_type[grantKey] === true); // Check Pinecone format
     });
   });
   
@@ -236,76 +236,55 @@ export async function GET(request: NextRequest) {
         });
 
         console.log('Pinecone response matches:', listResponse.matches.length);
-        console.log('First match metadata:', listResponse.matches[0]?.metadata);
 
-        // Get all FOA IDs with normalized scores
-        const allFoaIds = listResponse.matches
-          .filter(match => match.metadata && match.metadata.foaId)
-          .map(match => ({
-            id: match.metadata!.foaId as string,
-            score: match.score !== undefined ? normalizeScore(match.score) : undefined
-          }));
-
-        // Apply pagination to FOA IDs
-        const paginatedFoaIds = allFoaIds.slice(offset, offset + limit);
-
-        console.log('Total FOA IDs:', allFoaIds.length);
-        console.log('Paginated FOA IDs:', paginatedFoaIds.length);
-        
-        // Only log score range if there are scores
-        const scores = allFoaIds.map(f => f.score).filter((s): s is number => s !== undefined);
-        if (scores.length > 0) {
-          console.log('Score range:', Math.min(...scores), 'to', Math.max(...scores));
-        }
-
-        if (paginatedFoaIds.length === 0) {
-          return NextResponse.json({
-            foas: [],
-            total: allFoaIds.length,
-            error: null
+        // Convert Pinecone matches to FOA format
+        let allFoas = listResponse.matches
+          .filter(match => match.metadata)
+          .map(match => {
+            // Extract metadata with type safety
+            const metadata = match.metadata!;
+            const deadline_timestamp = typeof metadata.deadline_timestamp === 'number' ? metadata.deadline_timestamp : null;
+            
+            return {
+              id: metadata.foaId as string,
+              title: metadata.title as string,
+              agency: metadata.agency as string,
+              description: metadata.text as string,
+              foa_code: metadata.foa_code as string,
+              deadline: deadline_timestamp ? new Date(deadline_timestamp * 1000).toISOString() : null,
+              award_floor: typeof metadata.award_floor === 'number' ? metadata.award_floor : null,
+              award_ceiling: typeof metadata.award_ceiling === 'number' ? metadata.award_ceiling : null,
+              animal_trials: !!metadata.animal_trials,
+              human_trials: !!metadata.human_trials,
+              // Convert Pinecone metadata format to grant_type format
+              grant_type: Object.entries(metadata)
+                .filter(([key]) => key.startsWith('grant_'))
+                .reduce((acc, [key, value]) => ({
+                  ...acc,
+                  [key]: value
+                }), {}),
+              score: match.score !== undefined ? normalizeScore(match.score) : undefined,
+              created_at: (metadata.created_at as string) || new Date().toISOString()
+            };
           });
-        }
 
-        // Fetch the actual FOA records from Supabase
-        const { data: foas, error: foasError } = await supabase
-          .from('foas')
-          .select('*')
-          .in('id', paginatedFoaIds.map(f => f.id));
-
-        if (foasError) {
-          console.error('Error fetching FOAs from Supabase:', foasError);
-          return NextResponse.json({
-            error: 'Failed to fetch FOA details',
-            foas: [],
-            total: 0
-          }, { status: 500 });
-        }
-
-        console.log('Found FOAs in Supabase:', foas?.length || 0);
-
-        // Sort the FOAs by created_at (most recent first) and include scores
-        const sortedFoas = foas
-          ?.map(foa => ({
-            ...foa,
-            score: paginatedFoaIds.find(f => f.id === foa.id)?.score
-          }))
-          ?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-          || [];
+        console.log('Converted FOAs:', allFoas.length);
 
         // Filter by recommended grants if needed
         if (recommendedGrants && recommendedGrantCodes.length > 0) {
-          const finalResults = filterByRecommendedGrants(sortedFoas, recommendedGrantCodes);
-          
-          return NextResponse.json({
-            foas: finalResults,
-            total: finalResults.length,
-            error: null
-          });
+          allFoas = filterByRecommendedGrants(allFoas, recommendedGrantCodes);
+          console.log('After recommended grants filter:', allFoas.length);
         }
+
+        // Sort by created_at
+        allFoas.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        
+        // Apply pagination AFTER filtering
+        const paginatedFoas = allFoas.slice(offset, offset + limit);
         
         return NextResponse.json({
-          foas: sortedFoas,
-          total: allFoaIds.length,
+          foas: paginatedFoas,
+          total: allFoas.length,
           error: null
         });
       }

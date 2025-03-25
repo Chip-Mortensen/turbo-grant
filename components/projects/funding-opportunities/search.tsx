@@ -591,7 +591,7 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
                                     .filter(([_, value]) => value === true)
                                     .map(([type]) => (
                                       <Badge key={type} variant="secondary" className="text-xs">
-                                        {type}
+                                        {type.startsWith('grant_') ? type.slice(6) : type}
                                       </Badge>
                                     ))
                                 }
