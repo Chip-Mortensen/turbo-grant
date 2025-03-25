@@ -21,12 +21,6 @@ export default function Hero() {
               >
                 Get Started
               </Link>
-              <Link
-                href="#how-it-works"
-                className="text-lg font-semibold leading-6 text-gray-900 hover:text-black"
-              >
-                Learn More <span aria-hidden="true">→</span>
-              </Link>
             </div>
           </div>
         </div>

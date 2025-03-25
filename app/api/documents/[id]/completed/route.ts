@@ -1,8 +1,12 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest } from 'next/server';
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }): Promise<Response> {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Response> {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     
     // Get the user data for authentication
@@ -12,13 +16,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const documentId = params.id;
-
     // First, find any completed_documents records for this document
     const { data: completedDocs, error: completedDocsError } = await supabase
       .from('completed_documents')
       .select('id, file_url, file_path')
-      .eq('document_id', documentId);
+      .eq('document_id', id);
 
     if (completedDocsError) {
       console.error('Error finding completed documents:', completedDocsError);
@@ -46,8 +48,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { error: deleteError } = await supabase
       .from('completed_documents')
       .delete()
-      .eq('document_id', documentId)
-      .select(); // Add select() to ensure the deletion is executed
+      .eq('document_id', id)
+      .select();
 
     if (deleteError) {
       console.error('Error deleting completed documents:', deleteError);
@@ -58,7 +60,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { data: verifyDocs, error: verifyError } = await supabase
       .from('completed_documents')
       .select('id')
-      .eq('document_id', documentId);
+      .eq('document_id', id);
 
     if (verifyError) {
       console.error('Error verifying deletion:', verifyError);
