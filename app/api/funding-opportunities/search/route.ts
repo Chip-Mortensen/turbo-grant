@@ -300,69 +300,58 @@ export async function GET(request: NextRequest) {
         includeMetadata: true
       });
       
-      // Get all FOA IDs with normalized scores
-      const allFoaIds = queryResponse.matches
-        .filter(match => match.metadata && match.metadata.foaId)
-        .map(match => ({
-          id: match.metadata!.foaId as string,
-          score: match.score !== undefined ? normalizeScore(match.score) : undefined
-        }));
-      
-      // Apply pagination to FOA IDs
-      const paginatedFoaIds = allFoaIds.slice(offset, offset + limit);
-      
-      // Only log score range if there are scores
-      const scores = allFoaIds.map(f => f.score).filter((s): s is number => s !== undefined);
-      if (scores.length > 0) {
-        console.log('Score range:', Math.min(...scores), 'to', Math.max(...scores));
-      }
-      
-      if (paginatedFoaIds.length === 0) {
-        return NextResponse.json({
-          foas: [],
-          total: allFoaIds.length,
-          error: null
-        });
-      }
-      
-      // Fetch the actual FOA records from Supabase
-      const { data: foas, error: foasError } = await supabase
-        .from('foas')
-        .select('*')
-        .in('id', paginatedFoaIds.map(f => f.id));
-      
-      if (foasError) {
-        console.error('Error fetching FOAs from Supabase:', foasError);
-        return NextResponse.json({
-          error: 'Failed to fetch FOA details',
-          foas: [],
-          total: 0
-        }, { status: 500 });
-      }
-      
-      // Sort the FOAs by score and include scores in response
-      const sortedFoas = paginatedFoaIds
-        .map(({ id, score }) => ({
-          ...foas?.find(foa => foa.id === id),
-          score
-        }))
-        .filter(Boolean)
-        .sort((a, b) => (b.score || 0) - (a.score || 0)); // Sort by score for text queries
+      // Convert Pinecone matches to FOA format
+      const allFoas = queryResponse.matches
+        .filter(match => match.metadata)
+        .map(match => {
+          // Extract metadata with type safety
+          const metadata = match.metadata!;
+          const deadline_timestamp = typeof metadata.deadline_timestamp === 'number' ? metadata.deadline_timestamp : null;
+          
+          return {
+            id: metadata.foaId as string,
+            title: metadata.title as string,
+            agency: metadata.agency as string,
+            description: metadata.text as string,
+            foa_code: metadata.foa_code as string,
+            deadline: deadline_timestamp ? new Date(deadline_timestamp * 1000).toISOString() : null,
+            award_floor: typeof metadata.award_floor === 'number' ? metadata.award_floor : null,
+            award_ceiling: typeof metadata.award_ceiling === 'number' ? metadata.award_ceiling : null,
+            animal_trials: !!metadata.animal_trials,
+            human_trials: !!metadata.human_trials,
+            // Convert Pinecone metadata format to grant_type format
+            grant_type: Object.entries(metadata)
+              .filter(([key]) => key.startsWith('grant_'))
+              .reduce((acc, [key, value]) => ({
+                ...acc,
+                [key]: value
+              }), {}),
+            score: match.score !== undefined ? normalizeScore(match.score) : undefined,
+            created_at: (metadata.created_at as string) || new Date().toISOString()
+          };
+        })
+        .sort((a, b) => (b.score || 0) - (a.score || 0));
 
       // Filter by recommended grants if needed  
       if (recommendedGrants && recommendedGrantCodes.length > 0) {
-        const finalResults = filterByRecommendedGrants(sortedFoas, recommendedGrantCodes);
+        const finalResults = filterByRecommendedGrants(allFoas, recommendedGrantCodes);
+        
+        // Apply pagination AFTER filtering
+        const paginatedResults = finalResults.slice(offset, offset + limit);
         
         return NextResponse.json({
-          foas: finalResults,
+          foas: paginatedResults,
           total: finalResults.length,
           error: null
         });
       }
       
+      // Apply pagination
+      const paginatedFoas = allFoas.slice(offset, offset + limit);
+      
       return NextResponse.json({
-        foas: sortedFoas,
-        total: allFoaIds.length,
+        foas: paginatedFoas,
+        total: allFoas.length,
         error: null
       });
     } catch (error) {

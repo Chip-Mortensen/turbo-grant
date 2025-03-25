@@ -589,11 +589,14 @@ export function FundingOpportunitiesSearch({ projectId }: FundingOpportunitiesSe
                                 {foa.grant_type && typeof foa.grant_type === 'object' && 
                                   Object.entries(foa.grant_type)
                                     .filter(([_, value]) => value === true)
-                                    .map(([type]) => (
-                                      <Badge key={type} variant="secondary" className="text-xs">
-                                        {type.startsWith('grant_') ? type.slice(6) : type}
-                                      </Badge>
-                                    ))
+                                    .map(([type, _], index) => {
+                                      const displayType = type.startsWith('grant_') ? type.slice(6) : type;
+                                      return (
+                                        <Badge key={`${foa.id}-${type}-${index}`} variant="secondary" className="text-xs">
+                                          {displayType}
+                                        </Badge>
+                                      );
+                                    })
                                 }
                                 
                                 {(foa.award_floor !== null || foa.award_ceiling !== null) && (
