@@ -134,6 +134,7 @@ function getSystemPrompt(researchDescription: string, currentQuestion?: string, 
     8. Never use a user's question as an answer. Even if you've offered suggestions. 
     9. Only discuss NIH or NSF grants
     10. Never mark an answer as complete if we just asked a question.
+    11. If the input matches the criteria, then we should always mark it as complete.
 
     IMPORTANT: Your response MUST be a single, valid JSON object with ALL required fields.` : '';
 
