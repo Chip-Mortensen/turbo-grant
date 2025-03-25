@@ -34,16 +34,26 @@ export default function DocumentsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) {
+    if (!confirm('Are you sure you want to delete this document? This will also delete all completed versions of this document.')) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/documents/${id}`, {
+      // First delete any associated completed documents
+      const deleteCompletedResponse = await fetch(`/api/documents/${id}/completed`, {
         method: 'DELETE',
       });
 
-      if (!response.ok) {
+      if (!deleteCompletedResponse.ok) {
+        throw new Error('Failed to delete completed documents');
+      }
+
+      // Then delete the document itself
+      const deleteDocumentResponse = await fetch(`/api/documents/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!deleteDocumentResponse.ok) {
         throw new Error('Failed to delete document');
       }
 
