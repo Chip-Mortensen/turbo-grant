@@ -6,17 +6,17 @@ import { motion } from 'framer-motion';
 const features = [
   {
     name: 'Ideation to Application',
-    description: 'Turn raw research concepts into structured grant proposals with our guided process and AI assistance.',
+    description: 'Transform your research concepts into polished funding applications with our structured process and AI assistance.',
     icon: Lightbulb,
   },
   {
-    name: 'Smart Requirements',
-    description: 'Auto-validate your application against funding requirements and receive real-time feedback for improvement.',
+    name: 'Smart Funding Match',
+    description: 'Find the perfect funding opportunities through intelligent matching, advanced filters, and the ability to directly chat with grant details.',
     icon: ClipboardCheck,
   },
   {
-    name: 'Collaborative Workspace',
-    description: 'Work seamlessly with your research team, share drafts, and gather feedback in one centralized platform.',
+    name: 'AI Writing Assistant',
+    description: 'Create compelling application documents with our AI copilot that helps draft, refine, and enhance your funding proposals.',
     icon: Users,
   },
 ]
@@ -37,7 +37,7 @@ export default function FeatureGrid() {
             Everything you need to secure research funding
           </p>
           <p className="mt-6 text-lg leading-8 text-gray-500">
-            Our platform simplifies the grant writing process, letting you focus on what matters most - your groundbreaking research.
+            Our platform simplifies the grant application process, letting you focus on what matters most - your groundbreaking research.
           </p>
         </motion.div>
         <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
