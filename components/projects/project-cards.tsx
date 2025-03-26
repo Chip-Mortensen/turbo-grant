@@ -20,11 +20,12 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
     vectorizationStatus.figures && 
     vectorizationStatus.chalkTalk;
 
-  // Show equipment and sources cards if FOA is selected or if they're loading
-  const showEquipmentCard = completionStatus.foa || loadingStates.equipment;
-  const showSourcesCard = completionStatus.foa || loadingStates.sources;
-  const showAttachmentsCard = completionStatus.foa || loadingStates.attachments;
-  const showApplicationRequirementsCard = completionStatus.foa || loadingStates.applicationRequirements;
+  // Improved logic for showing cards after FOA selection
+  // Show these cards if FOA is selected, regardless of loading state
+  const showEquipmentCard = completionStatus.foa;
+  const showSourcesCard = completionStatus.foa;
+  const showAttachmentsCard = completionStatus.foa;
+  const showApplicationRequirementsCard = completionStatus.foa;
 
   return (
     <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
@@ -81,7 +82,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.foa}
         />
       )}
-      {!loadingStates.equipment && showEquipmentCard && (
+      {showEquipmentCard && (
         <ProjectCard
           title="Equipment"
           description="Manage equipment for your project"
@@ -91,7 +92,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.equipment}
         />
       )}
-      {!loadingStates.sources && showSourcesCard && (
+      {showSourcesCard && (
         <ProjectCard
           title="Sources"
           description="Manage research sources and references"
@@ -101,7 +102,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.sources}
         />
       )}
-      {!loadingStates.attachments && showAttachmentsCard && (
+      {showAttachmentsCard && (
         <ProjectCard
           title="Attachments"
           description="Manage documents for your proposal"
@@ -111,7 +112,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.attachments}
         />
       )}
-      {!loadingStates.applicationRequirements && showApplicationRequirementsCard && (
+      {showApplicationRequirementsCard && (
         <ProjectCard
           title="Application Requirements"
           description="Identify requirements for your application"
