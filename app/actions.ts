@@ -23,6 +23,14 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
+  if (password.length < 6) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Password must be at least 6 characters long",
+    );
+  }
+
   // Sign up the user
   const { error, data } = await supabase.auth.signUp({
     email,

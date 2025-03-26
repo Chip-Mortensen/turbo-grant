@@ -83,9 +83,11 @@ export default async function SignUp(props: {
               id="password"
               name="password"
               type="password"
-              placeholder="Create a password"
+              placeholder="Create a password (min 6 characters)"
               required
+              minLength={6}
             />
+            <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
           </div>
           <SubmitButton formAction={signUpAction}>
             Sign Up
