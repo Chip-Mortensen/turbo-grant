@@ -85,31 +85,40 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
       {showEquipmentCard && (
         <ProjectCard
           title="Equipment"
-          description="Manage equipment for your project"
-          href={`/projects/${projectId}/equipment`}
+          description={completionStatus.equipment 
+            ? "Manage equipment for your project" 
+            : "Generating equipment recommendations..."}
+          href={completionStatus.equipment ? `/projects/${projectId}/equipment` : undefined}
           icon={Wrench}
           isComplete={completionStatus.equipment}
-          isLoading={loadingStates.equipment}
+          isLoading={!completionStatus.equipment}
+          disabled={!completionStatus.equipment}
         />
       )}
       {showSourcesCard && (
         <ProjectCard
           title="Sources"
-          description="Manage research sources and references"
-          href={`/projects/${projectId}/sources`}
+          description={completionStatus.sources 
+            ? "Manage research sources and references" 
+            : "Generating research sources..."}
+          href={completionStatus.sources ? `/projects/${projectId}/sources` : undefined}
           icon={LinkIcon}
           isComplete={completionStatus.sources}
-          isLoading={loadingStates.sources}
+          isLoading={!completionStatus.sources}
+          disabled={!completionStatus.sources}
         />
       )}
       {showAttachmentsCard && (
         <ProjectCard
           title="Attachments"
-          description="Manage documents for your proposal"
-          href={`/projects/${projectId}/attachments`}
+          description={completionStatus.attachments 
+            ? "Manage documents for your proposal" 
+            : "Preparing document templates..."}
+          href={completionStatus.attachments ? `/projects/${projectId}/attachments` : undefined}
           icon={Paperclip}
           isComplete={completionStatus.attachments}
-          isLoading={loadingStates.attachments}
+          isLoading={!completionStatus.attachments}
+          disabled={!completionStatus.attachments}
         />
       )}
       {showApplicationRequirementsCard && (

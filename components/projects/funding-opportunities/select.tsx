@@ -97,7 +97,6 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
           document: {
             id: doc.id,
             name: doc.name,
-            fields: doc.fields || [],
             sources: doc.sources || [],
             agency: doc.agency,
             grant_types: doc.grant_types || [],
