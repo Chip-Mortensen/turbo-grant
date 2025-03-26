@@ -7,15 +7,15 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export function useProjectCompletion(projectId: string) {
   // Add loading states for each metric
   const [loadingStates, setLoadingStates] = useState({
-    description: true,
-    figures: true,
-    chalkTalk: true,
-    foa: true,
-    attachments: true,
-    equipment: true,
-    sources: true,
-    applicationFactors: true,
-    applicationRequirements: true
+    description: false,
+    figures: false,
+    chalkTalk: false,
+    foa: false,
+    attachments: false,
+    equipment: false,
+    sources: false,
+    applicationFactors: false,
+    applicationRequirements: false
   });
 
   const [completionStatus, setCompletionStatus] = useState({
@@ -28,6 +28,13 @@ export function useProjectCompletion(projectId: string) {
     sources: false,
     applicationFactors: false,
     applicationRequirements: false
+  });
+
+  // Add vectorization status state
+  const [vectorizationStatus, setVectorizationStatus] = useState({
+    description: false,
+    figures: false,
+    chalkTalk: false
   });
 
   // Track if we've seen FOA selected
@@ -46,13 +53,20 @@ export function useProjectCompletion(projectId: string) {
     const fetchStatus = async () => {
       // Fetch all statuses in parallel
       const [descriptionRes, figuresRes, chalkTalkRes, projectRes, equipmentRes, sourcesRes] = await Promise.all([
-        supabase.from('research_descriptions').select('id').eq('project_id', projectId).limit(1),
-        supabase.from('scientific_figures').select('id').eq('project_id', projectId).limit(1),
-        supabase.from('chalk_talks').select('id').eq('project_id', projectId).limit(1),
+        supabase.from('research_descriptions').select('id, vectorization_status').eq('project_id', projectId).limit(1),
+        supabase.from('scientific_figures').select('id, vectorization_status').eq('project_id', projectId).limit(1),
+        supabase.from('chalk_talks').select('id, vectorization_status').eq('project_id', projectId).limit(1),
         supabase.from('research_projects').select('foa, attachments, application_factors, application_requirements').eq('id', projectId).single(),
         supabase.from('recommended_equipment').select('id').eq('project_id', projectId).limit(1),
         supabase.from('project_sources').select('id').eq('project_id', projectId).limit(1)
       ]);
+
+      // Check vectorization status
+      setVectorizationStatus({
+        description: descriptionRes.data?.[0]?.vectorization_status === 'completed',
+        figures: figuresRes.data?.[0]?.vectorization_status === 'completed',
+        chalkTalk: chalkTalkRes.data?.[0]?.vectorization_status === 'completed'
+      });
 
       // Check if all attachments are completed
       const attachmentsComplete = projectRes.data?.attachments
@@ -109,13 +123,14 @@ export function useProjectCompletion(projectId: string) {
         figures: false,
         chalkTalk: false,
         foa: false,
-        attachments: hasFoa && !attachmentsComplete,
-        // Show loading spinner for equipment if FOA is selected and we don't have equipment yet
+        // Only show loading for attachments if FOA is selected and attachments exist but aren't complete
+        attachments: hasFoa && projectRes.data?.attachments && !attachmentsComplete,
+        // Only show loading for equipment if FOA is selected and we don't have equipment yet
         equipment: hasFoa && !hasEquipment,
-        // Show loading spinner for sources if FOA is selected and we don't have sources yet
+        // Only show loading for sources if FOA is selected and we don't have sources yet
         sources: hasFoa && !hasSources,
         applicationFactors: false,
-        // Only show loading spinner for application requirements if it exists but is not complete
+        // Only show loading for application requirements if it exists but is not complete
         applicationRequirements: hasFoa && projectRes.data?.application_requirements && 
           !applicationRequirementsComplete && Object.keys(projectRes.data.application_requirements).length > 0
       });
@@ -173,6 +188,57 @@ export function useProjectCompletion(projectId: string) {
           }
         )
         .subscribe();
+
+      // Subscribe to research_descriptions table for vectorization status
+      supabase
+        .channel('description-vectorization-changes')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'research_descriptions',
+            filter: `project_id=eq.${projectId}`
+          }, 
+          (payload) => {
+            console.log('Description vectorization change detected:', payload);
+            fetchStatus();
+          }
+        )
+        .subscribe();
+
+      // Subscribe to scientific_figures table for vectorization status
+      supabase
+        .channel('figures-vectorization-changes')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'scientific_figures',
+            filter: `project_id=eq.${projectId}`
+          }, 
+          (payload) => {
+            console.log('Figures vectorization change detected:', payload);
+            fetchStatus();
+          }
+        )
+        .subscribe();
+
+      // Subscribe to chalk_talks table for vectorization status
+      supabase
+        .channel('chalk-talk-vectorization-changes')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'chalk_talks',
+            filter: `project_id=eq.${projectId}`
+          }, 
+          (payload) => {
+            console.log('Chalk talk vectorization change detected:', payload);
+            fetchStatus();
+          }
+        )
+        .subscribe();
     };
 
     fetchStatus();
@@ -189,8 +255,11 @@ export function useProjectCompletion(projectId: string) {
       if (projectSubscription) {
         supabase.removeChannel(projectSubscription);
       }
+      supabase.removeChannel(supabase.channel('description-vectorization-changes'));
+      supabase.removeChannel(supabase.channel('figures-vectorization-changes'));
+      supabase.removeChannel(supabase.channel('chalk-talk-vectorization-changes'));
     };
   }, [projectId]);
 
-  return { completionStatus, loadingStates };
+  return { completionStatus, loadingStates, vectorizationStatus };
 } 

@@ -10,10 +10,15 @@ interface ProjectCardsProps {
 }
 
 export function ProjectCards({ projectId }: ProjectCardsProps) {
-  const { completionStatus, loadingStates } = useProjectCompletion(projectId);
+  const { completionStatus, loadingStates, vectorizationStatus } = useProjectCompletion(projectId);
   const allRequiredComplete = completionStatus.description && 
     completionStatus.figures && 
     completionStatus.chalkTalk && completionStatus.applicationFactors;
+
+  // Check if all vectorization is complete
+  const allVectorizationComplete = vectorizationStatus.description && 
+    vectorizationStatus.figures && 
+    vectorizationStatus.chalkTalk;
 
   // Show equipment and sources cards if FOA is selected or if they're loading
   const showEquipmentCard = completionStatus.foa || loadingStates.equipment;
@@ -25,39 +30,48 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
     <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
       <ProjectCard
         title="Research Description"
-        description="Upload and manage your research description"
+        description={vectorizationStatus.description 
+          ? "Upload and manage your research description"
+          : "Processing your research description..."}
         href={`/projects/${projectId}/research-description`}
         icon={FileText}
         isComplete={completionStatus.description}
-        isLoading={loadingStates.description}
+        isLoading={completionStatus.description && !vectorizationStatus.description}
       />
       <ProjectCard
         title="Scientific Figures"
-        description="Upload and manage your scientific figures"
+        description={vectorizationStatus.figures
+          ? "Upload and manage your scientific figures"
+          : "Processing your scientific figures..."}
         href={`/projects/${projectId}/scientific-figures`}
         icon={Image}
         isComplete={completionStatus.figures}
-        isLoading={loadingStates.figures}
+        isLoading={completionStatus.figures && !vectorizationStatus.figures}
       />
       <ProjectCard
         title="Chalk Talk"
-        description="Record and manage your chalk talk"
+        description={vectorizationStatus.chalkTalk
+          ? "Record and manage your chalk talk"
+          : "Processing your chalk talk..."}
         href={`/projects/${projectId}/chalk-talk`}
         icon={Video}
         isComplete={completionStatus.chalkTalk}
-        isLoading={loadingStates.chalkTalk}
+        isLoading={completionStatus.chalkTalk && !vectorizationStatus.chalkTalk}
       />
-      {completionStatus.description && completionStatus.chalkTalk && (
+      {!loadingStates.applicationFactors && completionStatus.description && completionStatus.chalkTalk && (
         <ProjectCard
           title="Application Factors"
-          description="Identify factors for funding opportunities"
-          href={`/projects/${projectId}/application-factors`}
+          description={allVectorizationComplete 
+            ? "Identify factors for funding opportunities"
+            : "Waiting for content processing to complete"}
+          href={allVectorizationComplete ? `/projects/${projectId}/application-factors` : undefined}
           icon={ClipboardList}
           isComplete={completionStatus.applicationFactors}
           isLoading={loadingStates.applicationFactors}
+          disabled={!allVectorizationComplete}
         />
       )}
-      {allRequiredComplete && (
+      {!loadingStates.foa && allRequiredComplete && (
         <ProjectCard
           title="Funding Opportunity"
           description="Select and view funding opportunities"
@@ -67,7 +81,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.foa}
         />
       )}
-      {showEquipmentCard && (
+      {!loadingStates.equipment && showEquipmentCard && (
         <ProjectCard
           title="Equipment"
           description="Manage equipment for your project"
@@ -77,7 +91,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.equipment}
         />
       )}
-      {showSourcesCard && (
+      {!loadingStates.sources && showSourcesCard && (
         <ProjectCard
           title="Sources"
           description="Manage research sources and references"
@@ -87,7 +101,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.sources}
         />
       )}
-      {showAttachmentsCard && (
+      {!loadingStates.attachments && showAttachmentsCard && (
         <ProjectCard
           title="Attachments"
           description="Manage documents for your proposal"
@@ -97,7 +111,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           isLoading={loadingStates.attachments}
         />
       )}
-      {showApplicationRequirementsCard && (
+      {!loadingStates.applicationRequirements && showApplicationRequirementsCard && (
         <ProjectCard
           title="Application Requirements"
           description="Identify requirements for your application"
