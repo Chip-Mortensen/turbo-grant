@@ -34,7 +34,7 @@ Format Requirements:
 
 export class GeneralDocumentProcessor extends DocumentProcessor {
   async generateContent(
-    { document, answers, context }: GenerationContext
+    { document, context }: GenerationContext
   ): Promise<GenerationResult> {
     try {
       // Calculate target words based on page limit
@@ -48,7 +48,7 @@ export class GeneralDocumentProcessor extends DocumentProcessor {
         .replace('{DOCUMENT_TITLE}', document.name || 'Document');
 
       // Construct the user prompt
-      const userPrompt = this.constructPrompt(document.prompt || '', answers, context);
+      const userPrompt = this.constructPrompt(document.prompt || '', context);
 
       // Generate content
       const completion = await openai.chat.completions.create({
@@ -77,7 +77,6 @@ export class GeneralDocumentProcessor extends DocumentProcessor {
 
   private constructPrompt(
     templatePrompt: string,
-    answers?: { label: string; answer: string }[],
     context?: { 
       researchDescriptions: string,
       scientificFigures: string,
@@ -89,8 +88,7 @@ export class GeneralDocumentProcessor extends DocumentProcessor {
       // Template prompt
       templatePrompt,
 
-      // User answers section
-      answers && answers.length > 0 ? `User Provided Information: ${answers.map(a => `${a.label}: ${a.answer}`).join('\n')}` : '',
+      // Context sections
       context?.researchDescriptions.length ? `Research Description Context: ${context.researchDescriptions}` : '',
       context?.scientificFigures ? `Scientific Figures Context: ${context.scientificFigures}` : '',
       context?.chalkTalks ? `Chalk Talks Context: ${context.chalkTalks}` : '',

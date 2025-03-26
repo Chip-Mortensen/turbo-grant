@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { Document, DocumentField } from '@/types/documents';
+import { Document } from '@/types/documents';
 import { DocumentContext, GenerationResult, ProcessorConfig, GenerationContext } from './types';
 import { 
   getResearchDescriptionText, 
@@ -73,7 +73,7 @@ export abstract class DocumentProcessor {
   /**
    * Main entry point for document generation
    */
-  async process(document: Document, answers?: DocumentField[]): Promise<GenerationResult> {
+  async process(document: Document): Promise<GenerationResult> {
     try {
       // Gather context
       const context = await this.gatherContext();
@@ -81,7 +81,6 @@ export abstract class DocumentProcessor {
       // Generate content using processor-specific implementation
       return await this.generateContent({
         document,
-        answers,
         context
       });
     } catch (error) {

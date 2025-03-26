@@ -1,5 +1,5 @@
 import { MatchResult } from '@/lib/vectorization/types';
-import { Document, DocumentField } from '@/types/documents';
+import { Document } from '@/types/documents';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface DocumentContext {
@@ -22,6 +22,5 @@ export interface ProcessorConfig {
 
 export interface GenerationContext {
   document: Document;
-  answers?: DocumentField[];
   context: DocumentContext;
 } 

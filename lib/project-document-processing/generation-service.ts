@@ -41,14 +41,8 @@ export async function generateDocumentContent(
       ? new ProjectDescriptionProcessor({ projectId, supabase, foaId })
       : new GeneralDocumentProcessor({ projectId, supabase, foaId });
 
-    // Get answers from attachments if they exist
-    const { data: answers } = await supabase
-      .from('document_fields')
-      .select('*')
-      .eq('document_id', documentId);
-
     // Process document with all context (including FOA if available)
-    return await processor.process(document, answers || []);
+    return await processor.process(document);
   } catch (error) {
     console.error('Error in document generation:', error);
     return {

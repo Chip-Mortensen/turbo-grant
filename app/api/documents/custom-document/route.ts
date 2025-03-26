@@ -55,7 +55,6 @@ export async function POST(request: NextRequest): Promise<Response> {
       page_limit: page_limit || null,
       project_id: project_id || null,
       agency,
-      fields: [],
       sources: ["chalk_talk", "foa", "research_description"],
       optional: false,
       grant_types: [],

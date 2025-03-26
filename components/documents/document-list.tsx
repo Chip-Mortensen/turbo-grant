@@ -21,7 +21,6 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
         <TableRow>
           <TableHead>Name</TableHead>
           <TableHead>Agency</TableHead>
-          <TableHead>Fields</TableHead>
           <TableHead>Optional</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
@@ -31,7 +30,6 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
           <TableRow key={document.id}>
             <TableCell className="font-medium">{document.name}</TableCell>
             <TableCell>{document.agency}</TableCell>
-            <TableCell>{document.fields.length} fields</TableCell>
             <TableCell>{document.optional ? 'Yes' : 'No'}</TableCell>
             <TableCell>
               <div className="flex items-center gap-2">

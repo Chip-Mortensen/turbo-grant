@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Document, DocumentField, AgencyType, DocumentSourceType } from '@/types/documents';
+import { Document, AgencyType, DocumentSourceType } from '@/types/documents';
 import { use } from 'react';
-import QuestionView from '@/components/projects/attachments/question-view';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, Bold, Italic, List, Heading, Download, Save, FileOutput, Wand2 } from 'lucide-react';
 import Link from 'next/link';
@@ -30,7 +29,6 @@ import { Mark } from '@tiptap/core';
 interface StoredDocument {
   id: string;
   name: string;
-  fields: DocumentField[];
   sources?: string[];
   agency?: string;
   grant_types?: string[];
@@ -434,10 +432,12 @@ function ProcessedContent({
           }
           
           setIsGeneratingDocument(false);
-          // Continue with fallback content generation
+          // Content generation failed, create default empty content
+          setInitialContent('<h1>' + document.name + '</h1><p>No content available yet. Try regenerating the document.</p>');
+          setLoading(false);
         }
-      } catch (genError) {
-        console.error('Error calling document generation API:', genError);
+      } catch (error: any) {
+        console.error('Error calling document generation API:', error);
         
         // Check if the document was created despite the error
         const { data: createdDoc } = await supabase
@@ -458,53 +458,10 @@ function ProcessedContent({
         }
         
         setIsGeneratingDocument(false);
-        // Continue with fallback content generation
-      }
-      
-      // Fallback: Generate content from the document fields
-      console.log('Falling back to generating content from fields');
-      
-      // Get the document fields from the project's attachments
-      const { data: project, error: projectError } = await supabase
-        .from('research_projects')
-        .select('attachments')
-        .eq('id', projectId)
-        .single();
-      
-      if (projectError) {
-        throw new Error(`Error fetching project: ${projectError.message}`);
-      }
-      
-      if (!project?.attachments || !project.attachments[documentId]) {
-        console.log('Document not found in project attachments');
-        // Generate empty content
-        setInitialContent('<h1>' + document.name + '</h1><p>No content available yet. Please fill out the document questions.</p>');
+        // Content generation failed, create default empty content
+        setInitialContent('<h1>' + document.name + '</h1><p>No content available yet. Try regenerating the document.</p>');
         setLoading(false);
-        return;
       }
-      
-      const attachment = project.attachments[documentId] as AttachmentState;
-      
-      if (!attachment.document?.fields?.length) {
-        console.log('No fields found in document');
-        // Generate empty content
-        setInitialContent('<h1>' + document.name + '</h1><p>No content available yet. Please fill out the document questions.</p>');
-        setLoading(false);
-        return;
-      }
-      
-      // Generate content from fields
-      let content = `<h1>${document.name}</h1>`;
-      
-      attachment.document.fields.forEach(field => {
-        if (field.answer && field.answer.trim() !== '') {
-          content += `<h2>${field.label}</h2>`;
-          content += `<p>${field.answer}</p>`;
-        }
-      });
-      
-      setInitialContent(content);
-      setLoading(false);
       
     } catch (error: any) {
       console.error('Error fetching content:', error);
@@ -1137,10 +1094,6 @@ export default function DocumentQuestionsPage({
     setHasUnsavedChanges(hasChanges);
   };
 
-  const areAllQuestionsAnswered = (fields: DocumentField[]) => {
-    return fields.every(field => field.answer && field.answer.trim() !== '');
-  };
-
   const handleNavigateAway = () => {
     if (hasUnsavedChanges) {
       setShowExitDialog(true);
@@ -1199,7 +1152,6 @@ export default function DocumentQuestionsPage({
             const docWithDefaults: Document = {
               id: attachment.document.id,
               name: attachment.document.name,
-              fields: attachment.document.fields || [],
               sources: (attachment.document.sources as DocumentSourceType[]) || [],
               agency: (attachment.document.agency as AgencyType) || 'NIH',
               grant_types: attachment.document.grant_types || [],
@@ -1242,99 +1194,10 @@ export default function DocumentQuestionsPage({
     }
   };
 
-  const handleUpdateAnswers = async (updatedFields: DocumentField[]) => {
-    if (!document) return;
-    
-    setSaveStatus('saving');
-    
-    try {
-      const { data: project, error: fetchError } = await supabase
-        .from('research_projects')
-        .select('attachments')
-        .eq('id', projectId)
-        .single();
-      
-      if (fetchError) {
-        throw new Error(`Failed to fetch project attachments: ${fetchError.message}`);
-      }
-      
-      if (!project?.attachments) {
-        throw new Error('Project attachments not found');
-      }
-      
-      const updatedAttachments = { ...project.attachments };
-      
-      if (!updatedAttachments[document.id]) {
-        console.log('Document not found in attachments, creating it now');
-        updatedAttachments[document.id] = {
-          completed: false,
-          updatedAt: new Date().toISOString(),
-          document: {
-            id: document.id,
-            name: document.name,
-            fields: updatedFields,
-            sources: document.sources || [],
-            agency: document.agency,
-            grant_types: document.grant_types || [],
-            custom_processor: document.custom_processor,
-            prompt: document.prompt,
-            page_limit: document.page_limit,
-            optional: document.optional ?? false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        };
-      } else {
-        if (!updatedAttachments[document.id].document) {
-          updatedAttachments[document.id].document = {
-            id: document.id,
-            name: document.name,
-            fields: updatedFields,
-            sources: document.sources || [],
-            agency: document.agency,
-            grant_types: document.grant_types || [],
-            custom_processor: document.custom_processor,
-            prompt: document.prompt,
-            page_limit: document.page_limit,
-            optional: document.optional ?? false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-        } else {
-          updatedAttachments[document.id].document = {
-            ...updatedAttachments[document.id].document,
-            fields: updatedFields,
-            updated_at: new Date().toISOString()
-          };
-        }
-      }
-      
-      updatedAttachments[document.id].updatedAt = new Date().toISOString();
-      
-      console.log('Updating attachments with new fields:', updatedAttachments[document.id]);
-      
-      const { error: updateError } = await supabase
-        .from('research_projects')
-        .update({ attachments: updatedAttachments })
-        .eq('id', projectId);
-      
-      if (updateError) {
-        throw new Error(`Failed to update project attachments: ${updateError.message}`);
-      }
-      
-      setDocument(prev => prev ? {
-        ...prev,
-        fields: updatedFields
-      } : null);
-      
-      setSaveStatus('success');
-      setTimeout(() => setSaveStatus('idle'), 2000);
-      
-    } catch (err) {
-      console.error('Error updating document:', err);
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 2000);
-    }
+  const handleUpdateAnswers = async (updatedFields: any[]) => {
+    // This function is no longer needed as fields have been removed
+    console.log('Fields have been removed from the document schema');
+    return;
   };
 
   if (isLoading) {
