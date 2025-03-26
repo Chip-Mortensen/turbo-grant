@@ -107,7 +107,7 @@ export class ProjectDescriptionProcessor extends DocumentProcessor {
         const userPrompt = this.constructSectionPrompt(context, item.heading);
 
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-4o",
           messages: [
             { role: "system", content: prompt },
             { role: "user", content: userPrompt }
