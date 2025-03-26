@@ -1,0 +1,615 @@
+[
+  {
+    "document_name": "SFLLL (Disclosure of Lobbying Activities) or Other Explanatory Documentation",
+    "condition": "Needed for Training Grants if unable to certify compliance with lobbying certification in Section 17 of the SF 424 (R&R) form or if required by the NOFO.",
+    "user_question": "Is it true that you are unable to certify compliance with the lobbying certification in Section 17 of the SF 424 (R&R) form, OR that your Training Grant NOFO requires this documentation?",
+    "isRequired": false,
+    "source_page_numbers": [
+      15,
+      25
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Pre-application Attachment",
+    "condition": "Needed for Training Grants only if explicitly required or permitted by the specific Notice of Funding Opportunity (NOFO).",
+    "user_question": "Is it true that your specific Training Grant Notice of Funding Opportunity (NOFO) explicitly requires or permits a Pre-application attachment?",
+    "isRequired": false,
+    "source_page_numbers": [
+      15,
+      16,
+      27
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Cover Letter Attachment",
+    "condition": "Optional for Training Grants but recommended or required for specific situations like late submissions, corrections, agency approvals, or HFT involvement.",
+    "user_question": "Is it true that you are submitting a late or corrected Training Grant application, requesting agency approval, involving Human Fetal Tissue, or have another specific reason outlined in the instructions to include a Cover Letter?",
+    "isRequired": false,
+    "source_page_numbers": [
+      5,
+      15,
+      27,
+      28,
+      141
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Agency Approval Documentation",
+    "condition": "Needed for Training Grants if prior NIH approval is required before submission (e.g., >$500k direct costs/year).",
+    "user_question": "Is it true that your Training Grant application requires prior approval from the NIH awarding component before submission (e.g., requesting $500,000 or more in direct costs per year)?",
+    "isRequired": false,
+    "source_page_numbers": [
+      28,
+      61,
+      78
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HFT Compliance Assurance",
+    "condition": "Needed for Training Grants if the project involves Human Fetal Tissue (HFT) from elective abortions.",
+    "user_question": "Is it true that your proposed Training Grant project involves the use of human fetal tissue (HFT) obtained from elective abortions?",
+    "isRequired": false,
+    "source_page_numbers": [
+      29,
+      31,
+      32,
+      61,
+      70,
+      73
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HFT Sample IRB Consent Form",
+    "condition": "Needed for Training Grants if the project involves Human Fetal Tissue (HFT) from elective abortions.",
+    "user_question": "Is it true that your proposed Training Grant project involves the use of human fetal tissue (HFT) obtained from elective abortions?",
+    "isRequired": false,
+    "source_page_numbers": [
+      29,
+      31
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Project Summary/Abstract",
+    "condition": "Required for all Training Grant applications.",
+    "user_question": "Is it true that the Project Summary/Abstract attachment is required for your Training Grant application?",
+    "isRequired": true,
+    "source_page_numbers": [
+      5,
+      34,
+      41,
+      42
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Project Narrative",
+    "condition": "Required for all Training Grant applications.",
+    "user_question": "Is it true that the Project Narrative attachment is required for your Training Grant application?",
+    "isRequired": true,
+    "source_page_numbers": [
+      34,
+      42
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Bibliography & References Cited",
+    "condition": "Required for Training Grant applications unless explicitly waived by the NOFO; includes references for the Training Program Plan.",
+    "user_question": "Is it true that the Bibliography & References Cited attachment is required for your Training Grant application (i.e., not explicitly waived by your NOFO)?",
+    "isRequired": true,
+    "source_page_numbers": [
+      34,
+      42,
+      43
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Facilities & Other Resources",
+    "condition": "Required for Training Grant applications unless explicitly waived by the NOFO; specific content requirements apply.",
+    "user_question": "Is it true that the Facilities & Other Resources attachment is required for your Training Grant application (i.e., not explicitly waived by your NOFO)?",
+    "isRequired": true,
+    "source_page_numbers": [
+      34,
+      43,
+      44,
+      45
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Equipment",
+    "condition": "Required for all Training Grant applications listing available major equipment.",
+    "user_question": "Is it true that the Equipment attachment, listing available major equipment, is required for your Training Grant application?",
+    "isRequired": true,
+    "source_page_numbers": [
+      34,
+      44
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Foreign Justification",
+    "condition": "Needed for Training Grants if the project involves foreign components (foreign performance sites or collaborators).",
+    "user_question": "Is it true that your Training Grant project involves activities or performance sites outside of the United States, or includes partnerships with international collaborators?",
+    "isRequired": false,
+    "source_page_numbers": [
+      41,
+      44,
+      46
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Other Attachments (R&R Other Project Info)",
+    "condition": "Needed for Training Grants only if explicitly required or permitted by the NOFO or specific agency instructions.",
+    "user_question": "Is it true that your Training Grant NOFO or specific agency instructions require any attachments in the 'Other Attachments' field of the R&R Other Project Information Form (besides a Foreign Justification, if applicable)?",
+    "isRequired": false,
+    "source_page_numbers": [
+      34,
+      41,
+      44
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Location(s) Attachment",
+    "condition": "Needed for Training Grants if the project has more performance sites than the standard form allows.",
+    "user_question": "Is it true that you have more project/performance site locations for your Training Grant than the Project/Performance Site Location(s) Form allows?",
+    "isRequired": false,
+    "source_page_numbers": [
+      45,
+      49
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Biographical Sketch (Biosketch) for PD/PI and Senior/Key",
+    "condition": "Required for all PD/PIs and Senior/Key Personnel listed on a Training Grant application.",
+    "user_question": "Is it true that a Biosketch is required for each PD/PI and Senior/Key Person listed in your Training Grant application?",
+    "isRequired": true,
+    "source_page_numbers": [
+      7,
+      10,
+      50,
+      53,
+      54,
+      55,
+      56,
+      57,
+      59
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": 5
+  },
+  {
+    "document_name": "Current & Pending Support / Other Support",
+    "condition": "Generally required only during the Just-in-Time (JIT) period for Senior/Key Personnel on Training Grants, not at initial submission unless specified by NOFO.",
+    "user_question": "Is it true that the funding agency has requested Just-in-Time (JIT) information, including Other Support, for your Training Grant Senior/Key Personnel?",
+    "isRequired": false,
+    "source_page_numbers": [
+      8,
+      14,
+      53,
+      57,
+      59
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Senior / Key Person Profile(s) Attachment",
+    "condition": "Needed for Training Grants if listing more than 100 individuals (PD/PIs, Senior/Key) in total.",
+    "user_question": "Is it true that you need to list more than 100 individuals (combined PD/PIs and Senior/Key Persons) for your Training Grant project?",
+    "isRequired": false,
+    "source_page_numbers": [
+      50,
+      59
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Senior/Key Persons Attachment (Budget)",
+    "condition": "Needed for Training Grants using the R&R Budget Form if requesting funds for more Senior/Key Persons than the form allows.",
+    "user_question": "Is it true that you are using the R&R Budget Form for your Training Grant AND requesting funds for more Senior/Key Persons in any single budget period than the form allows in Section A?",
+    "isRequired": false,
+    "source_page_numbers": [
+      60,
+      61,
+      64
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Equipment Attachment (Budget)",
+    "condition": "Needed for Training Grants using the R&R Budget Form if requesting funds for more equipment items than the form allows.",
+    "user_question": "Is it true that you are using the R&R Budget Form for your Training Grant AND requesting funds for more equipment items (>$5,000 each or your institution's lower limit) than the form allows in Section C?",
+    "isRequired": false,
+    "source_page_numbers": [
+      60,
+      61,
+      67
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Budget Justification (R&R Budget)",
+    "condition": "Required for Training Grants that use the detailed R&R Budget Form (e.g., K12, D43, D71, T37, U2R, T90/R90 R90 portion, or if required by NOFO).",
+    "user_question": "Is it true that your Training Grant application requires the use of the detailed R&R Budget Form?",
+    "isRequired": false,
+    "source_page_numbers": [
+      60,
+      61,
+      62,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "R&R Subaward Budget Attachment File",
+    "condition": "Required for each substantive subaward/consortium for Training Grants using the R&R Budget Form.",
+    "user_question": "Is it true that your Training Grant project includes any subawards or consortiums performing a substantive portion of the work, AND that you are using the R&R Budget Form?",
+    "isRequired": false,
+    "source_page_numbers": [
+      28,
+      61,
+      62,
+      73,
+      75,
+      76,
+      77
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Budget Justification (PHS 398 Training Budget)",
+    "condition": "Required for Training Grants that use the PHS 398 Training Budget Form (most T series grants).",
+    "user_question": "Is it true that your Training Grant application uses the PHS 398 Training Budget Form?",
+    "isRequired": false,
+    "source_page_numbers": [
+      78,
+      80,
+      81,
+      82,
+      83
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "PHS 398 Training Subaward Budget Attachment File",
+    "condition": "Required for each substantive subaward/consortium for Training Grants using the PHS 398 Training Budget Form.",
+    "user_question": "Is it true that your Training Grant project includes any subawards or consortiums performing a substantive portion of the training, AND that you are using the PHS 398 Training Budget Form?",
+    "isRequired": false,
+    "source_page_numbers": [
+      78,
+      79,
+      81,
+      84,
+      85,
+      86
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Introduction to Application (Training Grant)",
+    "condition": "Required only for Resubmission or Revision Training Grant applications, not New or Renewal unless specified by NOFO.",
+    "user_question": "Is it true that your Training Grant application is a Resubmission or Revision, OR that the NOFO specifically requires an Introduction?",
+    "isRequired": false,
+    "source_page_numbers": [
+      87,
+      88,
+      89
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Program Plan (Training Grant)",
+    "condition": "Required for Training Grant applications using the PHS 398 Research Training Program Plan Form.",
+    "user_question": "Is it true that you are submitting a Training Grant application that uses the PHS 398 Research Training Program Plan Form?",
+    "isRequired": true,
+    "source_page_numbers": [
+      10,
+      35,
+      38,
+      51,
+      87,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      97,
+      98,
+      101,
+      104
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Recruitment Plan to Enhance Diversity",
+    "condition": "Required for most Training Grants (except T34, T36, U2R, D-series) unless waived by NOFO.",
+    "user_question": "Is it true that your Training Grant activity code requires a Recruitment Plan to Enhance Diversity (i.e., not T34, T36, U2R, or D-series), AND that it is not waived by the NOFO?",
+    "isRequired": false,
+    "source_page_numbers": [
+      10,
+      87,
+      93,
+      94,
+      95
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Plan for Instruction in the Responsible Conduct of Research (RCR)",
+    "condition": "Required for most Training Grants (except T36) unless waived by NOFO.",
+    "user_question": "Is it true that your Training Grant activity code requires an RCR plan (i.e., not T36), AND that it is not waived by the NOFO?",
+    "isRequired": false,
+    "source_page_numbers": [
+      87,
+      95,
+      96
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Plan for Instruction in Methods for Enhancing Reproducibility",
+    "condition": "Required for most Training Grants (except D71) unless waived by NOFO.",
+    "user_question": "Is it true that your Training Grant activity code requires a Reproducibility plan (i.e., not D71), AND that it is not waived by the NOFO?",
+    "isRequired": false,
+    "source_page_numbers": [
+      10,
+      87,
+      96
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Multiple PD/PI Leadership Plan",
+    "condition": "Required for Training Grants if the application designates multiple PD/PIs.",
+    "user_question": "Is it true that your Training Grant application designates more than one Program Director/Principal Investigator (PD/PI)?",
+    "isRequired": false,
+    "source_page_numbers": [
+      51,
+      87,
+      89,
+      90,
+      96,
+      97
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Progress Report (Training Grant)",
+    "condition": "Required only for Renewal Training Grant applications.",
+    "user_question": "Is it true that your Training Grant application is a Renewal?",
+    "isRequired": false,
+    "source_page_numbers": [
+      10,
+      87,
+      97,
+      98,
+      122
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Participating Faculty Biosketches",
+    "condition": "Required for Training Grants using the PHS 398 Research Training Program Plan form, covering faculty not listed as PD/PI or Senior/Key.",
+    "user_question": "Is it true that you are submitting a PHS 398 Research Training Program Plan Form for your Training Grant AND have participating faculty who are not already listed as PD/PIs or Senior/Key Personnel?",
+    "isRequired": true,
+    "source_page_numbers": [
+      57,
+      87,
+      90,
+      91,
+      99
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": 5
+  },
+  {
+    "document_name": "Letters of Support",
+    "condition": "Required from Senior Institutional Official for Training Grants; optional/required from consultants or others as specified by NOFO.",
+    "user_question": "Is it true that you are submitting a Training Grant (which requires an institutional letter), using consultants whose letters are needed, OR that your NOFO requires specific Letters of Support?",
+    "isRequired": false,
+    "source_page_numbers": [
+      11,
+      87,
+      93,
+      99,
+      100
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Data Tables (Training Grant)",
+    "condition": "Required for Training Grants using the PHS 398 Research Training Program Plan form.",
+    "user_question": "Is it true that you are submitting a Training Grant application that uses the PHS 398 Research Training Program Plan Form?",
+    "isRequired": true,
+    "source_page_numbers": [
+      7,
+      43,
+      87,
+      88,
+      89,
+      90,
+      91,
+      93,
+      94,
+      98,
+      100,
+      104
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Vertebrate Animals (Training Grant)",
+    "condition": "Required for Training Grants if trainees will conduct independent research with vertebrate animals or if specific details are needed beyond the R&R Other Project Info form.",
+    "user_question": "Is it true that trainees in your Training Grant program will conduct independent research involving vertebrate animals, OR that you need to provide training-specific vertebrate animal details because you answered 'Yes' to animal use on the R&R Other Project Information form?",
+    "isRequired": false,
+    "source_page_numbers": [
+      38,
+      87,
+      101,
+      102
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Select Agent Research (Training Grant)",
+    "condition": "Required for Training Grants if proposed training activities involve select agents.",
+    "user_question": "Is it true that any training activities proposed in your Training Grant application involve the use of Select Agents?",
+    "isRequired": false,
+    "source_page_numbers": [
+      43,
+      87,
+      102,
+      103
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Consortium/Contractual Arrangements (Training Grant)",
+    "condition": "Required for Training Grants if the budget includes consortium/contract costs.",
+    "user_question": "Is it true that your Training Grant budget includes costs for consortiums or contractual arrangements?",
+    "isRequired": false,
+    "source_page_numbers": [
+      46,
+      87,
+      103
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Other Plan(s) (Training Grant)",
+    "condition": "Needed for Training Grants only if explicitly required or permitted by the NOFO (DMS Plan is NOT required here).",
+    "user_question": "Is it true that your Training Grant NOFO requires any attachments in the 'Other Plan(s)' field of the PHS 398 Research Training Program Plan Form?",
+    "isRequired": false,
+    "source_page_numbers": [
+      5,
+      71,
+      73,
+      87,
+      103
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Appendix",
+    "condition": "Optional for Training Grants, limited to specific allowable materials (blank forms/surveys/consents, interview questions) or materials explicitly allowed by the NOFO.",
+    "user_question": "Is it true that you need to include allowable Appendix materials (like blank forms or surveys) for your Training Grant OR that your NOFO specifically allows other materials in the Appendix?",
+    "isRequired": false,
+    "source_page_numbers": [
+      87,
+      88,
+      98,
+      104,
+      105
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Explanation for use of human specimens/data not considered human subjects research",
+    "condition": "Needed for Training Grants if using human specimens/data but asserting it's not human subjects research.",
+    "user_question": "Is it true that your Training Grant involves using human specimens and/or data, AND that you assert this use does NOT constitute human subjects research?",
+    "isRequired": false,
+    "source_page_numbers": [
+      35,
+      106,
+      108,
+      110
+    ],
+    "requirement_doc": "training-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  }
+]

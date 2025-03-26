@@ -1,0 +1,512 @@
+[
+  {
+    "document_name": "SF 424 (R&R) Form",
+    "condition": "Always required as the primary application form for NIH/PHS Fellowship submissions via Grants.gov.",
+    "user_question": "Are you submitting an NIH/PHS Fellowship application via Grants.gov?",
+    "isRequired": true,
+    "source_pages": ["F-1", "F-15", "F-119", "F-120"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form",
+    "page_limits": null
+  },
+  {
+    "document_name": "R&R Other Project Information Form",
+    "condition": "Always required for Fellowships to collect details on human subjects, animals, environmental impact, and provide fields for critical attachments.",
+    "user_question": "Are you submitting an NIH/PHS Fellowship application requiring project details like human subjects involvement and attachments?",
+    "isRequired": true,
+    "source_pages": ["F-30", "F-121"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Project Summary/Abstract",
+    "condition": "Always required for Fellowships to provide a succinct description of the proposed research project, training plan, and environment.",
+    "user_question": "Does your fellowship application require a Project Summary/Abstract (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-30", "F-36", "F-37"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Project Narrative",
+    "condition": "Always required for Fellowships to describe the relevance of the research to public health in three sentences or less.",
+    "user_question": "Does your fellowship application require a Project Narrative describing public health relevance (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-30", "F-37"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Bibliography & References Cited",
+    "condition": "Required for Fellowships unless the NOFO states otherwise, listing references cited in the application, especially the research plan and human subjects sections.",
+    "user_question": "Does your fellowship application require a Bibliography & References Cited attachment (yes, unless NOFO says otherwise)?",
+    "isRequired": true,
+    "source_pages": ["F-30", "F-38", "F-61"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Facilities & Other Resources",
+    "condition": "Required for Fellowships unless the NOFO states otherwise, describing the scientific environment and resources specifically available to the candidate for the training plan.",
+    "user_question": "Does your fellowship application require a Facilities & Other Resources attachment (yes, unless NOFO says otherwise)?",
+    "isRequired": true,
+    "source_pages": ["F-30", "F-38", "F-39", "F-40", "F-41", "F-59", "F-66"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Equipment",
+    "condition": "Required for Fellowships to list major items of equipment available for the project.",
+    "user_question": "Does your fellowship application require an Equipment attachment listing available equipment (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-30", "F-39"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Project/Performance Site Location(s) Form",
+    "condition": "Always required for Fellowships to report the primary and any other locations where the training and research will be performed.",
+    "user_question": "Are you submitting an NIH/PHS Fellowship application requiring identification of performance sites?",
+    "isRequired": true,
+    "source_pages": ["F-40", "F-122"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form",
+    "page_limits": null
+  },
+  {
+    "document_name": "R&R Senior/Key Person Profile (Expanded) Form",
+    "condition": "Always required for Fellowships to collect data for the PD/PI (Fellow), Sponsor(s), Co-Sponsor(s), and other significant contributors.",
+    "user_question": "Are you submitting an NIH/PHS Fellowship application requiring profiles for the fellow and sponsor(s)?",
+    "isRequired": true,
+    "source_pages": ["F-44", "F-123"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Biographical Sketch (Biosketch)",
+    "condition": "Required for the PD/PI (Fellow), Sponsor(s), Co-Sponsor(s), and all other Senior/Key Personnel and Other Significant Contributors (OSCs) involved in the Fellowship.",
+    "user_question": "Does your fellowship application involve a PD/PI (Fellow), Sponsor(s), Co-Sponsor(s), or other Senior/Key Personnel/OSCs requiring a Biosketch?",
+    "isRequired": true,
+    "source_pages": ["F-7", "F-44", "F-47", "F-48", "F-49", "F-50", "F-51", "F-54"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": 5
+  },
+  {
+    "document_name": "PHS Fellowship Supplemental Form",
+    "condition": "Always required specifically for Fellowship (F series) applications, containing fields for numerous fellowship-specific attachments.",
+    "user_question": "Are you submitting an NIH/PHS Fellowship (F series) application?",
+    "isRequired": true,
+    "source_pages": ["F-55", "F-56", "F-124", "F-125", "F-126"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Candidate's Goals, Preparedness and Potential",
+    "condition": "Required for all Fellowship applications to outline the candidate's goals, background, self-assessment, and scientific perspective.",
+    "user_question": "Does your fellowship application require the Candidate's Goals, Preparedness, and Potential attachment (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-55", "F-57", "F-58"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Training Activities and Timeline",
+    "condition": "Required for all Fellowship applications to detail the planned training activities year-by-year.",
+    "user_question": "Does your fellowship application require a Training Activities and Timeline attachment (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-55", "F-59", "F-60", "F-76"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Research Training Project Specific Aims",
+    "condition": "Required for all Fellowship applications to concisely state the research training project's goals and objectives.",
+    "user_question": "Does your fellowship application require a Specific Aims attachment for the research training project (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-55", "F-59", "F-60", "F-61"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": 1
+  },
+  {
+    "document_name": "Research Training Project Strategy",
+    "condition": "Required for all Fellowship applications, detailing the scientific foundation, rationale, and approach for the research training project, written by the candidate.",
+    "user_question": "Does your fellowship application require a Research Training Project Strategy attachment (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-37", "F-55", "F-61", "F-62", "F-63", "F-69", "F-72", "F-81", "F-101", "F-108"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Training in the Responsible Conduct of Research (RCR)",
+    "condition": "Required for all Fellowship applications to describe the plan for RCR instruction.",
+    "user_question": "Does your fellowship application require an attachment detailing the plan for Training in Responsible Conduct of Research (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-55", "F-64"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Sponsor(s) Commitment",
+    "condition": "Required for all Fellowship applications from the primary sponsor and any co-sponsors, detailing their commitment, mentoring plan, and training environment.",
+    "user_question": "Does your fellowship application require a Sponsor(s) Commitment statement attachment (yes)?",
+    "isRequired": true,
+    "source_pages": ["F-55", "F-65", "F-66", "F-67", "F-82"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Cover Letter Attachment",
+    "condition": "Required for all Fellowship applications primarily to list referees; also used for specific circumstances like late/changed applications or requests requiring prior approval.",
+    "user_question": "Are you submitting a Fellowship application (requires listing referees)?",
+    "isRequired": true,
+    "source_pages": ["F-5", "F-15", "F-28", "F-29"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Reference Letters",
+    "condition": "Required for most Fellowship awards (typically 3), submitted separately by referees directly to NIH by the due date.",
+    "user_question": "Does your specific fellowship NOFO require the submission of reference letters (usually yes)?",
+    "isRequired": false,
+    "source_pages": ["F-7", "F-12", "F-52", "F-67"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Separate Submission",
+    "page_limits": null
+  },
+  {
+    "document_name": "Introduction to Application",
+    "condition": "Required only if the Fellowship application is a Resubmission (A1).",
+    "user_question": "Is this Fellowship application a Resubmission (A1)?",
+    "isRequired": false,
+    "source_pages": ["F-55", "F-57"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": 1
+  },
+  {
+    "document_name": "Progress Report Publication List",
+    "condition": "Required only if the Fellowship application is a Renewal (rare for individual fellowships).",
+    "user_question": "Is this Fellowship application a Renewal (competing continuation)?",
+    "isRequired": false,
+    "source_pages": ["F-55", "F-63", "F-64"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Letters of Support (Collaborators, Contributors, Consultants)",
+    "condition": "Required if collaborators, consultants, or contributors (other than sponsors) have a significant role in the Fellowship training plan.",
+    "user_question": "Do you have collaborators, consultants, or contributors (excluding sponsors) with significant roles in the training plan who need to provide letters of support?",
+    "isRequired": false,
+    "source_pages": ["F-55", "F-67", "F-68"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Description of Candidate’s Contribution to Program Goals",
+    "condition": "Required only if applying to a Fellowship NOFO specifically promoting diversity (e.g., F31 Diversity).",
+    "user_question": "Are you applying to a fellowship NOFO specifically designed to enhance diversity?",
+    "isRequired": false,
+    "source_pages": ["F-55", "F-68"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Vertebrate Animals",
+    "condition": "Required if live vertebrate animals are used at any point in the proposed Fellowship project.",
+    "user_question": "Does your proposed Fellowship research involve the use of live vertebrate animals?",
+    "isRequired": false,
+    "source_pages": ["F-30", "F-33", "F-40", "F-55", "F-68", "F-69", "F-70"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Select Agent Research",
+    "condition": "Required if the proposed Fellowship research involves the use of HHS or USDA Select Agents.",
+    "user_question": "Does your proposed Fellowship research involve the use of Select Agents?",
+    "isRequired": false,
+    "source_pages": ["F-38", "F-56", "F-62", "F-70", "F-71"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Authentication of Key Biological and/or Chemical Resources",
+    "condition": "Required if the Fellowship research uses key biological/chemical resources whose identity and validity are critical and could vary.",
+    "user_question": "Does your Fellowship research rely on key biological or chemical resources (e.g., cell lines, antibodies, specialty chemicals) that require authentication?",
+    "isRequired": false,
+    "source_pages": ["F-56", "F-72"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": 1
+  },
+  {
+    "document_name": "Applications for Concurrent Support Description",
+    "condition": "Required if the fellowship candidate has applied or will apply for other support that overlaps with the fellowship period.",
+    "user_question": "Have you applied for or will you apply for other funding support that would run concurrently with this fellowship?",
+    "isRequired": false,
+    "source_pages": ["F-56", "F-74"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Appendix",
+    "condition": "Allowed only for specific blank forms/lists or if explicitly permitted by the Fellowship NOFO.",
+    "user_question": "Does the Fellowship NOFO allow specific Appendix materials OR do you need to include blank data collection/survey/consent forms or simple interview question lists?",
+    "isRequired": false,
+    "source_pages": ["F-56", "F-77", "F-78"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Foreign Justification",
+    "condition": "Required if the Fellowship project involves foreign activities, international collaborators, or a foreign applicant organization.",
+    "user_question": "Is the applicant organization foreign, OR does the Fellowship project involve performance sites, collaborators, or resources outside the U.S.?",
+    "isRequired": false,
+    "source_pages": ["F-30", "F-36", "F-39"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Location(s) Attachment",
+    "condition": "Required if there are more project/performance sites than the standard form allows for the Fellowship.",
+    "user_question": "Do you have more project/performance sites for the Fellowship than can be entered directly on the Project/Performance Site Location(s) Form?",
+    "isRequired": false,
+    "source_pages": ["F-40", "F-43"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Senior/Key Person Profile(s) Attachment",
+    "condition": "Required if there are more than 100 Senior/Key Persons and Other Significant Contributors for the Fellowship.",
+    "user_question": "Do you have more than 100 individuals (Fellow, Sponsors, OSCs, etc.) listed in the Senior/Key Person Profile sections for the Fellowship?",
+    "isRequired": false,
+    "source_pages": ["F-44", "F-54"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "SFLLL (Disclosure of Lobbying Activities) or Other Explanatory Documentation",
+    "condition": "Required if unable to certify compliance with lobbying restrictions or if specified by the Fellowship NOFO.",
+    "user_question": "Are you unable to certify compliance with lobbying restrictions OR does the Fellowship NOFO require the SFLLL form?",
+    "isRequired": false,
+    "source_pages": ["F-15", "F-26"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Pre-application Attachment",
+    "condition": "Required only if submitting a Pre-application for a Fellowship as explicitly permitted by a specific NOFO (rare).",
+    "user_question": "Are you submitting a Pre-application for a Fellowship as specifically allowed by the NOFO?",
+    "isRequired": false,
+    "source_pages": ["F-15", "F-16", "F-28"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Agency Approval Documentation (e.g., budget >$500k)",
+    "condition": "Required if prior agency approval was needed for submission of the Fellowship application (e.g., budget >$500k direct costs/year).",
+    "user_question": "Did your Fellowship application require prior approval from the funding agency before submission (e.g., for exceeding budget limits)?",
+    "isRequired": false,
+    "source_pages": ["F-28", "F-29"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "PHS Human Subjects and Clinical Trials Information Form",
+    "condition": "Always required for Fellowships to collect details about human subjects involvement, protection, monitoring, and study protocols.",
+    "user_question": "Are you submitting an NIH/PHS Fellowship application requiring human subjects and clinical trials information?",
+    "isRequired": true,
+    "source_pages": ["F-30", "F-31", "F-32", "F-79", "F-81", "F-127", "F-128", "F-129", "F-130", "F-131"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Use of Human Specimens and/or Data Explanation",
+    "condition": "Required if using human specimens/data in the Fellowship but claiming the research does NOT constitute human subjects research.",
+    "user_question": "Are you using human specimens or data in your Fellowship AND claiming this does NOT qualify as human subjects research?",
+    "isRequired": false,
+    "source_pages": ["F-31", "F-79", "F-81", "F-83"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Study Record(s)",
+    "condition": "Required for each distinct study involving human subjects research within the Fellowship (unless only Exemption 4 applies).",
+    "user_question": "Does your Fellowship application involve one or more studies using non-exempt human subjects OR human subjects research exempt under categories other than Exemption 4?",
+    "isRequired": false,
+    "source_pages": ["F-79", "F-81", "F-83", "F-85", "F-86"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form Section",
+    "page_limits": null
+  },
+  {
+    "document_name": "Delayed Onset Study Justification",
+    "condition": "Required if human subjects research is anticipated during the Fellowship period but cannot be described at the time of application.",
+    "user_question": "Do you anticipate conducting human subjects research during the Fellowship period that you cannot describe in detail now?",
+    "isRequired": false,
+    "source_pages": ["F-79", "F-85", "F-86", "F-87", "F-113"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Inclusion of Individuals Across the Lifespan",
+    "condition": "Required within each Fellowship Study Record involving human subjects (unless only Exemption 4 applies).",
+    "user_question": "For each human subjects study within the Fellowship (not Exemption 4 only), do you need to describe the inclusion/exclusion based on age?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-91", "F-92"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Inclusion of Women and Minorities",
+    "condition": "Required within each Fellowship Study Record involving human subjects (unless only Exemption 4 applies).",
+    "user_question": "For each human subjects study within the Fellowship (not Exemption 4 only), do you need to describe the inclusion based on sex/gender, race, and ethnicity?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-92", "F-93", "F-94"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Recruitment and Retention Plan",
+    "condition": "Required within each Fellowship Study Record involving human subjects (unless only Exemption 4 applies).",
+    "user_question": "For each human subjects study within the Fellowship (not Exemption 4 only), do you need to describe the recruitment and retention plan?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-91", "F-94", "F-95"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Protection of Human Subjects",
+    "condition": "Required within each Fellowship Study Record involving human subjects (justification needed if claiming exemption).",
+    "user_question": "For each human subjects study within the Fellowship, do you need to describe the risks, protections, benefits, and importance (or justify exemption)?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-86", "F-101", "F-102", "F-103"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Single IRB Plan",
+    "condition": "No longer required for NIH Fellowship applicants; required for AHRQ multi-site domestic non-exempt studies unless an exception applies.",
+    "user_question": "Are you applying to AHRQ for a multi-site, non-exempt human subjects study conducted within the U.S. as part of this Fellowship?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-104", "F-105"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Data and Safety Monitoring Plan (DSMP)",
+    "condition": "Required within the Fellowship Study Record if gaining clinical trial research experience (limited content); required for AHRQ intervention studies > minimal risk.",
+    "user_question": "Are you proposing to gain clinical trial research experience (not lead) OR is this an AHRQ-funded intervention study with greater than minimal risk?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-82", "F-106", "F-107"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Overall Structure of the Study Team",
+    "condition": "Optional for Fellowships unless specifically required by the NOFO.",
+    "user_question": "Does the Fellowship NOFO specifically require the Overall Structure of the Study Team attachment?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-86", "F-107", "F-108"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Statistical Design and Power",
+    "condition": "Not applicable/allowed for Fellowship applications where the fellow is only gaining clinical trial experience.",
+    "user_question": "Is your study an NIH-defined clinical trial AND are you (the fellow) leading it (not just gaining experience)?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-89", "F-90", "F-112"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "IND/IDE Status",
+    "condition": "Not applicable/allowed for Fellowship applications where the fellow is only gaining clinical trial experience.",
+    "user_question": "Does your study involve an FDA-regulated intervention AND are you (the fellow) leading it (not just gaining experience)?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-89", "F-90", "F-112", "F-113"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Dissemination Plan",
+    "condition": "Required in Delayed Onset Justification if anticipating a clinical trial; otherwise not applicable/allowed for Fellowship applications where the fellow is only gaining clinical trial experience.",
+    "user_question": "Are you submitting a Delayed Onset justification for an anticipated clinical trial?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-87", "F-89", "F-90", "F-113", "F-114"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Other Clinical Trial-related Attachments",
+    "condition": "Not applicable/allowed for Fellowship applications where the fellow is only gaining clinical trial experience.",
+    "user_question": "Is your study an NIH-defined clinical trial AND does the NOFO specifically require additional clinical trial attachments AND are you (the fellow) leading it?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-89", "F-90", "F-108", "F-114"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Attachment",
+    "page_limits": null
+  },
+  {
+    "document_name": "Inclusion Enrollment Report(s) (IER)",
+    "condition": "Required data entry within each Fellowship Study Record involving human subjects (unless only Exemption 4 applies).",
+    "user_question": "For each human subjects study within the Fellowship (not Exemption 4 only), do you need to report planned or cumulative enrollment data by sex/gender, race, and ethnicity?",
+    "isRequired": false,
+    "source_pages": ["F-80", "F-92", "F-93", "F-96", "F-97", "F-98", "F-99", "F-100", "F-101"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form Section Data",
+    "page_limits": null
+  },
+   {
+    "document_name": "PHS Assignment Request Form",
+    "condition": "Optional form used only if you wish to communicate specific awarding component or study section review preferences for the Fellowship application.",
+    "user_question": "Do you want to suggest specific NIH ICs or study sections for assignment or review, or list reviewers in conflict for your Fellowship application (optional)?",
+    "isRequired": false,
+    "source_pages": ["F-5", "F-28", "F-115", "F-116", "F-117", "F-132"],
+    "requirement_doc": "fellowship-forms-i.pdf",
+    "document_type": "Form",
+    "page_limits": null
+  }
+]

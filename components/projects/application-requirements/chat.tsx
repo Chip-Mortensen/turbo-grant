@@ -23,17 +23,21 @@ interface QuestionAnswer {
   questionType: 'options' | 'chat';
   options?: string[];
   updatedAt?: string;
+  relatedDocuments: string[];
 }
 
 // Define the structure for required documents
 interface RequiredDocument {
   documentName: string;
-  description: string;
-  pageLimit: string;
-  formatRequirements: string;
   isRequired: boolean;
-  confidence: 'high' | 'medium' | 'low';
-  justification: string; // Brief reason why this document is required
+  description?: string;
+  pageLimit?: string;
+  formatRequirements?: string;
+  documentType?: string;
+  sourcePages?: number[];
+  confidence?: string;
+  justification?: string;
+  relatedDocuments?: string[];
 }
 
 // Define the structure for application requirements
@@ -105,6 +109,8 @@ export function ApplicationRequirementsChat({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   // Add a ref to track if analyzeAllQuestions has been called
   const hasAnalyzedRef = useRef(false);
+  // Add state for original documents data
+  const [originalDocuments, setOriginalDocuments] = useState<any[]>([]);
 
   // Helper function to find next unanswered question
   const findNextUnansweredQuestion = (questions: QuestionAnswer[], currentIndex: number): number => {
@@ -296,7 +302,7 @@ export function ApplicationRequirementsChat({
       
       // Call the API to get the application requirements
       console.log('Sending request to generate application requirements...');
-      const response = await fetch('/api/application-requirements/generate-questions', {
+      const response = await fetch('/api/application-requirements', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -317,11 +323,100 @@ export function ApplicationRequirementsChat({
       
       console.log('Successfully received response from API');
       const data = await response.json();
-      console.log('Generated questions count:', data.questions?.length || 0);
-      console.log('Generated required documents count:', data.requiredDocuments?.length || 0);
       
-      let generatedQuestions = data.questions || [];
-      const requiredDocuments = data.requiredDocuments || [];
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to analyze questions');
+      }
+
+      // Log debug information if available
+      if (data.debugInfo) {
+        console.log('=== Debug Information ===');
+        console.log('Research Description:', data.debugInfo.researchDescription);
+        console.log('Chalk Talk Content:', data.debugInfo.chalkTalkContent);
+        console.log('FOA Details:', data.debugInfo.foaDetails);
+        console.log('Application Factors:', data.debugInfo.applicationFactors);
+        console.log('Documents:', data.debugInfo.documents);
+        console.log('Grant Type:', data.debugInfo.grantType);
+        console.log('Filtered Documents:', JSON.stringify(data.debugInfo.filteredDocs, null, 2));
+        console.log('=== End Debug Information ===');
+      }
+
+      // Store the original documents data
+      setOriginalDocuments(data.documents);
+
+      // Convert filtered documents into required documents format using the full document structure
+      const requiredDocuments = data.required.map((docName: string) => {
+        // Find the full document structure from the documents array
+        const fullDoc = data.documents.find((d: any) => d.name === docName);
+        return {
+          documentName: docName,
+          isRequired: true,
+          ...(fullDoc && {
+            description: fullDoc.condition,
+            pageLimit: fullDoc.page_limits,
+            formatRequirements: fullDoc.requirement_doc,
+            documentType: fullDoc.document_type,
+            sourcePages: fullDoc.source_pages
+          })
+        };
+      });
+
+      // Create questions for unsure documents using the full document structure
+      const unsureQuestions = data.unsure.map((docName: string) => {
+        // Find the full document structure from the documents array
+        const fullDoc = data.documents.find((d: any) => d.name === docName);
+        if (!fullDoc) {
+          console.warn(`No document structure found for unsure document: ${docName}`);
+          return null;
+        }
+        return {
+          id: crypto.randomUUID(),
+          documentName: docName,
+          question: fullDoc.user_question || `Is ${docName} required for your application?`,
+          questionType: 'options',
+          options: ['True', 'False'],
+          answer: '',
+          completed: false,
+          updatedAt: new Date().toISOString(),
+          relatedDocuments: data.documents
+            .filter((d: any) => d.user_question === fullDoc.user_question)
+            .map((d: any) => d.name)
+        };
+      }).filter(Boolean); // Remove any null entries
+
+      // Add unsure documents to requiredDocuments with isRequired: false
+      const unsureDocuments = data.unsure.map((docName: string) => {
+        const fullDoc = data.documents.find((d: any) => d.name === docName);
+        if (!fullDoc) return null;
+        return {
+          documentName: docName,
+          isRequired: false,
+          description: fullDoc.condition,
+          pageLimit: fullDoc.page_limits,
+          formatRequirements: fullDoc.requirement_doc,
+          documentType: fullDoc.document_type,
+          sourcePages: fullDoc.source_pages
+        };
+      }).filter(Boolean);
+
+      // Combine all documents
+      const allDocuments = [...requiredDocuments, ...unsureDocuments];
+
+      // Group questions by their text to remove duplicates
+      const questionGroups = new Map<string, QuestionAnswer>();
+      
+      unsureQuestions.forEach((question: QuestionAnswer) => {
+        if (!questionGroups.has(question.question)) {
+          questionGroups.set(question.question, question);
+        } else {
+          // If this question already exists, add this document to the related documents
+          const existingQuestion = questionGroups.get(question.question)!;
+          existingQuestion.relatedDocuments = Array.from(new Set([...existingQuestion.relatedDocuments, ...question.relatedDocuments]));
+        }
+      });
+
+      // Convert the grouped questions back to an array
+      let generatedQuestions = Array.from(questionGroups.values());
       
       // Check if we received any questions
       if (generatedQuestions.length === 0) {
@@ -334,17 +429,16 @@ export function ApplicationRequirementsChat({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       generatedQuestions = generatedQuestions.map((q: any) => ({
         id: crypto.randomUUID(),
-        documentName: q.documentName || 'General Application', // Use document name from API or default
+        documentName: q.documentName || 'General Application',
         question: q.question,
-        questionType: q.questionType || 'chat', // Default to chat if not specified
-        options: q.options || [],
+        questionType: q.questionType || 'options',
+        options: q.options || ['True', 'False'],
         answer: q.answer || '',
-        answerType: q.answer ? 'auto-extracted' : 'not-answered',
-        criteria: q.questionType === 'chat' ? (q.criteria || 'Provide a complete and accurate answer.') : undefined,
         completed: !!q.answer,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        relatedDocuments: q.relatedDocuments || []
       }));
-      
+
       // Sort questions - options questions first, then chat questions
       generatedQuestions.sort((a: QuestionAnswer, b: QuestionAnswer) => {
         if (a.questionType === 'options' && b.questionType !== 'options') {
@@ -369,7 +463,7 @@ export function ApplicationRequirementsChat({
         questions: generatedQuestions,
         currentQuestionIndex: 0,
         updatedAt: new Date().toISOString(),
-        requiredDocuments
+        requiredDocuments: allDocuments
       });
       
       // If there are no questions, mark as completed and show summary
@@ -380,7 +474,7 @@ export function ApplicationRequirementsChat({
           questions: [],
           currentQuestionIndex: 0,
           updatedAt: new Date().toISOString(),
-          requiredDocuments
+          requiredDocuments: allDocuments
         };
         
         setRequirements(completedRequirements);
@@ -392,7 +486,7 @@ export function ApplicationRequirementsChat({
         return;
       }
       
-      // Provide a summary message - without document summary
+      // Provide a summary message
       let summaryMessage = '';
       
       if (answeredCount > 0) {
@@ -422,7 +516,7 @@ export function ApplicationRequirementsChat({
         questions: generatedQuestions,
         currentQuestionIndex: 0,
         updatedAt: new Date().toISOString(),
-        requiredDocuments
+        requiredDocuments: allDocuments
       });
       
       setIsInitialAnalysisComplete(true);
@@ -486,10 +580,10 @@ export function ApplicationRequirementsChat({
         if (documentIndex !== -1 && question.answer) {
           updatedRequiredDocuments[documentIndex] = {
             ...updatedRequiredDocuments[documentIndex],
-            isRequired: question.answer === "Yes",
-            justification: question.answer === "Yes" 
+            isRequired: question.answer === "True",
+            justification: question.answer === "True" 
               ? `User confirmed this document is required` 
-              : (question.answer === "No" 
+              : (question.answer === "False" 
                 ? `User indicated this document is not required` 
                 : `User is unsure if this document is required`)
           };
@@ -714,35 +808,6 @@ export function ApplicationRequirementsChat({
               }
             });
             
-            // Check if we need to add any new documents mentioned in the answer
-            const documentKeywords = [
-              'appendix', 'attachment', 'supplement', 'cover letter', 'checklist', 
-              'conflict of interest', 'coi', 'human subjects', 'vertebrate animals',
-              'data sharing', 'resource sharing', 'authentication', 'support letter',
-              'consortium', 'subcontract', 'facilities'
-            ];
-            
-            documentKeywords.forEach(keyword => {
-              if (answerLower.includes(keyword) && 
-                  !requiredDocuments.some(doc => doc.documentName.toLowerCase().includes(keyword))) {
-                
-                // This keyword is mentioned but not yet in our documents list
-                // Extract surrounding context to create document name and description
-                const newDocName = extractDocumentName(keyword, answerLower);
-                if (newDocName) {
-                  requiredDocuments.push({
-                    documentName: newDocName,
-                    description: extractDescriptionForKeyword(keyword, data.finalAnswer),
-                    pageLimit: extractPageLimit(answerLower) || 'Varies',
-                    formatRequirements: extractFormatInfo(answerLower, keyword) || 'Standard format',
-                    isRequired: true,
-                    confidence: 'high',
-                    justification: `Mentioned in answer about ${existingQuestion.question}`
-                  });
-                }
-              }
-            });
-            
             // Update the requirements with the updated documents
             updatedRequirements.requiredDocuments = requiredDocuments;
           }
@@ -879,38 +944,6 @@ export function ApplicationRequirementsChat({
     return null;
   };
 
-  const extractDocumentName = (keyword: string, text: string): string | null => {
-    // Find the sentence containing the keyword
-    const sentences = text.split(/[.!?]+/);
-    const relevantSentence = sentences.find(s => s.toLowerCase().includes(keyword));
-    
-    if (!relevantSentence) return null;
-    
-    // Capitalize the keyword for the document name
-    const words = keyword.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    
-    // Check if there's a more specific name in the sentence
-    if (relevantSentence.toLowerCase().includes(`${keyword} form`)) {
-      return `${words} Form`;
-    }
-    if (relevantSentence.toLowerCase().includes(`${keyword} documentation`)) {
-      return `${words} Documentation`;
-    }
-    if (relevantSentence.toLowerCase().includes(`${keyword} plan`)) {
-      return `${words} Plan`;
-    }
-    if (relevantSentence.toLowerCase().includes(`${keyword} letter`)) {
-      return `${words} Letter`;
-    }
-    return null;
-  };
-
-  const extractDescriptionForKeyword = (keyword: string, answer: string): string => {
-    // Implement the logic to extract a description for a keyword based on the answer
-    // This is a placeholder and should be replaced with the actual implementation
-    return `Description for ${keyword}`;
-  };
-
   // Modify the render to show all options questions at once
   function OptionsQuestionsSection() {
     const optionsQuestions = requirements.questions?.filter(q => q.questionType === 'options') || [];
@@ -933,12 +966,10 @@ export function ApplicationRequirementsChat({
           if (documentIndex !== -1) {
             updatedRequiredDocuments[documentIndex] = {
               ...updatedRequiredDocuments[documentIndex],
-              isRequired: question.answer === "Yes",
-              justification: question.answer === "Yes" 
-                ? `User confirmed this document is required` 
-                : (question.answer === "No" 
-                    ? `User indicated this document is not required` 
-                    : `User is unsure if this document is required`)
+              isRequired: question.answer === "True",
+              justification: question.answer === "True" 
+                ? `Required based on answer to: ${question.question}` 
+                : `Not required based on answer to: ${question.question}`
             };
           }
         }
@@ -947,8 +978,16 @@ export function ApplicationRequirementsChat({
       // Update requirements with updated documents
       setRequirements(prev => ({
         ...prev,
-        requiredDocuments: updatedRequiredDocuments
+        requiredDocuments: updatedRequiredDocuments,
+        updatedAt: new Date().toISOString()
       }));
+      
+      // Save to database
+      saveRequirements({
+        ...requirements,
+        requiredDocuments: updatedRequiredDocuments,
+        updatedAt: new Date().toISOString()
+      });
       
       // Continue to next phase
       completeOptionsPhase();
@@ -983,7 +1022,6 @@ export function ApplicationRequirementsChat({
                             updatedQuestions[questionIndex] = {
                               ...question,
                               answer: option,
-                              answerType: 'manually-answered',
                               completed: true,
                               updatedAt: new Date().toISOString()
                             };
@@ -1000,12 +1038,7 @@ export function ApplicationRequirementsChat({
                             if (documentIndex !== -1) {
                               updatedRequiredDocuments[documentIndex] = {
                                 ...updatedRequiredDocuments[documentIndex],
-                                isRequired: option === "Yes",
-                                justification: option === "Yes" 
-                                  ? `User confirmed this document is required` 
-                                  : (option === "No" 
-                                      ? `User indicated this document is not required` 
-                                      : `User is unsure if this document is required`)
+                                isRequired: option === "True"
                               };
                             }
                             
@@ -1059,7 +1092,7 @@ export function ApplicationRequirementsChat({
                     key={index}
                     variant={currentQuestion.answer === option ? "default" : "outline"}
                     className="w-full justify-start"
-                    onClick={() => handleOptionsAnswer(option)}
+                    onClick={() => handleOptionsAnswer(currentQuestion.id, option)}
                   >
                     {option}
                   </Button>
@@ -1307,55 +1340,90 @@ export function ApplicationRequirementsChat({
     }
   };
 
-  // Add handleOptionsAnswer function
-  const handleOptionsAnswer = (selectedOption: string) => {
-    const currentQuestion = requirements.questions?.[requirements.currentQuestionIndex];
-    
-    if (!currentQuestion) {
-      return;
+  // Update handleOptionsAnswer function to handle related documents
+  const handleOptionsAnswer = async (questionId: string, answer: string) => {
+    try {
+      if (!requirements.questions) return;
+
+      // Find the question and its related documents
+      const question = requirements.questions.find(q => q.id === questionId);
+      if (!question) return;
+
+      // Update the question's answer
+      const updatedQuestions = requirements.questions.map(q => 
+        q.id === questionId 
+          ? { ...q, answer, completed: true, updatedAt: new Date().toISOString() }
+          : q
+      );
+
+      if (!requirements.requiredDocuments) return;
+
+      // Update all related documents based on the answer
+      const updatedRequiredDocuments = requirements.requiredDocuments.map(doc => {
+        if (question.relatedDocuments?.includes(doc.documentName)) {
+          return {
+            ...doc,
+            isRequired: answer === 'True',
+            justification: answer === 'True' 
+              ? `Required based on answer to: ${question.question}` 
+              : `Not required based on answer to: ${question.question}`
+          };
+        }
+        return doc;
+      });
+
+      // Add any documents that aren't in the requiredDocuments array yet
+      question.relatedDocuments?.forEach(docName => {
+        if (!updatedRequiredDocuments.some(doc => doc.documentName === docName)) {
+          // Find the full document structure from the original documents
+          const fullDoc = originalDocuments.find(d => d.name === docName);
+          if (fullDoc) {
+            updatedRequiredDocuments.push({
+              documentName: docName,
+              isRequired: answer === 'True',
+              description: fullDoc.condition,
+              pageLimit: fullDoc.page_limits,
+              formatRequirements: fullDoc.requirement_doc,
+              documentType: fullDoc.document_type,
+              sourcePages: fullDoc.source_pages,
+              justification: answer === 'True' 
+                ? `Required based on answer to: ${question.question}` 
+                : `Not required based on answer to: ${question.question}`
+            });
+          }
+        }
+      });
+
+      // Update the requirements state
+      setRequirements(prev => ({
+        ...prev,
+        questions: updatedQuestions,
+        requiredDocuments: updatedRequiredDocuments,
+        updatedAt: new Date().toISOString()
+      }));
+
+      // Save to database
+      await saveRequirements({
+        ...requirements,
+        questions: updatedQuestions,
+        requiredDocuments: updatedRequiredDocuments,
+        updatedAt: new Date().toISOString()
+      });
+
+      // Move to next question if available
+      const currentIndex = requirements.questions.findIndex(q => q.id === questionId);
+      if (currentIndex < requirements.questions.length - 1) {
+        setRequirements(prev => ({
+          ...prev,
+          currentQuestionIndex: currentIndex + 1
+        }));
+      } else {
+        // All questions answered, show summary
+        setIsInitialAnalysisComplete(true);
+      }
+    } catch (error) {
+      console.error('Error saving answer:', error);
     }
-    
-    // Update the answer in the requirements state
-    const updatedQuestions = [...(requirements.questions || [])];
-    updatedQuestions[requirements.currentQuestionIndex] = {
-      ...currentQuestion,
-      answer: selectedOption,
-      answerType: 'manually-answered',
-      completed: true,
-      updatedAt: new Date().toISOString()
-    };
-    
-    // Update required document status based on the answer
-    // Only mark as required if the answer is "Yes"
-    const updatedRequiredDocuments = [...(requirements.requiredDocuments || [])];
-    
-    // Find the corresponding document based on question's documentName
-    const documentIndex = updatedRequiredDocuments.findIndex(
-      doc => doc.documentName === currentQuestion.documentName
-    );
-    
-    if (documentIndex !== -1) {
-      // Update the document's isRequired field based on the answer
-      updatedRequiredDocuments[documentIndex] = {
-        ...updatedRequiredDocuments[documentIndex],
-        isRequired: selectedOption === "Yes",
-        // Update justification to reflect user's selection
-        justification: selectedOption === "Yes" 
-          ? `User confirmed this document is required` 
-          : (selectedOption === "No" 
-              ? `User indicated this document is not required` 
-              : `User is unsure if this document is required`)
-      };
-    }
-    
-    setRequirements(prev => ({
-      ...prev,
-      questions: updatedQuestions,
-      requiredDocuments: updatedRequiredDocuments,
-      updatedAt: new Date().toISOString()
-    }));
-    
-    // Don't save to database here - will be saved when Save button is clicked
   };
 
   // Add handleSubmit function for chat questions
@@ -1380,7 +1448,6 @@ export function ApplicationRequirementsChat({
       updatedQuestions[requirements.currentQuestionIndex] = {
         ...currentQuestion,
         answer: userMessage,
-        answerType: 'manually-answered',
         completed: true,
         updatedAt: new Date().toISOString()
       };
@@ -1442,35 +1509,51 @@ export function ApplicationRequirementsChat({
                     <h4 className="text-lg font-semibold mb-3">Required Documents</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                       {requirements.requiredDocuments
-                        .filter((doc: RequiredDocument) => doc.isRequired)
-                        .map((doc: RequiredDocument, index: number) => (
-                          <div key={index} className="bg-muted/30 rounded-lg p-4 border">
-                            <div className="flex items-start gap-2">
-                              <div className={cn(
-                                "w-2 h-2 rounded-full mt-1.5",
+                        .filter((doc: RequiredDocument) => doc.isRequired === true)
+                        .map((doc: RequiredDocument, index: number) => {
+                          // Check if this document has been answered
+                          const hasBeenAnswered = requirements.questions?.some(
+                            q => q.relatedDocuments?.includes(doc.documentName) && q.completed
+                          );
+                          
+                          return (
+                            <div 
+                              key={index} 
+                              className={cn(
+                                "bg-muted/30 rounded-lg p-4 border",
                                 {
-                                  'bg-green-500': doc.confidence === 'high',
-                                  'bg-yellow-500': doc.confidence === 'medium',
-                                  'bg-orange-500': doc.confidence === 'low'
+                                  'border-green-500': hasBeenAnswered,
+                                  'border-muted-foreground/30': !hasBeenAnswered
                                 }
-                              )} />
-                              <div>
-                                <h5 className="font-medium text-sm">{doc.documentName}</h5>
-                                <p className="text-xs text-muted-foreground mt-1">{doc.description}</p>
-                                {doc.justification && (
-                                  <p className="text-xs mt-1 italic">
-                                    <span className="font-medium">Why required:</span> {doc.justification}
-                                  </p>
-                                )}
-                                {doc.pageLimit !== 'Unknown' && (
-                                  <p className="text-xs mt-1">
-                                    <span className="font-medium">Page limit:</span> {doc.pageLimit}
-                                  </p>
-                                )}
+                              )}
+                            >
+                              <div className="flex items-start gap-2">
+                                <div className={cn(
+                                  "w-2 h-2 rounded-full mt-1.5",
+                                  {
+                                    'bg-green-500': doc.confidence === 'high',
+                                    'bg-yellow-500': doc.confidence === 'medium',
+                                    'bg-orange-500': doc.confidence === 'low'
+                                  }
+                                )} />
+                                <div>
+                                  <h5 className="font-medium text-sm">{doc.documentName}</h5>
+                                  <p className="text-xs text-muted-foreground mt-1">{doc.description}</p>
+                                  {doc.justification && (
+                                    <p className="text-xs mt-1 italic">
+                                      <span className="font-medium">Why required:</span> {doc.justification}
+                                    </p>
+                                  )}
+                                  {doc.pageLimit && doc.pageLimit !== 'Unknown' && (
+                                    <p className="text-xs mt-1">
+                                      <span className="font-medium">Page limit:</span> {doc.documentName === "Project Summary/Abstract Attachment" ? `${doc.pageLimit} sentences` : `${doc.pageLimit} pages`}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                     </div>
                   </div>
                 )}

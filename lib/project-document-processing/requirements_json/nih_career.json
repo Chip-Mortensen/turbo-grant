@@ -1,0 +1,552 @@
+[
+  {
+    "name": "Biographical Sketch (Biosketch)",
+    "condition": "Required for the K award candidate (PD/PI), all mentors and co-mentors, other senior/key personnel, and Other Significant Contributors (OSCs).",
+    "user_question": "My K award application includes a candidate (PD/PI), mentors/co-mentors, other senior/key personnel, or Other Significant Contributors (OSCs). (True/False)",
+    "isRequired": true,
+    "source_pages": [51, 52, 55, 58],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "5"
+  },
+  {
+    "name": "Reference Letters",
+    "condition": "Required for some K award programs (check NOFO and page 13 table), submitted separately by referees via eRA Commons, not with the application.",
+    "user_question": "My specific K award program (as stated in the NOFO and page 13 table) requires reference letters to be submitted by referees. (True/False)",
+    "isRequired": false,
+    "source_pages": [7, 12, 13, 28, 29, 92],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "SFLLL (Disclosure of Lobbying Activities) or Other Explanatory Documentation",
+    "condition": "Needed if lobbying activities require disclosure or if unable to certify compliance with lobbying prohibitions in Section 17 of the SF424 R&R.",
+    "user_question": "I need to disclose lobbying activities OR I am unable to certify full compliance with lobbying prohibitions. (True/False)",
+    "isRequired": false,
+    "source_pages": [15, 25],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Pre-application Attachment",
+    "condition": "Only needed if specifically permitted or required by the K award NOFO; generally not used by NIH/PHS.",
+    "user_question": "My specific K award NOFO permits or requires a Pre-application attachment. (True/False)",
+    "isRequired": false,
+    "source_pages": [15, 27],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Cover Letter Attachment",
+    "condition": "Required for mentored K awards (must list referees); encouraged for non-mentored K awards (should list referees); also needed for specific situations like late/corrected applications, budget explanations, agency approvals, video intent, GDS/HFT statements.",
+    "user_question": "I am submitting a Mentored K award, OR a Non-Mentored K award, OR this is a late/corrected application, OR I need to explain subaward budget periods, OR I have required agency approval docs to include, OR I intend to submit video, OR I am proposing large-scale Genomic Data Sharing, OR I am proposing Human Fetal Tissue research. (True/False)",
+    "isRequired": false,
+    "source_pages": [15, 27, 28, 29],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "HFT Compliance Assurance",
+    "condition": "Required if the proposed K award project involves the use of human fetal tissue (HFT) obtained from elective abortions.",
+    "user_question": "My proposed K award project involves the use of human fetal tissue (HFT) obtained from elective abortions. (True/False)",
+    "isRequired": false,
+    "source_pages": [30, 32, 72, 75, 85, 87],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "HFT Sample IRB Consent Form",
+    "condition": "Required if the proposed K award project involves the use of human fetal tissue (HFT) obtained from elective abortions.",
+    "user_question": "My proposed K award project involves the use of human fetal tissue (HFT) obtained from elective abortions. (True/False)",
+    "isRequired": false,
+    "source_pages": [30, 32],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Project Summary/Abstract",
+    "condition": "Required for all K award applications; must also describe candidate's career development plan, goals, and environment within the 30-line limit.",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [35, 40, 41],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Project Narrative",
+    "condition": "Required for all K award applications.",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [35, 41],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Bibliography & References Cited",
+    "condition": "Required for K awards unless the NOFO specifically states otherwise; include references cited in K.410 and K.500 forms.",
+    "user_question": "My K award NOFO does NOT specifically state that the 'Bibliography & References Cited' attachment is NOT required. (True/False)",
+    "isRequired": true,
+    "source_pages": [35, 42, 85],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Facilities & Other Resources",
+    "condition": "Required for K awards unless the NOFO specifically states otherwise; must include detailed description of institutional facilities/resources for the candidate.",
+    "user_question": "My K award NOFO does NOT specifically state that the 'Facilities & Other Resources' attachment is NOT required. (True/False)",
+    "isRequired": true,
+    "source_pages": [35, 40, 42, 43, 93],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Equipment Attachment",
+    "condition": "Required for all K award applications (as part of R&R Other Project Info Form).",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [35, 43],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Foreign Justification",
+    "condition": "Required if the K award project involves activities outside the U.S. or partnerships with international collaborators.",
+    "user_question": "My K award project involves activities outside the United States OR includes partnerships with international collaborators. (True/False)",
+    "isRequired": false,
+    "source_pages": [40, 43],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Additional Performance Site Format Page",
+    "condition": "Needed if you have more project/performance sites than the standard form allows for the K award project.",
+    "user_question": "I need to list more project/performance sites for my K award project than the standard Project/Performance Site Location(s) Form allows. (True/False)",
+    "isRequired": false,
+    "source_pages": [44, 47],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Current & Pending Support (Other Support for Mentors)",
+    "condition": "Required for each mentor and co-mentor on mentored K award applications.",
+    "user_question": "I am submitting a mentored K award application with one or more mentors/co-mentors. (True/False)",
+    "isRequired": false,
+    "source_pages": [51, 58, 59],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "3"
+  },
+  {
+    "name": "Additional Senior / Key Person Profiles Format Page",
+    "condition": "Needed if more than 100 senior/key persons (including mentors) and OSCs need to be listed for the K award.",
+    "user_question": "I need to list profiles for more than 100 senior/key persons (including mentors) and Other Significant Contributors combined for my K award. (True/False)",
+    "isRequired": false,
+    "source_pages": [48, 59],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Budget Justification",
+    "condition": "Required for all K award applications (as they must use the R&R Budget Form).",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [60, 61, 62, 64, 66, 68, 69, 70, 71, 72, 74, 75, 77, 78, 79],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Additional Equipment Attachment (Budget Form)",
+    "condition": "Needed if requesting funds for more equipment items (>$5k or lower institutional limit) than the R&R Budget form allows in Section C for the K award.",
+    "user_question": "I am requesting funds for more equipment items (>$5k or lower institutional limit) for my K award than the R&R Budget Form Section C allows. (True/False)",
+    "isRequired": false,
+    "source_pages": [60, 68],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Additional Senior/Key Persons Attachment (Budget Form)",
+    "condition": "Needed if requesting funds for more senior/key persons (excluding candidate/mentors listed in main section) than the R&R Budget form allows in Section A for the K award.",
+    "user_question": "I am requesting funds for more senior/key persons (beyond the candidate) than the R&R Budget Form Section A allows for my K award. (True/False)",
+    "isRequired": false,
+    "source_pages": [60, 65],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "R&R Subaward Budget Attachment(s)",
+    "condition": "Required for each subaward/consortium performing a substantive portion of work for the K award project.",
+    "user_question": "My K award project includes subawards/consortiums performing a substantive portion of the work. (True/False)",
+    "isRequired": false,
+    "source_pages": [60, 61, 62, 71, 75, 77, 78, 79],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Introduction to Application (Career Dev Supp)",
+    "condition": "Required only for Resubmission or Revision K award applications.",
+    "user_question": "This K award application is a Resubmission OR a Revision. (True/False)",
+    "isRequired": false,
+    "source_pages": [80, 81, 82],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Candidate Information and Goals for Career Development",
+    "condition": "Required for all K award applications.",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [80, 81, 82, 83],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Specific Aims (Career Dev Supp)",
+    "condition": "Required for K awards unless the NOFO specifically states otherwise.",
+    "user_question": "My K award NOFO does NOT specifically state that the Specific Aims attachment is NOT required. (True/False)",
+    "isRequired": true,
+    "source_pages": [80, 81, 83, 84, 85, 87],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Research Strategy (Career Dev Supp)",
+    "condition": "Required for all K award applications.",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [80, 81, 83, 84, 85, 86, 87, 88, 95, 107, 111, 126, 134],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Progress Report Publication List",
+    "condition": "Required only for Renewal K award applications.",
+    "user_question": "This K award application is a Renewal. (True/False)",
+    "isRequired": false,
+    "source_pages": [80, 81, 83, 87, 88],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Training in the Responsible Conduct of Research (RCR)",
+    "condition": "Required for all K award applications.",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [80, 81, 83, 88, 89, 91],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Candidate's Plan to Provide Mentoring",
+    "condition": "Required only if specified by the K award NOFO (e.g., K05, K24).",
+    "user_question": "My specific K award NOFO requires the 'Candidate's Plan to Provide Mentoring' attachment. (True/False)",
+    "isRequired": false,
+    "source_pages": [80, 81, 90],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Plans and Statements of Mentor and Co-Mentor(s)",
+    "condition": "Required for all mentored K award applications.",
+    "user_question": "This is a mentored K award application. (True/False)",
+    "isRequired": false,
+    "source_pages": [80, 81, 90, 91, 92, 108],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Letters of Support from Collaborators, Contributors, and Consultants",
+    "condition": "Required for collaborators, contributors, and consultants contributing substantively to the K award project, as specified in NOFO.",
+    "user_question": "I have collaborators, contributors, or consultants (not mentors/co-mentors/SrKey/OSCs) making substantive contributions to my K award project AND letters from them are required by the NOFO. (True/False)",
+    "isRequired": false,
+    "source_pages": [80, 81, 92],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Description of Institutional Environment",
+    "condition": "Required for all K award applications.",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [81, 92, 93],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Institutional Commitment to Candidate's Research Career Development",
+    "condition": "Required for all K award applications.",
+    "user_question": "I am submitting a K award application. (True/False)",
+    "isRequired": true,
+    "source_pages": [81, 93, 94],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Description of Candidate’s Contribution to Program Goals",
+    "condition": "Required only for K awards funded under diversity-related NOFOs (e.g., diversity K01, K22, K99).",
+    "user_question": "This K award application is being submitted to a diversity-related NOFO. (True/False)",
+    "isRequired": false,
+    "source_pages": [81, 94, 95],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Vertebrate Animals Attachment",
+    "condition": "Required if the K award project involves live vertebrate animals.",
+    "user_question": "My proposed K award research involves live vertebrate animals. (True/False)",
+    "isRequired": false,
+    "source_pages": [30, 35, 37, 44, 81, 95, 96],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Select Agent Research Attachment",
+    "condition": "Required if the K award project involves the use of select agents.",
+    "user_question": "My proposed K award research involves the use of Select Agents. (True/False)",
+    "isRequired": false,
+    "source_pages": [43, 81, 86, 96, 97],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Consortium/Contractual Arrangements Attachment",
+    "condition": "Required if consortium/contracts are included in the K award budget.",
+    "user_question": "My K award budget includes costs for consortiums or contractual arrangements. (True/False)",
+    "isRequired": false,
+    "source_pages": [45, 81, 97],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Resource Sharing Plan(s)",
+    "condition": "Required for K award applications anticipating development of model organisms or research tools.",
+    "user_question": "My K award research anticipates developing unique model organisms OR research tools. (True/False)",
+    "isRequired": false,
+    "source_pages": [81, 86, 98],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Other Plan(s) (including Data Management and Sharing Plan)",
+    "condition": "Required if a Data Management and Sharing (DMS) Plan is mandated for the K award by the DMS policy / activity code / NOFO.",
+    "user_question": "My K award application is subject to the NIH Data Management and Sharing (DMS) Policy. (True/False)",
+    "isRequired": false,
+    "source_pages": [5, 72, 75, 81, 98, 99, 100],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "2"
+  },
+  {
+    "name": "Authentication of Key Biological and/or Chemical Resources",
+    "condition": "Required if the K award project proposes research using key biological and/or chemical resources applicable to the plan.",
+    "user_question": "My proposed K award research uses key biological and/or chemical resources requiring an authentication plan. (True/False)",
+    "isRequired": false,
+    "source_pages": [81, 100, 101],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "1"
+  },
+  {
+    "name": "Appendix",
+    "condition": "Optional, allowed only for specific materials (blank forms/surveys, interview lists, blank consents) OR as specified in the K award NOFO.",
+    "user_question": "I need to include allowable Appendix materials (blank forms/surveys, interview lists, blank consents) OR my K award NOFO specifically allows other Appendix materials. (True/False)",
+    "isRequired": false,
+    "source_pages": [81, 92, 101],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "10"
+  },
+  {
+    "name": "Explanation for Use of Human Specimens/Data NOT Considered Human Subjects Research",
+    "condition": "Required if using human specimens/data in the K award project but claiming the research does not involve human subjects.",
+    "user_question": "I am using human specimens and/or data in my K award project AND I am claiming this use does NOT constitute human subjects research. (True/False)",
+    "isRequired": false,
+    "source_pages": [104, 106, 108, 109],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Other Requested Information (Human Subjects/Clinical Trials)",
+    "condition": "Optional, allowed only if permitted by the K award NOFO (e.g., list of ongoing studies/IDs for renewals).",
+    "user_question": "My K award NOFO permits inclusion of 'Other Requested Information' in the PHS Human Subjects and Clinical Trials form. (True/False)",
+    "isRequired": false,
+    "source_pages": [104, 106, 110],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Study Record(s)",
+    "condition": "Required for each proposed study within the K award project involving non-exempt human subjects.",
+    "user_question": "My K award application proposes one or more studies involving non-exempt human subjects. (True/False)",
+    "isRequired": false,
+    "source_pages": [104, 106, 107, 109, 110, 111, 112, 113, 117, 118, 120, 121, 126, 131, 137, 139],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Delayed Onset Study Justification",
+    "condition": "Required for each study entry designated as 'Delayed Onset' within the K award project.",
+    "user_question": "I have one or more human subjects studies within my K award project for which specific plans cannot be described at the time of application (Delayed Onset). (True/False)",
+    "isRequired": false,
+    "source_pages": [104, 110, 111, 112, 138],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Inclusion of Individuals Across the Lifespan",
+    "condition": "Required within each K award Study Record involving human subjects, unless only Exemption 4 applies.",
+    "user_question": "This specific human subjects study within my K award project is NOT solely subject to Exemption 4. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 117, 118],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Inclusion of Women and Minorities",
+    "condition": "Required within each K award Study Record involving human subjects, unless only Exemption 4 applies.",
+    "user_question": "This specific human subjects study within my K award project is NOT solely subject to Exemption 4. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 118, 119, 136],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Recruitment and Retention Plan",
+    "condition": "Required within each K award Study Record involving human subjects, unless only Exemption 4 applies.",
+    "user_question": "This specific human subjects study within my K award project is NOT solely subject to Exemption 4. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 116, 120],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Study Timeline",
+    "condition": "Required within a K award Study Record if it describes a clinical trial.",
+    "user_question": "This specific study within my K award project meets the NIH definition of a clinical trial. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 116, 120, 121],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Protection of Human Subjects Attachment",
+    "condition": "Required within each K award Study Record involving human subjects (justification for exemptions, or full plan for non-exempt).",
+    "user_question": "This specific study within my K award project involves human subjects (exempt or non-exempt). (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 111, 117, 126, 127, 128],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Single IRB (sIRB) Plan Attachment",
+    "condition": "No longer required for NIH K award applications (statement needed JIT); required for AHRQ non-exempt multi-site domestic studies unless exception applies.",
+    "user_question": "I am submitting this K award application to AHRQ AND it involves a non-exempt, multi-site study conducted within the U.S. using the same protocol AND no exception applies. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 129, 130],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Data and Safety Monitoring Plan (DSMP)",
+    "condition": "Required within a K award Study Record if it describes an independent clinical trial; include only specific elements if gaining mentored clinical trial experience.",
+    "user_question": "This specific study within my K award project meets the NIH definition of a clinical trial. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 107, 131, 132],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Overall Structure of the Study Team",
+    "condition": "Optional within a K award Study Record, unless required by NOFO.",
+    "user_question": "My K award NOFO requires the 'Overall Structure of the Study Team' attachment for this study. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 111, 133],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Statistical Design and Power",
+    "condition": "Required within a K award Study Record if it describes an independent clinical trial; not allowed if gaining mentored clinical trial experience.",
+    "user_question": "This specific study within my K award project is an independent clinical trial (NOT mentored experience). (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 107, 115, 133, 137],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Availability of Investigational Product (IP) and IND/IDE Status",
+    "condition": "Required within a K award Study Record if it uses an FDA-regulated intervention.",
+    "user_question": "This specific study within my K award project uses an FDA-regulated intervention. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 137, 138],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Dissemination Plan",
+    "condition": "Required within a K award Study Record if it describes a clinical trial.",
+    "user_question": "This specific study within my K award project meets the NIH definition of a clinical trial. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 112, 138],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Other Clinical Trial-related Attachments",
+    "condition": "Allowed only if specified by K award NOFO AND the study is an independent clinical trial (not mentored experience).",
+    "user_question": "This specific study within my K award project is an independent clinical trial AND the K award NOFO specifically requires or permits 'Other Clinical Trial-related Attachments'. (True/False)",
+    "isRequired": false,
+    "source_pages": [105, 107, 115, 133, 139],
+    "requirement_doc": "career-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "10"
+  }
+]

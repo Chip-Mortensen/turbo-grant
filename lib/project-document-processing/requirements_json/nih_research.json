@@ -1,0 +1,809 @@
+[
+  {
+    "name": "SF 424 (R&R) Form",
+    "condition": "This form is required for all grant applications using SF424 (R&R) packages according to these instructions.",
+    "user_question": "Are you submitting a grant application using the SF424 (R&R) package as described in these instructions?",
+    "source_pages": [
+      1,
+      15
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "PHS 398 Cover Page Supplement Form",
+    "condition": "This form is required for all grant applications except for fellowship applications.",
+    "user_question": "Are you submitting a research grant application (which is not a fellowship)?",
+    "source_pages": [
+      29
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "R&R Other Project Information Form",
+    "condition": "This form is required for all grant applications.",
+    "user_question": "Is this a standard NIH/PHS grant application submission covered by these instructions?",
+    "source_pages": [
+      34
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "Project/Performance Site Location(s) Form",
+    "condition": "This form is required for all grant applications to report the primary and any other locations where the project will be performed.",
+    "user_question": "Are you submitting a grant application under these instructions (which requires reporting performance sites)?",
+    "source_pages": [
+      43
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "R&R Senior/Key Person Profile (Expanded) Form",
+    "condition": "This form is required for all grant applications to provide data on the PD/PI and other senior/key persons.",
+    "user_question": "Does your project involve a Project Director/Principal Investigator (PD/PI) and potentially other senior/key personnel or other significant contributors?",
+    "source_pages": [
+      47
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "PHS Human Subjects and Clinical Trials Information Form",
+    "condition": "This form is required for all applications, regardless of human subjects involvement, to collect information on human subjects research and/or clinical trials.",
+    "user_question": "Is this a standard NIH/PHS grant application submission covered by these instructions?",
+    "source_pages": [
+      96,
+      98
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "R&R Budget Form",
+    "condition": "This form is generally required for research grants if requesting over $250,000 direct costs per year, for foreign organizations, if using HFT, or if required by the NOFO, and cannot be used with the Modular form.",
+    "user_question": "For your research grant, does the application request over $250,000 direct costs per year OR involve a foreign organization OR propose using Human Fetal Tissue (HFT) OR is the R&R Budget form specifically required by your NOFO?",
+    "source_pages": [
+      57,
+      58,
+      75
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "PHS 398 Modular Budget Form",
+    "condition": "This form is generally required for domestic research grant applications requesting $250,000 or less direct costs per year, unless exceptions apply or the R&R Budget form is required.",
+    "user_question": "Is your research grant application from a domestic organization requesting $250,000 or less in direct costs per year, AND are you NOT required to use the R&R Budget form (e.g., not foreign, no HFT, not disallowed by NOFO)?",
+    "source_pages": [
+      57,
+      75
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "R&R Subaward Budget Attachment(s) Form",
+    "condition": "This form is required only when using the R&R Budget Form (detailed budget) and the application includes subawards/consortiums performing a substantive portion of the project.",
+    "user_question": "Are you using the R&R Budget Form (detailed budget) AND does your research project involve subawards/consortiums performing a substantive part of the work?",
+    "source_pages": [
+      58,
+      72
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Subaward R&R Budget Form (Attachment within R&R Subaward Form)",
+    "condition": "A completed R&R Budget Form from each subaward/consortium organization performing a substantive portion of the project must be attached within the R&R Subaward Budget Attachment(s) Form.",
+    "user_question": "If using the R&R Subaward Budget Attachment(s) Form, will you need to attach a completed R&R Budget Form PDF from each substantive subawardee?",
+    "source_pages": [
+      73
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "SFLLL (Disclosure of Lobbying Activities) or Other Explanatory Documentation",
+    "condition": "This attachment (SFLLL is Standard Form LLL) is required if unable to certify compliance regarding lobbying activities or if specifically required by the NOFO.",
+    "user_question": "Are you unable to certify full compliance with lobbying restrictions OR does your NOFO require the SFLLL form or other explanatory documentation regarding lobbying?",
+    "source_pages": [
+      25
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Cover Letter Attachment",
+    "condition": "This attachment is optional but required or recommended for specific situations like late/changed submissions, budgets over $500k direct costs, video intent, large-scale genomic data, or HFT involvement.",
+    "user_question": "Do any special circumstances apply to your research grant requiring a cover letter (e.g., late/changed submission, budget >$500k direct costs, conference grant, video submission intent, large-scale genomic data, HFT involvement)?",
+    "source_pages": [
+      5,
+      27,
+      28
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Pre-application Attachment",
+    "condition": "This attachment should only be used if specifically permitted by the NOFO for a pre-application submission type.",
+    "user_question": "Are you submitting a pre-application AND does the NOFO specifically permit and instruct you to use the 'Pre-application' attachment field?",
+    "source_pages": [
+      27
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Agency Approval Documentation (within Cover Letter)",
+    "condition": "Documentation of prior agency approval (e.g., for budgets $500k+ direct costs, Conference Grants R13/U13) must be included, typically within the Cover Letter attachment.",
+    "user_question": "Does your research grant application require prior agency approval (e.g., budget >$500k direct costs, Conference Grant R13/U13) that needs to be documented in the cover letter?",
+    "source_pages": [
+      27
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Video",
+    "condition": "A video submission is allowed only if specified in the NOFO, and intent must be declared in the cover letter.",
+    "user_question": "Does your NOFO specifically allow video submission AND do you intend to submit one?",
+    "source_pages": [
+      28
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "HFT Compliance Assurance Letter",
+    "condition": "This signed letter from the PD/PI assuring compliance with informed consent and valuable consideration requirements is required if the project involves Human Fetal Tissue (HFT) from elective abortions.",
+    "user_question": "Does your proposed research project involve the use of human fetal tissue obtained from elective abortions (HFT)?",
+    "source_pages": [
+      31
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "HFT Sample IRB Consent Form",
+    "condition": "A blank sample of the IRB-approved consent form used for HFT donation is required if the project involves Human Fetal Tissue (HFT) from elective abortions.",
+    "user_question": "Does your proposed research project involve the use of human fetal tissue obtained from elective abortions (HFT)?",
+    "source_pages": [
+      31
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Project Summary/Abstract Attachment",
+    "condition": "This attachment providing a succinct description of the proposed work is required for all applications.",
+    "user_question": "Is this a standard NIH/PHS grant application submission covered by these instructions?",
+    "source_pages": [
+      39,
+      40
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "30",
+    "isRequired": true
+  },
+  {
+    "name": "Project Narrative Attachment",
+    "condition": "This attachment describing the relevance of the research to public health (max 3 sentences) is required for all applications.",
+    "user_question": "Is this a standard NIH/PHS grant application submission covered by these instructions?",
+    "source_pages": [
+      40
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "3",
+    "isRequired": true
+  },
+  {
+    "name": "Bibliography & References Cited Attachment",
+    "condition": "This attachment listing all references cited in the application is required unless otherwise noted in the NOFO.",
+    "user_question": "Is the Bibliography & References Cited attachment required for your research grant (i.e., not explicitly waived by your NOFO)?",
+    "source_pages": [
+      40,
+      41
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "Facilities & Other Resources Attachment",
+    "condition": "This attachment describing the scientific environment and resources is required unless otherwise specified in the NOFO.",
+    "user_question": "Is the Facilities & Other Resources attachment required for your research grant (i.e., not explicitly waived by your NOFO)?",
+    "source_pages": [
+      41
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "Equipment Attachment",
+    "condition": "This attachment listing major items of equipment available for the project is required.",
+    "user_question": "Is this a standard NIH/PHS grant application submission covered by these instructions?",
+    "source_pages": [
+      42
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "Foreign Justification Attachment (within Other Attachments)",
+    "condition": "This justification is required within 'Other Attachments' if the project involves activities outside the U.S. or partnerships with international collaborators.",
+    "user_question": "Does your research project involve activities outside of the United States or partnerships with international collaborators?",
+    "source_pages": [
+      39,
+      42
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Additional Location(s) Attachment",
+    "condition": "This attachment is required if you need to list more project/performance sites than the Project/Performance Site Location(s) Form allows.",
+    "user_question": "Do you have more project/performance sites (primary + others) than the form provides space for?",
+    "source_pages": [
+      43,
+      46
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Biographical Sketch (Biosketch)",
+    "condition": "A biosketch is required for the PD/PI and all individuals identified as senior/key personnel or other significant contributors (OSCs).",
+    "user_question": "Does your research grant application identify a PD/PI, senior/key personnel, or other significant contributors requiring a biosketch?",
+    "source_pages": [
+      50,
+      53,
+      56
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "5",
+    "isRequired": true
+  },
+  {
+    "name": "Current & Pending Support (Other Support)",
+    "condition": "This information is typically not required at submission unless specified by the NOFO, but will likely be requested Just-in-Time (JIT) before an award.",
+    "user_question": "Does your NOFO specifically require Current & Pending (Other) Support information at the time of application submission?",
+    "source_pages": [
+      13,
+      50,
+      56
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Additional Senior/Key Person Profile(s) Attachment (Personnel Detail)",
+    "condition": "This attachment is required if you list more than 100 senior/key persons or OSCs on the R&R Senior/Key Person Profile (Expanded) Form.",
+    "user_question": "Do you have more than 100 individuals listed as PD/PI, senior/key personnel, or other significant contributors on the R&R Senior/Key Person Profile form?",
+    "source_pages": [
+      47,
+      56
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Budget Justification (R&R Budget)",
+    "condition": "This attachment is required for all applications using the R&R Budget Form to justify costs and provide required details.",
+    "user_question": "Are you using the R&R Budget Form (detailed budget) for your research grant?",
+    "source_pages": [
+      59,
+      60,
+      61,
+      62,
+      64,
+      65,
+      66,
+      67,
+      69,
+      70
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Additional Senior/Key Persons Attachment (R&R Budget Detail)",
+    "condition": "This attachment is required if requesting funds for more senior/key persons than the R&R Budget form allows space for in Section A.",
+    "user_question": "Are you using the R&R Budget form AND requesting funds for more senior/key persons than the form provides lines for in Section A?",
+    "source_pages": [
+      61
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Additional Equipment Attachment (R&R Budget Detail)",
+    "condition": "This attachment is required if requesting funds for more equipment items (costing >$5,000) than the R&R Budget form allows space for in Section C.",
+    "user_question": "Are you using the R&R Budget form AND requesting funds for more equipment items (>$5,000 each) than the form provides lines for in Section C?",
+    "source_pages": [
+      64
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Personnel Justification (Modular Budget)",
+    "condition": "This justification attachment is required for all applications using the PHS 398 Modular Budget Form.",
+    "user_question": "Are you using the PHS 398 Modular Budget Form for your research grant?",
+    "source_pages": [
+      78
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Consortium Justification (Modular Budget)",
+    "condition": "This justification attachment is required if using the PHS 398 Modular Budget Form and the project includes consortium/subaward costs.",
+    "user_question": "Are you using the PHS 398 Modular Budget Form AND does your research project involve consortium/subaward costs?",
+    "source_pages": [
+      79
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Additional Narrative Justification (Modular Budget)",
+    "condition": "This justification attachment is required if using the PHS 398 Modular Budget Form AND there are variations in the number of modules requested annually OR a DMS Plan is required.",
+    "user_question": "Are you using the PHS 398 Modular Budget Form AND either requesting a different number of modules in different years OR required to submit a Data Management and Sharing Plan?",
+    "source_pages": [
+      76,
+      79,
+      80
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "PHS 398 Research Plan Form",
+    "condition": "This form is used for research applications (and multi-project, SBIR/STTR) to organize research plan attachments.",
+    "user_question": "Is your application a research grant requiring the PHS 398 Research Plan form?",
+    "source_pages": [
+      81
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "Introduction to Application Attachment (Research Plan)",
+    "condition": "This attachment to the Research Plan is required only for Resubmission or Revision applications, or if specified by the NOFO.",
+    "user_question": "Is your research grant application a Resubmission or Revision, OR does the NOFO specifically require an Introduction attachment?",
+    "source_pages": [
+      81,
+      82
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Specific Aims Attachment (Research Plan)",
+    "condition": "This attachment to the Research Plan outlining the project aims is required unless otherwise specified in the NOFO.",
+    "user_question": "Is the Specific Aims attachment required for your research grant (i.e., not explicitly waived by your NOFO)?",
+    "source_pages": [
+      81,
+      83
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "Research Strategy Attachment (Research Plan)",
+    "condition": "This attachment to the Research Plan detailing Significance, Innovation, and Approach is required for applications using this form.",
+    "user_question": "Are you required to use the PHS 398 Research Plan form for your research grant application?",
+    "source_pages": [
+      81,
+      83,
+      84,
+      85,
+      86
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": true
+  },
+  {
+    "name": "Progress Report Publication List Attachment (Research Plan)",
+    "condition": "This attachment to the Research Plan listing publications resulting from the previous funding period is required only for Renewal applications.",
+    "user_question": "Is your research grant application a Renewal application?",
+    "source_pages": [
+      81,
+      86,
+      87
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Vertebrate Animals Attachment (Research Plan)",
+    "condition": "This attachment to the Research Plan is required if live vertebrate animals are used in the project.",
+    "user_question": "Does your research project involve the use of live vertebrate animals?",
+    "source_pages": [
+      36,
+      81,
+      87
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Select Agent Research Attachment (Research Plan)",
+    "condition": "This attachment to the Research Plan is required if the proposed activities involve the use of select agents.",
+    "user_question": "Does your proposed research involve the use of HHS or USDA select agents?",
+    "source_pages": [
+      41,
+      81,
+      88
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Multiple PD/PI Leadership Plan Attachment (Research Plan)",
+    "condition": "This attachment to the Research Plan describing the governance and roles is required if the application designates multiple PD/PIs.",
+    "user_question": "Are you designating multiple Project Directors / Principal Investigators (PD/PIs) on this research grant application?",
+    "source_pages": [
+      81,
+      89
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Consortium/Contractual Arrangements Attachment (Research Plan)",
+    "condition": "This attachment to the Research Plan explaining the arrangements is required if the application includes consortiums/contracts in the budget.",
+    "user_question": "Does your research grant application budget include costs for consortiums or contractual arrangements?",
+    "source_pages": [
+      44,
+      81,
+      90
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Letters of Support Attachment (Research Plan)",
+    "condition": "This attachment combines all necessary letters demonstrating support from collaborators, consultants, or consortium participants into a single PDF.",
+    "user_question": "Do you need to include letters of support from collaborators, consultants, or consortium participants for your research grant?",
+    "source_pages": [
+      11,
+      81,
+      90,
+      91
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Resource Sharing Plan(s) Attachment (Research Plan - Pre Jan 2023 Policy)",
+    "condition": "This attachment, required for applications developing model organisms or research tools under policies effective before Jan 25, 2023, describes plans for sharing these resources.",
+    "user_question": "Are you developing model organisms or unique research tools AND submitting under policies effective before January 25, 2023 (check NOFO)?",
+    "source_pages": [
+      81,
+      85,
+      91
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Other Plan(s) - Data Management and Sharing (DMS) Plan (Research Plan)",
+    "condition": "This attachment, the DMS Plan, is required for all applications generating scientific data submitted under policies effective on or after Jan 25, 2023.",
+    "user_question": "Will your proposed research generate scientific data AND are you submitting under policies effective on or after January 25, 2023 (check NOFO)?",
+    "source_pages": [
+      5,
+      81,
+      91,
+      92
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "2",
+    "isRequired": false
+  },
+  {
+    "name": "Authentication of Key Biological and/or Chemical Resources Attachment (Research Plan)",
+    "condition": "This attachment describing methods to ensure identity and validity is required if the proposed science uses key biological and/or chemical resources.",
+    "user_question": "Does your proposed research use key biological and/or chemical resources (e.g., cell lines, specialty chemicals, antibodies, biologics) that require authentication?",
+    "source_pages": [
+      81,
+      94
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "1",
+    "isRequired": false
+  },
+  {
+    "name": "Appendix Attachment(s) (Research Plan)",
+    "condition": "The appendix is optional and strictly limited to blank forms/surveys/questionnaires, blank consent forms, or materials explicitly allowed by the NOFO (max 10 PDFs).",
+    "user_question": "Do you intend to include allowable appendix materials (blank forms/surveys/consents) or materials specifically required by your NOFO in the appendix?",
+    "source_pages": [
+      81,
+      95
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "10",
+    "isRequired": false
+  },
+  {
+    "name": "Use of Human Specimens and/or Data Explanation Attachment (HS/CT Form)",
+    "condition": "This explanation is required if the application involves human specimens/data, but some or all of that use is determined NOT to be human subjects research.",
+    "user_question": "Does your research involve human specimens or data, AND have you determined that some or all of this use does NOT constitute human subjects research?",
+    "source_pages": [
+      98,
+      101
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Other Requested Information Attachment (HS/CT Form)",
+    "condition": "This attachment should only be included if specifically requested by the NOFO or these instructions (e.g., listing ongoing studies for renewals).",
+    "user_question": "Does your NOFO or the PHS Human Subjects and Clinical Trials Information form instructions specifically ask you to provide information in the 'Other Requested Information' attachment?",
+    "source_pages": [
+      102
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Inclusion of Individuals Across the Lifespan Attachment (HS/CT Study Record)",
+    "condition": "This attachment is required for each human subjects study record, unless only Exemption 4 applies, to justify inclusion/exclusion based on age.",
+    "user_question": "Does this specific human subjects study record describe research that is NOT solely exempt under Exemption 4?",
+    "source_pages": [
+      109
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Inclusion of Women and Minorities Attachment (HS/CT Study Record)",
+    "condition": "This attachment is required for each human subjects study record, unless only Exemption 4 applies, to describe planned distribution and outreach.",
+    "user_question": "Does this specific human subjects study record describe research that is NOT solely exempt under Exemption 4?",
+    "source_pages": [
+      110
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Recruitment and Retention Plan Attachment (HS/CT Study Record)",
+    "condition": "This attachment describing recruitment and retention strategies is required for each human subjects study record, unless only Exemption 4 applies.",
+    "user_question": "Does this specific human subjects study record describe research that is NOT solely exempt under Exemption 4?",
+    "source_pages": [
+      112
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Study Timeline Attachment (HS/CT Study Record)",
+    "condition": "This attachment providing a study timeline description or diagram is required if the study is a clinical trial, and optional otherwise (unless only Exemption 4 applies).",
+    "user_question": "Is the study described in this specific study record an NIH-defined clinical trial (requiring the Study Timeline attachment)?",
+    "source_pages": [
+      113
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Inclusion Enrollment Report(s) (IER) (HS/CT Study Record)",
+    "condition": "At least one IER (planned or cumulative) is required for each human subjects study record, unless only Exemption 4 applies.",
+    "user_question": "Does this specific human subjects study record describe research that is NOT solely exempt under Exemption 4 (requiring an IER)?",
+    "source_pages": [
+      109,
+      110,
+      114
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Protection of Human Subjects Attachment (HS/CT Study Record)",
+    "condition": "This attachment detailing risks, protections, benefits, and knowledge is required for each human subjects study record.",
+    "user_question": "Does this specific study record describe research involving human subjects (requiring the Protection of Human Subjects attachment)?",
+    "source_pages": [
+      103,
+      119
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Data and Safety Monitoring Plan (DSMP) Attachment (HS/CT Study Record)",
+    "condition": "This attachment is required if the study is a clinical trial.",
+    "user_question": "Is the study described in this specific study record an NIH-defined clinical trial (requiring a DSMP)?",
+    "source_pages": [
+      123
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Overall Structure of the Study Team Attachment (HS/CT Study Record)",
+    "condition": "This attachment describing the study team structure is optional unless specifically required by the NOFO.",
+    "user_question": "Does your NOFO specifically require the 'Overall Structure of the Study Team' attachment for this study?",
+    "source_pages": [
+      103,
+      125
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Availability of IP and IND/IDE status Attachment (HS/CT Study Record)",
+    "condition": "This attachment describing study agent availability and IND/IDE status is required if the study is a clinical trial using an FDA-regulated intervention.",
+    "user_question": "Is the study described in this specific study record a clinical trial that will use an FDA-regulated intervention (requiring the IP/IND/IDE status attachment)?",
+    "source_pages": [
+      130
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Dissemination Plan Attachment (HS/CT Study Record)",
+    "condition": "This attachment outlining plans for disseminating clinical trial information via ClinicalTrials.gov is required if the study is a clinical trial.",
+    "user_question": "Is the study described in this specific study record an NIH-defined clinical trial (requiring a Dissemination Plan)?",
+    "source_pages": [
+      130,
+      131
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "Other Clinical Trial-related Attachments (HS/CT Study Record)",
+    "condition": "These attachments should only be included if the study is a clinical trial AND the NOFO specifically requests additional trial-related information (max 10 PDFs).",
+    "user_question": "Is the study described in this specific study record a clinical trial AND does the NOFO specifically request additional clinical trial-related attachments?",
+    "source_pages": [
+      132
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "10",
+    "isRequired": false
+  },
+  {
+    "name": "Justification Attachment (Delayed Onset Study)",
+    "condition": "This attachment is required for each Delayed Onset Study entry, explaining why details are unavailable and including a dissemination plan if a clinical trial is anticipated.",
+    "user_question": "Are you including a Delayed Onset Study entry because specific plans for a human subjects study cannot be described yet (requiring a Justification attachment)?",
+    "source_pages": [
+      103,
+      104,
+      131
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null,
+    "isRequired": false
+  },
+  {
+    "name": "PHS Assignment Request Form",
+    "condition": "This form is optional and used only to communicate assignment/review preferences to NIH referral staff; it is not seen by reviewers.",
+    "user_question": "Do you wish to communicate specific preferences for the NIH Institute/Center assignment or the Scientific Review Group (Study Section) using the optional PHS Assignment Request Form?",
+    "source_pages": [
+      5,
+      11,
+      133
+    ],
+    "requirement_doc": "research-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null,
+    "isRequired": false
+  }
+]

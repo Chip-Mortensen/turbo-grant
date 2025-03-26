@@ -1,0 +1,655 @@
+[
+  {
+    "document_name": "SFLLL (Standard Form LLL, Disclosure of Lobbying Activities)",
+    "condition": "Required if the applicant needs to disclose lobbying activities conducted with non-federal funds.",
+    "user_question": "Do you need to disclose lobbying activities conducted with non-federal funds as per the Certification in SF424 (R&R) Field 17?",
+    "isRequired": false,
+    "source_pages": [
+      32
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Other Explanatory Documentation (re: Certification)",
+    "condition": "Required if the applicant is unable to certify compliance with the requirements listed in SF424 (R&R) Field 17.",
+    "user_question": "Are you unable to certify compliance with all requirements listed in the Certification section (Field 17) of the SF424 (R&R) form?",
+    "isRequired": false,
+    "source_pages": [
+      32
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Pre-application Attachment",
+    "condition": "Required only if specifically permitted or required by the Notice of Funding Opportunity (NOFO).",
+    "user_question": "Does the specific NOFO for your SBIR/STTR application permit or require a 'Pre-application' attachment (this is generally not used by NIH/PHS)?",
+    "isRequired": false,
+    "source_pages": [
+      33
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Cover Letter Attachment",
+    "condition": "Required or permitted under specific circumstances detailed in the instructions, such as late submission, agency approvals, video intent, HFT, large-scale genomic data, or SBIR/STTR contract origin.",
+    "user_question": "Is a cover letter required or permitted for your SBIR/STTR application due to specific circumstances such as late submission, a changed/corrected application after the due date, explaining inactive subaward budgets, including required agency approvals (e.g., budget >$500k), intending to submit a video, proposing large-scale genomic data, proposing HFT research, or if your Phase I/II originated from a contract or another federal agency?",
+    "isRequired": false,
+    "source_pages": [
+      19,
+      34,
+      35
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HFT Compliance Assurance Letter",
+    "condition": "Required if the proposed project involves the use of human fetal tissue (HFT) obtained from elective abortions.",
+    "user_question": "Does your proposed SBIR/STTR project involve the use of human fetal tissue (HFT) obtained from elective abortions?",
+    "isRequired": false,
+    "source_pages": [
+      38
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HFT Sample IRB Consent Form",
+    "condition": "Required if the proposed project involves the use of HFT obtained from elective abortions.",
+    "user_question": "Does your proposed SBIR/STTR project involve the use of human fetal tissue (HFT) obtained from elective abortions?",
+    "isRequired": false,
+    "source_pages": [
+      38
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Explanation for use of human specimens/data NOT considered human subjects research",
+    "condition": "Required if research involves human specimens/data but is determined not to be human subjects research.",
+    "user_question": "Does your SBIR/STTR research involve human specimens and/or data, AND you answered 'No' to 'Are Human Subjects Involved?' on the R&R Other Project Information form?",
+    "isRequired": false,
+    "source_pages": [
+      42,
+      122
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Project Summary/Abstract",
+    "condition": "Required for all SBIR/STTR applications unless the NOFO specifically states otherwise.",
+    "user_question": "Is the Project Summary/Abstract attachment required for your SBIR/STTR application (usually yes, check NOFO)?",
+    "isRequired": true,
+    "source_pages": [
+      47
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Project Narrative",
+    "condition": "Required for all SBIR/STTR applications unless the NOFO specifically states otherwise.",
+    "user_question": "Is the Project Narrative attachment required for your SBIR/STTR application (usually yes, check NOFO)?",
+    "isRequired": true,
+    "source_pages": [
+      47,
+      48
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Bibliography & References Cited",
+    "condition": "Required for all SBIR/STTR applications unless the NOFO specifically states otherwise.",
+    "user_question": "Is the Bibliography & References Cited attachment required for your SBIR/STTR application (usually yes, check NOFO)?",
+    "isRequired": true,
+    "source_pages": [
+      48
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Facilities & Other Resources",
+    "condition": "Required for all SBIR/STTR applications unless the NOFO specifically states otherwise.",
+    "user_question": "Is the Facilities & Other Resources attachment required for your SBIR/STTR application (usually yes, check NOFO)?",
+    "isRequired": true,
+    "source_pages": [
+      48,
+      49
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Equipment",
+    "condition": "Required for all SBIR/STTR applications unless the NOFO specifically states otherwise.",
+    "user_question": "Is the Equipment attachment required for your SBIR/STTR application (usually yes, check NOFO)?",
+    "isRequired": true,
+    "source_pages": [
+      49,
+      50
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Foreign Justification",
+    "condition": "Required if the SBIR/STTR project involves activities outside the U.S. or partnerships with international collaborators.",
+    "user_question": "Does your SBIR/STTR project involve activities outside the United States or partnerships with international collaborators (Note: this is rare for SBIR/STTR and requires strong justification)?",
+    "isRequired": false,
+    "source_pages": [
+      46,
+      50
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "SBIR Application VCOC Certification",
+    "condition": "Required only for NIH, CDC SBIR, and CRP applicants whose small business is majority-owned by multiple VC firms, hedge funds, or private equity firms.",
+    "user_question": "Are you submitting an NIH/CDC SBIR or CRP application AND is your small business concern majority-owned by multiple venture capital operating companies, hedge funds, or private equity firms?",
+    "isRequired": false,
+    "source_pages": [
+      50,
+      112
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Performance Sites",
+    "condition": "Required if the SBIR/STTR project involves more performance sites than the form allows space for.",
+    "user_question": "Do you need to list more project/performance sites for your SBIR/STTR project than the primary site and the first additional site location fields allow?",
+    "isRequired": false,
+    "source_pages": [
+      51,
+      55
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Biographical Sketch (Biosketch)",
+    "condition": "Required for every individual listed as PD/PI, Senior/Key Person, and Other Significant Contributor (OSC) on an SBIR/STTR application.",
+    "user_question": "Does your SBIR/STTR application include PD/PIs, Senior/Key Personnel, or Other Significant Contributors who require a Biosketch?",
+    "isRequired": true,
+    "source_pages": [
+      59,
+      60,
+      61,
+      62,
+      63,
+      65
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": "5"
+  },
+  {
+    "document_name": "Current & Pending Support / Other Support",
+    "condition": "Generally not required with the initial SBIR/STTR application; submitted via Just-in-Time (JIT) unless the NOFO specifies otherwise.",
+    "user_question": "Does the NOFO specifically require Current & Pending / Other Support documentation to be submitted *with* the SBIR/STTR application (this is usually submitted later via JIT)?",
+    "isRequired": false,
+    "source_pages": [
+      59,
+      65
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Senior/Key Person Profiles",
+    "condition": "Required if listing more than 100 individuals (PD/PIs + Senior/Key + OSCs) on the Senior/Key Person form for an SBIR/STTR application.",
+    "user_question": "Do you need to list more than 100 individuals in total (including PD/PIs, Senior/Key Personnel, and Other Significant Contributors) on the R&R Senior/Key Person Profile form for your SBIR/STTR application?",
+    "isRequired": false,
+    "source_pages": [
+      56,
+      65
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Senior/Key Persons (Budget Detail)",
+    "condition": "Required on R&R Budget Form if more Senior/Key persons need budget details listed than Section A allows for an SBIR/STTR application.",
+    "user_question": "Are you using the detailed R&R Budget Form for your SBIR/STTR application AND do you need to list budget details for more Senior/Key persons than the initial fields in Section A allow?",
+    "isRequired": false,
+    "source_pages": [
+      70
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Additional Equipment (Budget Detail)",
+    "condition": "Required on R&R Budget Form if more equipment items costing >$5,000 need budget details listed than Section C allows for an SBIR/STTR application.",
+    "user_question": "Are you using the detailed R&R Budget Form for your SBIR/STTR application AND do you need to list budget details for more equipment items (costing over $5,000 or your institution's lower limit) than the initial fields in Section C allow?",
+    "isRequired": false,
+    "source_pages": [
+      73
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Budget Justification",
+    "condition": "Required for all SBIR/STTR applications as they use the R&R Detailed Budget Form.",
+    "user_question": "Are you submitting an SBIR/STTR application (which requires a detailed budget and therefore a justification)?",
+    "isRequired": true,
+    "source_pages": [
+      67,
+      68,
+      69,
+      71,
+      73,
+      74,
+      75,
+      76,
+      77,
+      80,
+      82,
+      83
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "R&R Subaward Budget Form PDF",
+    "condition": "Required for each subaward/consortium performing a substantive portion of the project in an SBIR/STTR application.",
+    "user_question": "Does your SBIR/STTR project include subawards/consortiums that perform a substantive portion of the work requiring a separate budget submission?",
+    "isRequired": false,
+    "source_pages": [
+      67,
+      85,
+      86,
+      87
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "(Continuation) Subaward Budgets within Prime Budget Justification",
+    "condition": "Required if more subaward budgets are needed than the 10 slots on the R&R Subaward Budget Attachment(s) Form allow for an SBIR/STTR application.",
+    "user_question": "Do you have more than 10 subawards requiring separate budget forms for your SBIR/STTR application?",
+    "isRequired": false,
+    "source_pages": [
+      86
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Introduction to Application",
+    "condition": "Required only for SBIR/STTR Resubmission or Revision applications, or if the NOFO specifies it is needed.",
+    "user_question": "Is your SBIR/STTR application a Resubmission or Revision, OR does the NOFO specifically require an 'Introduction to Application' attachment?",
+    "isRequired": false,
+    "source_pages": [
+      91,
+      92
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Specific Aims",
+    "condition": "Required for all SBIR/STTR applications unless the NOFO specifically states otherwise.",
+    "user_question": "Is the Specific Aims attachment required for your SBIR/STTR application (usually yes, check NOFO)?",
+    "isRequired": true,
+    "source_pages": [
+      92,
+      93
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Research Strategy",
+    "condition": "Required for all SBIR/STTR applications unless the NOFO specifically states otherwise.",
+    "user_question": "Is the Research Strategy attachment required for your SBIR/STTR application (usually yes, check NOFO)?",
+    "isRequired": true,
+    "source_pages": [
+      93,
+      94,
+      95,
+      96,
+      97
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Progress Report Publication List",
+    "condition": "Required only for SBIR/STTR Renewal applications (e.g., Phase II, IIB, CRP renewals).",
+    "user_question": "Is your SBIR/STTR application type a Renewal (e.g., competing renewal for Phase II, IIB, CRP)?",
+    "isRequired": false,
+    "source_pages": [
+      97,
+      98
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Vertebrate Animals",
+    "condition": "Required if 'Yes' was answered to the Vertebrate Animals question on the R&R Other Project Information form for an SBIR/STTR application.",
+    "user_question": "Did you answer 'Yes' to the 'Are Vertebrate Animals Used?' question on the R&R Other Project Information form for your SBIR/STTR application?",
+    "isRequired": false,
+    "source_pages": [
+      43,
+      98,
+      99
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Select Agent Research",
+    "condition": "Required if the proposed SBIR/STTR research involves the use of Select Agents.",
+    "user_question": "Does your proposed SBIR/STTR research involve the use of Select Agents?",
+    "isRequired": false,
+    "source_pages": [
+      99,
+      100
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Multiple PD/PI Leadership Plan",
+    "condition": "Required if the SBIR/STTR application designates Multiple Principal Investigators (PD/PIs).",
+    "user_question": "Does your SBIR/STTR application designate more than one PD/PI?",
+    "isRequired": false,
+    "source_pages": [
+      100,
+      101
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Consortium/Contractual Arrangements",
+    "condition": "Required if the SBIR/STTR project involves substantive consortium or contractual arrangements.",
+    "user_question": "Does your SBIR/STTR project involve substantive consortium or contractual arrangements?",
+    "isRequired": false,
+    "source_pages": [
+      101,
+      102,
+      103
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Letters of Support",
+    "condition": "Required to document support, resources, collaborations, or consultations from individuals or entities not included as budgeted personnel for an SBIR/STTR project.",
+    "user_question": "Do you need to document support, resources, collaborations, or consultations from individuals or entities not included in the budget personnel sections for your SBIR/STTR project (e.g., consultants, unfunded collaborators, core facilities, commercial partners, STTR Research Institution)?",
+    "isRequired": false,
+    "source_pages": [
+      103,
+      104
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Resource Sharing Plan(s)",
+    "condition": "Required if the SBIR/STTR project anticipates developing unique model organisms or unique research tools.",
+    "user_question": "Will your SBIR/STTR project develop unique model organisms or unique research tools that require a sharing plan?",
+    "isRequired": false,
+    "source_pages": [
+      104
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Data Management and Sharing (DMS) Plan",
+    "condition": "Required if the SBIR/STTR research generates scientific data subject to the NIH DMS Policy (effective Jan 2023).",
+    "user_question": "Does your proposed SBIR/STTR research generate scientific data subject to the NIH Data Management and Sharing (DMS) Policy (check NIH policy/NOFO, effective Jan 2023)?",
+    "isRequired": false,
+    "source_pages": [
+      105,
+      106,
+      107
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "2"
+  },
+  {
+    "document_name": "Authentication of Key Biological and/or Chemical Resources",
+    "condition": "Required if the SBIR/STTR project uses key biological and/or chemical resources where identity and validity are crucial and variable.",
+    "user_question": "Does your proposed SBIR/STTR research use key biological and/or chemical resources (e.g., cell lines, specialty chemicals, antibodies, biologics) that require an authentication plan?",
+    "isRequired": false,
+    "source_pages": [
+      107
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": "1"
+  },
+  {
+    "document_name": "Appendix Material",
+    "condition": "Allowed only for specific materials (blank forms/surveys/consents) or if explicitly allowed/required by the NOFO; SBIR Phase I usually disallowed.",
+    "user_question": "Do you need to include allowable Appendix materials (blank forms/surveys, blank consents) OR does the NOFO specifically require/allow other Appendix materials for your SBIR/STTR application (Note: SBIR Phase I usually disallows Appendix)?",
+    "isRequired": false,
+    "source_pages": [
+      108
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Explanation for work performed outside the United States (SBIR/STTR Form)",
+    "condition": "Required for SBIR/STTR applications if any research/development will be performed outside the U.S.",
+    "user_question": "Are you submitting an SBIR/STTR application AND answered 'No' to Question 4 ('Will all research and development... be performed... in the United States?') on the SBIR/STTR Information Form?",
+    "isRequired": false,
+    "source_pages": [
+      112
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Commercialization Plan (SBIR/STTR Form)",
+    "condition": "Required for SBIR/STTR Phase II, Direct Phase II, Phase IIB, Fast-Track, and CRP applications.",
+    "user_question": "Are you submitting an SBIR/STTR Phase II, Direct Phase II, Phase IIB, Fast-Track, or Commercialization Readiness Program (CRP) application?",
+    "isRequired": false,
+    "source_pages": [
+      113,
+      114,
+      115
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "Company Commercialization History (SBIR/STTR Form)",
+    "condition": "Required for SBIR program applications if the applicant company has previously received SBIR Phase II awards from any Federal agency.",
+    "user_question": "Are you submitting an SBIR application (not STTR) AND has your company previously received SBIR Phase II awards from any Federal Government agency?",
+    "isRequired": false,
+    "source_pages": [
+      115,
+      116
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Explanation for use of human specimens/data NOT considered human subjects research",
+    "condition": "Required if SBIR/STTR research involves human specimens/data but is determined not to be human subjects research.",
+    "user_question": "Does your SBIR/STTR research involve human specimens and/or data, AND you answered 'No' to 'Are Human Subjects Involved?' on the R&R Other Project Information form?",
+    "isRequired": false,
+    "source_pages": [
+      122
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Other Requested Information",
+    "condition": "Required only if specified or permitted by the NOFO on the PHS Human Subjects and Clinical Trials form for an SBIR/STTR application.",
+    "user_question": "Does the NOFO specifically require or permit an 'Other Requested Information' attachment on the PHS Human Subjects and Clinical Trials Information form for your SBIR/STTR application (e.g., list of ongoing studies for renewals)?",
+    "isRequired": false,
+    "source_pages": [
+      123
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Study Record PDF (if applicable)",
+    "condition": "Required for each human subjects study in an SBIR/STTR application if the submission system requires attaching the record as a PDF.",
+    "user_question": "Does your submission method require you to attach completed Study Record PDFs instead of entering data directly into form fields for your SBIR/STTR human subjects studies?",
+    "isRequired": false,
+    "source_pages": [
+      124
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Delayed Onset Study Justification",
+    "condition": "Required for each study listed as Delayed Onset human subjects research in an SBIR/STTR application.",
+    "user_question": "Does your SBIR/STTR application include any 'Delayed Onset' human subjects studies where specific plans cannot be described at the time of application?",
+    "isRequired": false,
+    "source_pages": [
+      124,
+      125
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Protection of Human Subjects Attachment",
+    "condition": "Required for each non-exempt human subjects study described in a Study Record for an SBIR/STTR application.",
+    "user_question": "Does this specific Study Record for your SBIR/STTR application describe non-exempt human subjects research?",
+    "isRequired": false,
+    "source_pages": [
+      139,
+      140,
+      141
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Data and Safety Monitoring Plan (DSMP)",
+    "condition": "Required if the SBIR/STTR study is a Clinical Trial; optional otherwise (but consider risk); required for AHRQ intervention > minimal risk.",
+    "user_question": "Is this SBIR/STTR study a Clinical Trial OR are you applying to AHRQ for an intervention study with greater than minimal risk OR do the risks of this non-clinical trial human subjects study warrant a Data and Safety Monitoring Plan?",
+    "isRequired": false,
+    "source_pages": [
+      144,
+      145
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Overall Structure of the Study Team",
+    "condition": "Optional, unless required by the NOFO for an SBIR/STTR application.",
+    "user_question": "Does the NOFO specifically require an 'Overall Structure of the Study Team' attachment for this SBIR/STTR study?",
+    "isRequired": false,
+    "source_pages": [
+      145
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Statistical Design and Power",
+    "condition": "Required if the SBIR/STTR study is a Clinical Trial.",
+    "user_question": "Is this SBIR/STTR study defined as a Clinical Trial according to NIH's definition?",
+    "isRequired": false,
+    "source_pages": [
+      149
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - IND/IDE Status Attachment",
+    "condition": "Required if the SBIR/STTR study is a Clinical Trial AND uses an FDA-regulated intervention.",
+    "user_question": "Is this SBIR/STTR study a Clinical Trial AND does it use an FDA-regulated intervention?",
+    "isRequired": false,
+    "source_pages": [
+      150
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Dissemination Plan",
+    "condition": "Required if the SBIR/STTR study is a Clinical Trial.",
+    "user_question": "Is this SBIR/STTR study defined as a Clinical Trial according to NIH's definition?",
+    "isRequired": false,
+    "source_pages": [
+      151
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "document_name": "HS/CT - Other Clinical Trial-related Attachments",
+    "condition": "Required only if the SBIR/STTR study is a Clinical Trial AND the NOFO specifically requests additional attachments.",
+    "user_question": "Is this SBIR/STTR study a Clinical Trial AND does the NOFO specifically require any 'Other Clinical Trial-related Attachments'?",
+    "isRequired": false,
+    "source_pages": [
+      152
+    ],
+    "requirement_doc": "sbir-sttr-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  }
+]

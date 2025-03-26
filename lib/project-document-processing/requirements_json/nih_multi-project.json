@@ -1,0 +1,1009 @@
+[
+  {
+    "name": "SF 424 (R&R) Form",
+    "condition": "Required for all SF424 (R&R) applications, including Multi-Project.",
+    "user_question": "Are you submitting a Multi-Project application using the SF424 (R&R) package?",
+    "isRequired": true,
+    "source_pages": [
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      64,
+      65,
+      82,
+      90,
+      102,
+      145
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "SFLLL (Disclosure of Lobbying Activities) or Other Explanatory Documentation",
+    "condition": "Required if lobbying activities apply or if unable to certify compliance with lobbying restrictions.",
+    "user_question": "Do you need to disclose lobbying activities or explain non-compliance with lobbying certifications for this Multi-Project application?",
+    "isRequired": false,
+    "source_pages": [
+      28
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Pre-application Attachment",
+    "condition": "Required only if specifically permitted or required by the NOFO for this Multi-Project application.",
+    "user_question": "Does your specific Multi-Project NOFO require or permit a Pre-application attachment?",
+    "isRequired": false,
+    "source_pages": [
+      29,
+      30
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Cover Letter Attachment",
+    "condition": "Required or recommended under specific circumstances like late/changed applications, high budget requests, conference grants, video submission intent, large-scale genomic data, HFT use, or explaining inactive subaward periods for this Multi-Project application.",
+    "user_question": "For this Multi-Project application, are you submitting late/changed, requesting $500k+ direct costs, submitting an R13/U13, planning a video, generating large-scale genomic data, using HFT, or need to explain inactive subaward periods?",
+    "isRequired": false,
+    "source_pages": [
+      5,
+      29,
+      30,
+      31
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "PHS 398 Cover Page Supplement Form",
+    "condition": "Required for Multi-Project grant applications (as they are not fellowships).",
+    "user_question": "Are you submitting a Multi-Project grant application?",
+    "isRequired": true,
+    "source_pages": [
+      10,
+      32,
+      33,
+      34,
+      35,
+      36
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Human Fetal Tissue (HFT) Compliance Assurance",
+    "condition": "Required if the proposed Multi-Project involves HFT obtained from elective abortions.",
+    "user_question": "Does your proposed Multi-Project involve the use of human fetal tissue obtained from elective abortions?",
+    "isRequired": false,
+    "source_pages": [
+      35
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "HFT Sample IRB Consent Form",
+    "condition": "Required if the proposed Multi-Project involves HFT obtained from elective abortions.",
+    "user_question": "Does your proposed Multi-Project involve the use of human fetal tissue obtained from elective abortions?",
+    "isRequired": false,
+    "source_pages": [
+      35
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "R&R Other Project Information Form",
+    "condition": "Required for all Multi-Project grant applications.",
+    "user_question": "Are you submitting a Multi-Project application using the SF424 (R&R) package?",
+    "isRequired": true,
+    "source_pages": [
+      32,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      96,
+      100,
+      101,
+      125,
+      149,
+      156,
+      158,
+      159
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Project Summary/Abstract",
+    "condition": "Required for all Multi-Project applications (Overall and Other Components).",
+    "user_question": "Are you submitting a Multi-Project application?",
+    "isRequired": true,
+    "source_pages": [
+      5,
+      43,
+      44
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Project Narrative",
+    "condition": "Required for the Overall Component of Multi-Project applications; check NOFO for Other Components.",
+    "user_question": "Are you completing the Overall Component of a Multi-Project application (or does the NOFO require it for an Other Component)?",
+    "isRequired": false,
+    "source_pages": [
+      5,
+      44
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Bibliography & References Cited",
+    "condition": "Required for Multi-Project applications unless otherwise specified in the NOFO.",
+    "user_question": "Is the Bibliography & References Cited attachment required for your Multi-Project application (check NOFO if unsure)?",
+    "isRequired": false,
+    "source_pages": [
+      45,
+      96,
+      99,
+      115
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Facilities & Other Resources",
+    "condition": "Required for Multi-Project applications unless otherwise specified in the NOFO.",
+    "user_question": "Is the Facilities & Other Resources attachment required for your Multi-Project application (check NOFO if unsure)?",
+    "isRequired": false,
+    "source_pages": [
+      46,
+      48,
+      123
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Equipment",
+    "condition": "Required for all Multi-Project applications.",
+    "user_question": "Are you submitting a Multi-Project application?",
+    "isRequired": true,
+    "source_pages": [
+      46,
+      47
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Foreign Justification",
+    "condition": "Required if the Multi-Project involves activities outside the U.S. or partnerships with international collaborators.",
+    "user_question": "Does your Multi-Project involve activities outside of the United States or partnerships with international collaborators?",
+    "isRequired": false,
+    "source_pages": [
+      43,
+      47
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Project/Performance Site Location(s) Form",
+    "condition": "Required for all Multi-Project applications.",
+    "user_question": "Are you submitting a Multi-Project application?",
+    "isRequired": true,
+    "source_pages": [
+      48,
+      49,
+      50,
+      51
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Additional Location(s)",
+    "condition": "Required if the Multi-Project has more performance sites than the form allows space for.",
+    "user_question": "Does your Multi-Project have more project/performance sites than can be listed directly on the form?",
+    "isRequired": false,
+    "source_pages": [
+      48,
+      51
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "R&R Senior/Key Person Profile (Expanded) Form",
+    "condition": "Required for all Multi-Project applications.",
+    "user_question": "Are you submitting a Multi-Project application?",
+    "isRequired": true,
+    "source_pages": [
+      10,
+      25,
+      52,
+      53,
+      54,
+      55,
+      56,
+      59,
+      60,
+      61,
+      67,
+      79,
+      102,
+      122,
+      145,
+      147
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Biographical Sketch (Biosketch)",
+    "condition": "Required for PD/PI(s), all Senior/Key Personnel, and Other Significant Contributors (OSCs) in a Multi-Project application.",
+    "user_question": "Does your Multi-Project application identify PD/PI(s), Senior/Key Personnel, or Other Significant Contributors?",
+    "isRequired": true,
+    "source_pages": [
+      10,
+      55,
+      56,
+      57,
+      58,
+      59,
+      61,
+      104,
+      147,
+      182
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": 5
+  },
+  {
+    "name": "Current & Pending Support / Other Support",
+    "condition": "Generally required Just-in-Time (JIT) for Multi-Project applications, not at submission, unless specified in NOFO.",
+    "user_question": "Does your Multi-Project NOFO specifically require Current & Pending / Other Support at the time of application submission?",
+    "isRequired": false,
+    "source_pages": [
+      55,
+      61
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Additional Senior / Key Person Profile(s) Attachment",
+    "condition": "Required if Multi-Project application includes more than 100 Senior/Key persons and OSCs combined.",
+    "user_question": "Does your Multi-Project application list more than 100 individuals in total across the PD/PI, Senior/Key Personnel, and Other Significant Contributor roles?",
+    "isRequired": false,
+    "source_pages": [
+      52,
+      61
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "R&R Budget Form",
+    "condition": "Required for Multi-Project components if direct costs >$250k/year, or required by NOFO, or for foreign institutions, or if using HFT; cannot be used with Modular budget.",
+    "user_question": "For any component in your Multi-Project application, are you requesting >$250,000 direct costs in any year OR is it a foreign component OR using HFT OR does the NOFO require a detailed R&R budget?",
+    "isRequired": false,
+    "source_pages": [
+      13,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      81,
+      84,
+      87
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Additional Senior/Key Persons (Budget Detail)",
+    "condition": "Required if requesting funds for more Senior/Key persons than the R&R Budget form allows space for in Section A for a specific component.",
+    "user_question": "For any component using the R&R Budget form, are you requesting funds for more Senior/Key persons than fit in Section A?",
+    "isRequired": false,
+    "source_pages": [
+      67
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Additional Equipment (Budget Detail)",
+    "condition": "Required if requesting funds for more equipment items >$5,000 (or lower institutional limit) than the R&R Budget form allows space for in Section C for a specific component.",
+    "user_question": "For any component using the R&R Budget form, are you requesting funds for more equipment items (costing over $5,000 each or your institutional limit) than fit in Section C?",
+    "isRequired": false,
+    "source_pages": [
+      70
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Budget Justification (R&R Budget)",
+    "condition": "Required when using the R&R Budget form for any component.",
+    "user_question": "Are you using the R&R Budget form for any component in your Multi-Project application?",
+    "isRequired": false,
+    "source_pages": [
+      63,
+      65,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      76,
+      77
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "R&R Subaward Budget Attachment(s) Form",
+    "condition": "Required if using the R&R Budget Form for a component and including subawards/consortiums performing substantive work for that component.",
+    "user_question": "Are you using the R&R Budget form for a component AND does that component include subawards/consortiums performing a substantive portion of the work?",
+    "isRequired": false,
+    "source_pages": [
+      30,
+      63,
+      65,
+      77,
+      78,
+      79,
+      80
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Subaward R&R Budget Form (PDF)",
+    "condition": "Required for each subaward/consortium performing substantive work when using the main R&R Budget form for a component.",
+    "user_question": "Do you have one or more subawards/consortiums performing substantive work for a component using the R&R Budget (requiring a separate budget)?",
+    "isRequired": false,
+    "source_pages": [
+      78,
+      79,
+      80
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Subaward Budget Justification (PDF)",
+    "condition": "Required for each subaward R&R Budget Form submitted.",
+    "user_question": "Do you have one or more subawards/consortiums submitting a separate R&R budget?",
+    "isRequired": false,
+    "source_pages": [
+      78,
+      79,
+      80
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "PHS Additional Indirect Costs Form",
+    "condition": "Required only for the Overall Component of Multi-Project applications detailing F&A on first $25k of subawards leading components.",
+    "user_question": "Are you submitting a Multi-Project application where subawards lead entire components, requiring calculation of F&A on the first $25k for the Overall component?",
+    "isRequired": false,
+    "source_pages": [
+      64,
+      90,
+      91,
+      92
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Budget Justification (Additional Indirect Costs)",
+    "condition": "Required when using the PHS Additional Indirect Costs form.",
+    "user_question": "Are you using the PHS Additional Indirect Costs form?",
+    "isRequired": false,
+    "source_pages": [
+      91
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "PHS 398 Research Plan Form",
+    "condition": "Required for Multi-project (M) applications (and Research/SBIR/STTR).",
+    "user_question": "Are you submitting a Multi-Project application (or Research/SBIR/STTR)?",
+    "isRequired": true,
+    "source_pages": [
+      45,
+      49,
+      64,
+      74,
+      77,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Introduction to Application (Research Plan)",
+    "condition": "Required only for Resubmission or Revision Multi-Project applications (or if NOFO specifies).",
+    "user_question": "Is your Multi-Project application a Resubmission or Revision (or does the NOFO require an Introduction)?",
+    "isRequired": false,
+    "source_pages": [
+      94,
+      95
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Specific Aims (Research Plan)",
+    "condition": "Required for Multi-Project applications using the Research Plan unless otherwise specified in the NOFO.",
+    "user_question": "Is the Specific Aims attachment required for your Multi-Project application (check NOFO if unsure)?",
+    "isRequired": false,
+    "source_pages": [
+      95
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Research Strategy",
+    "condition": "Required for all Multi-Project applications using the Research Plan.",
+    "user_question": "Are you submitting a Multi-Project application requiring a Research Plan?",
+    "isRequired": true,
+    "source_pages": [
+      34,
+      44,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      104,
+      156,
+      171,
+      176
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Progress Report Publication List",
+    "condition": "Required only for Renewal Multi-Project applications.",
+    "user_question": "Is your Multi-Project application a Renewal?",
+    "isRequired": false,
+    "source_pages": [
+      99,
+      118,
+      147
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Vertebrate Animals",
+    "condition": "Required for Multi-Project applications if using live vertebrate animals.",
+    "user_question": "Does your Multi-Project research involve live vertebrate animals?",
+    "isRequired": false,
+    "source_pages": [
+      100,
+      101,
+      125,
+      126,
+      149,
+      150
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Select Agent Research",
+    "condition": "Required for Multi-Project applications if research involves select agents.",
+    "user_question": "Does your Multi-Project research involve select agents?",
+    "isRequired": false,
+    "source_pages": [
+      97,
+      101,
+      102,
+      117,
+      126,
+      127,
+      150,
+      151
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Multiple PD/PI Leadership Plan",
+    "condition": "Required for Multi-Project applications if designating more than one PD/PI.",
+    "user_question": "Does your Multi-Project application designate more than one PD/PI?",
+    "isRequired": false,
+    "source_pages": [
+      94,
+      99,
+      102,
+      103,
+      137,
+      138,
+      145
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Consortium/Contractual Arrangements",
+    "condition": "Required for Multi-Project applications if project includes consortiums/contracts.",
+    "user_question": "Does your Multi-Project involve consortiums or contractual arrangements?",
+    "isRequired": false,
+    "source_pages": [
+      49,
+      103,
+      127,
+      128,
+      151,
+      152
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Letters of Support",
+    "condition": "Required for Multi-Project applications if collaborators, consultants, or consortium participants are involved.",
+    "user_question": "Does your Multi-Project involve collaborators, consultants, or consortium participants requiring letters of support?",
+    "isRequired": false,
+    "source_pages": [
+      104,
+      141,
+      148
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Resource Sharing Plan(s)",
+    "condition": "Required for Multi-Project if developing model organisms or specific research tools (largely superseded by DMS Plan, check NOFO/policy).",
+    "user_question": "Are you developing unique model organisms or research tools in your Multi-Project AND does your NOFO (or current NIH policy) require a separate Resource Sharing Plan distinct from the DMS Plan?",
+    "isRequired": false,
+    "source_pages": [
+      97,
+      105,
+      116,
+      128
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Data Management and Sharing (DMS) Plan",
+    "condition": "Required for Multi-Project applications if research generates scientific data and is subject to the NIH DMS Policy (check NOFO/policy). Must be in Overall Component.",
+    "user_question": "Does your proposed Multi-Project research generate scientific data subject to the NIH Data Management and Sharing Policy?",
+    "isRequired": false,
+    "source_pages": [
+      5,
+      64,
+      70,
+      74,
+      75,
+      77,
+      97,
+      105,
+      106,
+      107,
+      116,
+      128,
+      129,
+      130,
+      131,
+      152
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": 2
+  },
+  {
+    "name": "Authentication of Key Biological and/or Chemical Resources",
+    "condition": "Required for Multi-Project applications if key biological and/or chemical resources are used.",
+    "user_question": "Does your Multi-Project research use key biological and/or chemical resources that require authentication?",
+    "isRequired": false,
+    "source_pages": [
+      107,
+      108,
+      131,
+      144
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": 1
+  },
+  {
+    "name": "Appendix",
+    "condition": "Optional for Multi-Project applications, and only for specific allowable materials (blank forms, or as specified in NOFO).",
+    "user_question": "Do you need to include allowable Appendix materials for your Multi-Project application (e.g., blank survey forms, blank consent forms, materials explicitly allowed by NOFO)?",
+    "isRequired": false,
+    "source_pages": [
+      104,
+      108,
+      109,
+      122,
+      132,
+      133,
+      147,
+      148,
+      152,
+      153
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "PHS Human Subjects and Clinical Trials Information Form",
+    "condition": "Required for all Multi-Project applications.",
+    "user_question": "Are you submitting a Multi-Project application?",
+    "isRequired": true,
+    "source_pages": [
+      14,
+      38,
+      45,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  },
+  {
+    "name": "Explanation for use of non-HS human specimens/data",
+    "condition": "Required if using human specimens/data AND answered 'Yes' to using them AND some/all use is NOT considered human subjects research.",
+    "user_question": "Are you using human specimens or data in your Multi-Project, and do you assert that this use does NOT constitute human subjects research?",
+    "isRequired": false,
+    "source_pages": [
+      158
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Other Requested Information (HS/CT Form)",
+    "condition": "Optional for Multi-Project, generally only used for renewals to list ongoing studies/ClinicalTrials.gov IDs, or if required by NOFO.",
+    "user_question": "Are you submitting a Multi-Project renewal application OR does your NOFO specifically require the 'Other Requested Information' attachment on the Human Subjects form?",
+    "isRequired": false,
+    "source_pages": [
+      159
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Delayed Onset Study Justification",
+    "condition": "Required if you add a 'Delayed Onset Study' record to the PHS Human Subjects and Clinical Trials Information form for a Multi-Project application.",
+    "user_question": "Does your Multi-Project application include plans for human subjects research that cannot be described at the time of application (Delayed Onset)?",
+    "isRequired": false,
+    "source_pages": [
+      160,
+      161,
+      162,
+      188
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Inclusion of Individuals Across the Lifespan",
+    "condition": "Required for Multi-Project studies involving human subjects, unless only Exemption 4 applies.",
+    "user_question": "Does your Multi-Project study involve human subjects AND is it NOT solely exempt under Exemption 4?",
+    "isRequired": false,
+    "source_pages": [
+      166,
+      167
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Inclusion of Women and Minorities",
+    "condition": "Required for Multi-Project studies involving human subjects, unless only Exemption 4 applies.",
+    "user_question": "Does your Multi-Project study involve human subjects AND is it NOT solely exempt under Exemption 4?",
+    "isRequired": false,
+    "source_pages": [
+      96,
+      115,
+      167,
+      168,
+      169,
+      186
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Recruitment and Retention Plan",
+    "condition": "Required for Multi-Project studies involving human subjects, unless only Exemption 4 applies.",
+    "user_question": "Does your Multi-Project study involve human subjects AND is it NOT solely exempt under Exemption 4?",
+    "isRequired": false,
+    "source_pages": [
+      165,
+      169
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Study Timeline",
+    "condition": "Required if the Multi-Project study is a clinical trial.",
+    "user_question": "Does your Multi-Project study meet the NIH definition of a clinical trial?",
+    "isRequired": false,
+    "source_pages": [
+      165,
+      170
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Protection of Human Subjects",
+    "condition": "Required for all Multi-Project studies involving human subjects.",
+    "user_question": "Does your Multi-Project study involve human subjects?",
+    "isRequired": false,
+    "source_pages": [
+      161,
+      166,
+      176,
+      177,
+      178
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Single IRB Plan Attachment (AHRQ only)",
+    "condition": "Required for AHRQ Multi-Project applicants conducting non-exempt, multi-site domestic research, unless an exception applies.",
+    "user_question": "Are you applying to AHRQ for a Multi-Project, non-exempt, multi-site domestic human subjects study that does not meet criteria for an exception to the sIRB policy?",
+    "isRequired": false,
+    "source_pages": [
+      179,
+      180
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Data and Safety Monitoring Plan (DSMP)",
+    "condition": "Required if the Multi-Project study is a clinical trial; optional otherwise but may be appropriate for significant risk studies; required for AHRQ if >minimal risk intervention study.",
+    "user_question": "Does your Multi-Project study meet the NIH definition of a clinical trial OR is it an AHRQ-funded intervention study with greater than minimal risk?",
+    "isRequired": false,
+    "source_pages": [
+      181,
+      182
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Overall Structure of the Study Team",
+    "condition": "Optional for Multi-Project unless required by the specific NOFO.",
+    "user_question": "Does your Multi-Project NOFO specifically require the 'Overall Structure of the Study Team' attachment?",
+    "isRequired": false,
+    "source_pages": [
+      161,
+      182
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Statistical Design and Power",
+    "condition": "Required if the Multi-Project study is a clinical trial.",
+    "user_question": "Does your Multi-Project study meet the NIH definition of a clinical trial?",
+    "isRequired": false,
+    "source_pages": [
+      186
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "IND/IDE Status",
+    "condition": "Required if the Multi-Project study uses an FDA-regulated intervention.",
+    "user_question": "Does your Multi-Project study involve an FDA-regulated intervention (drug or device)?",
+    "isRequired": false,
+    "source_pages": [
+      187
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Dissemination Plan",
+    "condition": "Required if the Multi-Project study is a clinical trial.",
+    "user_question": "Does your Multi-Project study meet the NIH definition of a clinical trial?",
+    "isRequired": false,
+    "source_pages": [
+      162,
+      188
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "Other Clinical Trial-related Attachments",
+    "condition": "Required only if specified/required or permitted by the NOFO for a clinical trial within a Multi-Project application.",
+    "user_question": "Does your Multi-Project NOFO specifically require any 'Other Clinical Trial-related Attachments' for your clinical trial study?",
+    "isRequired": false,
+    "source_pages": [
+      188,
+      189
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "free-form",
+    "page_limits": null
+  },
+  {
+    "name": "PHS Assignment Request Form",
+    "condition": "Optional for Multi-Project applications, used to suggest IC/Study Section assignment.",
+    "user_question": "Do you wish to provide optional suggestions for which NIH Institute/Center or Study Section should handle your Multi-Project application?",
+    "isRequired": false,
+    "source_pages": [
+      5,
+      11,
+      30,
+      190,
+      191,
+      192
+    ],
+    "requirement_doc": "multi-project-forms-i.pdf",
+    "document_type": "form",
+    "page_limits": null
+  }
+]
