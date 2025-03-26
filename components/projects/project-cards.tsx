@@ -31,9 +31,9 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
     <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
       <ProjectCard
         title="Research Description"
-        description={vectorizationStatus.description 
-          ? "Upload and manage your research description"
-          : "Processing your research description..."}
+        description={completionStatus.description && !vectorizationStatus.description
+          ? "Processing your research description..."
+          : "Upload and manage your research description"}
         href={`/projects/${projectId}/research-description`}
         icon={FileText}
         isComplete={completionStatus.description}
@@ -41,9 +41,9 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
       />
       <ProjectCard
         title="Scientific Figures"
-        description={vectorizationStatus.figures
-          ? "Upload and manage your scientific figures"
-          : "Processing your scientific figures..."}
+        description={completionStatus.figures && !vectorizationStatus.figures
+          ? "Processing your scientific figures..."
+          : "Upload and manage your scientific figures"}
         href={`/projects/${projectId}/scientific-figures`}
         icon={Image}
         isComplete={completionStatus.figures}
@@ -51,9 +51,9 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
       />
       <ProjectCard
         title="Chalk Talk"
-        description={vectorizationStatus.chalkTalk
-          ? "Record and manage your chalk talk"
-          : "Processing your chalk talk..."}
+        description={completionStatus.chalkTalk && !vectorizationStatus.chalkTalk
+          ? "Processing your chalk talk..."
+          : "Record and manage your chalk talk"}
         href={`/projects/${projectId}/chalk-talk`}
         icon={Video}
         isComplete={completionStatus.chalkTalk}
