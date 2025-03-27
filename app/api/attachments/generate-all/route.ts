@@ -16,26 +16,10 @@ export async function POST(request: Request) {
       );
     }
     
-    // Start the generation process in the background
-    processAttachmentsInBackground(projectId);
-    
-    return NextResponse.json({
-      message: 'Attachment generation started in background',
-      status: 'success'
-    });
-  } catch (error) {
-    console.error('Error in generate-all attachments route:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to start attachment generation' },
-      { status: 500 }
-    );
-  }
-}
-
-async function processAttachmentsInBackground(projectId: string) {
-  try {
-    console.log(`Starting background attachment generation for project ${projectId}`);
+    console.log(`Processing attachments for project ${projectId}`);
     const startTime = Date.now();
+    
+    // Process attachments synchronously
     const supabase = await createClient();
     
     // Get the project's attachments
@@ -47,7 +31,10 @@ async function processAttachmentsInBackground(projectId: string) {
     
     if (projectError || !project?.attachments) {
       console.error('Error fetching project attachments:', projectError);
-      return;
+      return NextResponse.json(
+        { error: 'Failed to fetch project attachments' },
+        { status: 500 }
+      );
     }
     
     // Get all document IDs from the attachments
@@ -55,7 +42,7 @@ async function processAttachmentsInBackground(projectId: string) {
     
     if (documentIds.length === 0) {
       console.log('No attachments found for project');
-      return;
+      return NextResponse.json({ message: 'No attachments to process' });
     }
     
     console.log(`Found ${documentIds.length} attachments to generate`);
@@ -151,9 +138,18 @@ async function processAttachmentsInBackground(projectId: string) {
     // Log processing time
     const endTime = Date.now();
     const processingTime = (endTime - startTime) / 1000;
-    console.log(`Completed background attachment generation for project ${projectId} in ${processingTime} seconds`);
+    console.log(`Completed attachment generation for project ${projectId} in ${processingTime} seconds`);
+    
+    return NextResponse.json({
+      message: 'Attachment generation completed',
+      processed: documentIds.length,
+      status: 'success'
+    });
   } catch (error) {
-    console.error('Error in background attachment generation:', error instanceof Error ? error.message : error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
+    console.error('Error in generate-all attachments route:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to complete attachment generation' },
+      { status: 500 }
+    );
   }
 } 

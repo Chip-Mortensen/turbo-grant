@@ -22,28 +22,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // Process in the background - don't await the result
-    processSourcesInBackground(projectId);
-
-    return new Response(JSON.stringify({ success: true, message: 'Source generation started in background' }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (error) {
-    console.error('Error in background sources API:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Error processing request',
-      details: error instanceof Error ? error.message : error
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-}
-
-async function processSourcesInBackground(projectId: string) {
-  try {
-    console.log(`Starting background source generation for project ${projectId}`);
+    console.log(`Processing sources for project ${projectId}`);
     const startTime = Date.now();
     const supabase = await createClient();
 
@@ -73,7 +52,13 @@ async function processSourcesInBackground(projectId: string) {
 
     if (chalkTalkError || !chalkTalk?.transcription) {
       console.error('No transcription found for project:', projectId);
-      return;
+      return new Response(JSON.stringify({ 
+        error: 'No chalk talk transcription found',
+        details: chalkTalkError
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Generate questions from OpenAI
@@ -95,10 +80,25 @@ async function processSourcesInBackground(projectId: string) {
     // Log processing time
     const endTime = Date.now();
     const processingTime = (endTime - startTime) / 1000;
-    console.log(`Background source generation completed for project ${projectId} in ${processingTime} seconds`);
+    console.log(`Source generation completed for project ${projectId} in ${processingTime} seconds`);
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'Source generation completed',
+      sourceCount: sources.filter(source => !source.issue).length
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
-    console.error('Error in background source generation:', error instanceof Error ? error.message : error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
+    console.error('Error in sources API:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Error processing request',
+      details: error instanceof Error ? error.message : error
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 

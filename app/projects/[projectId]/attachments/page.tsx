@@ -5,6 +5,7 @@ import { CheckCircle } from 'lucide-react';
 import { AttachmentsManager } from '@/components/projects/attachments/attachments-manager';
 import { BackButton } from "@/components/ui/back-button"
 import { CreateCustomDocumentDialogButton } from '@/components/projects/attachments/create-custom-document-dialog-button';
+import { ReconcileAttachments } from '@/components/projects/attachments/reconcile-attachments';
 
 export const metadata: Metadata = {
   title: 'Project Attachments | Turbo Grant',
@@ -41,6 +42,9 @@ export default async function AttachmentsPage({ params }: PageProps) {
   return (
     <div className="container py-6 space-y-4">
       <BackButton href={`/projects/${projectId}`} />
+      
+      {/* Client component that runs the reconciliation logic */}
+      <ReconcileAttachments projectId={projectId} />
       
       <div className="flex items-center justify-between">
         <div className="space-y-1">

@@ -121,28 +121,7 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
       if (error) throw error;
 
-      // Call our unified processing endpoint instead of three separate ones
-      fetch('/api/project/process-all', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ projectId }),
-      })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            console.error('Background processing error:', response.status, text);
-          });
-        }
-        console.log('Background processing started successfully');
-      })
-      .catch(err => {
-        console.error('Error starting background processing:', err);
-        // Continue with navigation even if processing fails - we don't want to block the user
-      });
-
-      // Close dialog and redirect to project home page
+      // Just redirect to project page - initialization will happen there
       setIsOpen(false);
       router.push(`/projects/${projectId}`);
     } catch (err) {
@@ -171,11 +150,9 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
           <div className="space-y-4">
             <ul className="list-disc pl-5 space-y-2 text-sm">
-              <li>Generate required document templates based on the FOA&apos;s requirements</li>
               <li>Link this project to the FOA for tracking and compliance</li>
-              <li>Initialize your documents checklist with all required attachments</li>
-              <li>Automatically analyze the equipment catalog to recommend relevant equipment for your project</li>
-              <li>Begin generating content for all required documents in the background</li>
+              <li>Set up your documents checklist with all required attachments</li>
+              <li>Begin initializing your project on the project page</li>
               <li>If you change your mind later, you&apos;ll need to create a new project</li>
             </ul>
 

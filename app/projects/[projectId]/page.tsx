@@ -4,6 +4,8 @@ import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import { FileText, Image, Video, DollarSign, ArrowLeft } from "lucide-react";
 import { ProjectCards } from "@/components/projects/project-cards";
+import { ProjectInitializer } from "@/components/projects/project-initializer";
+import { ReconcileAttachments } from "@/components/projects/attachments/reconcile-attachments";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button"
 
@@ -36,6 +38,10 @@ export default async function ProjectPage({ params }: PageProps) {
   return (
     <div className="container py-6 space-y-4">
       <BackButton href="/projects" label="Back to Projects" />
+
+      <ProjectInitializer projectId={projectId} hasFoa={!!project.foa} />
+      
+      {project.foa && <ReconcileAttachments projectId={projectId} />}
 
       <div>
         <h1 className="text-2xl font-semibold">{project.title}</h1>
