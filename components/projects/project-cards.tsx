@@ -113,7 +113,7 @@ export function ProjectCards({ projectId }: ProjectCardsProps) {
           title="Attachments"
           description={completionStatus.attachments 
             ? "Manage documents for your proposal" 
-            : "Preparing document templates..."}
+            : "Preparing documents..."}
           href={completionStatus.attachments ? `/projects/${projectId}/attachments` : undefined}
           icon={Paperclip}
           isComplete={completionStatus.attachments}

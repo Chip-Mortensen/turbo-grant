@@ -229,13 +229,13 @@ export function ProjectInitializer({ projectId, hasFoa }: ProjectInitializerProp
         {initStatus.attachments === 'running' && (
           <div className="flex items-center">
             <Loader2 className="h-3 w-3 animate-spin mr-2" />
-            <span>Preparing document templates...</span>
+            <span>Preparing documents...</span>
           </div>
         )}
         {initStatus.attachments === 'complete' && (
           <div className="flex items-center text-green-600">
             <CheckCircle2 className="h-3 w-3 mr-2" />
-            <span>Document preparation complete</span>
+            <span>Documents prepared successfully</span>
           </div>
         )}
         {initStatus.attachments === 'error' && (
