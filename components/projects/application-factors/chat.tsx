@@ -344,6 +344,16 @@ export function ApplicationFactorsChat({
       if ('forceRecommendationUpdate' in cleanedFactors) {
         delete (cleanedFactors as any).forceRecommendationUpdate;
       }
+
+      // CRITICAL FIX: Ensure the completed flag is set correctly before saving
+      // Double-check if all questions are completed and explicitly set the flag
+      if (cleanedFactors.questions && cleanedFactors.questions.length > 0) {
+        const areAllQuestionsComplete = cleanedFactors.questions.every(q => q.completed === true);
+        if (areAllQuestionsComplete) {
+          console.log('All questions are complete, forcing completed flag to true');
+          cleanedFactors.completed = true;
+        }
+      }
       
       // Save to database
       const { data, error } = await supabase
@@ -369,6 +379,7 @@ export function ApplicationFactorsChat({
         } else {
           const savedFactors = verifyData?.application_factors as ApplicationFactors | undefined;
           console.log('Verified saved data:', {
+            completed: savedFactors?.completed,
             agencyAlignment: savedFactors?.questions?.find(q => q.id === 'agency_alignment')?.answer
           });
         }
@@ -525,7 +536,9 @@ export function ApplicationFactorsChat({
         // Use the provided data (if available) or latest data from the database
         const latestFactors = updatedData || data?.application_factors as ApplicationFactors;
         const currentQuestions = latestFactors?.questions || factors.questions || [];
-        const isAllComplete = currentQuestions.every(q => q.completed) ?? false;
+        
+        // FIXED: Explicitly check if ALL questions are completed to prevent inconsistencies
+        const isAllComplete = currentQuestions.length > 0 && currentQuestions.every(q => q.completed === true);
         
         console.log('Using latest data from database:', { 
           isAllComplete,
@@ -535,6 +548,7 @@ export function ApplicationFactorsChat({
         const finalFactors = {
           ...(latestFactors || factors),
           questions: currentQuestions,
+          // FIXED: Always set completed to true if all questions are complete
           completed: isAllComplete,
           updatedAt: new Date().toISOString()
         };
@@ -737,7 +751,7 @@ export function ApplicationFactorsChat({
         ...factors,
         questions: updatedQuestions,
         currentQuestionIndex: currentIndex,
-        completed: isAllComplete,
+        completed: isAllComplete === true,
         progress: (completedQuestions / updatedQuestions.length) * 100,
         totalQuestions: updatedQuestions.length,
         completedQuestions,
