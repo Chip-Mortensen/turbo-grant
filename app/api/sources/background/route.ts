@@ -3,6 +3,9 @@ import { generateQuestions, formatSourcesForUpload } from '../utils/openai';
 import { searchAllQuestions } from '../utils/perplexity';
 import { FormattedSource } from '../utils/types';
 
+// Force this to be a Node.js serverless function instead of an Edge function
+export const runtime = 'nodejs';
+
 interface ExistingSource {
   url: string;
   reason: string | null;
@@ -41,6 +44,7 @@ export async function POST(req: Request) {
 async function processSourcesInBackground(projectId: string) {
   try {
     console.log(`Starting background source generation for project ${projectId}`);
+    const startTime = Date.now();
     const supabase = await createClient();
 
     // Get existing sources
@@ -88,9 +92,13 @@ async function processSourcesInBackground(projectId: string) {
     console.log('Saving sources to database...');
     await saveSourcesToDatabase(projectId, sources, supabase);
     
-    console.log(`Background source generation completed for project ${projectId}`);
+    // Log processing time
+    const endTime = Date.now();
+    const processingTime = (endTime - startTime) / 1000;
+    console.log(`Background source generation completed for project ${projectId} in ${processingTime} seconds`);
   } catch (error) {
-    console.error('Error in background source generation:', error);
+    console.error('Error in background source generation:', error instanceof Error ? error.message : error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
   }
 }
 

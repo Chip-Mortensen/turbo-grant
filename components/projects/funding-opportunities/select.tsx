@@ -128,7 +128,17 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ projectId }),
-      }).catch(err => {
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            console.error('Equipment analysis response error:', response.status, text);
+            throw new Error(`Equipment analysis failed: ${response.status}`);
+          });
+        }
+        console.log('Equipment analysis triggered successfully');
+      })
+      .catch(err => {
         console.error('Error triggering equipment analysis:', err);
       });
 
@@ -139,7 +149,17 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ projectId }),
-      }).catch(err => {
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            console.error('Source generation response error:', response.status, text);
+            throw new Error(`Source generation failed: ${response.status}`);
+          });
+        }
+        console.log('Source generation triggered successfully');
+      })
+      .catch(err => {
         console.error('Error triggering source generation:', err);
       });
 
@@ -150,7 +170,17 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ projectId }),
-      }).catch(err => {
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            console.error('Attachment generation response error:', response.status, text);
+            throw new Error(`Attachment generation failed: ${response.status}`);
+          });
+        }
+        console.log('Attachment generation triggered successfully');
+      })
+      .catch(err => {
         console.error('Error triggering attachment generation:', err);
       });
 

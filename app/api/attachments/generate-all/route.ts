@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { generateDocumentContent } from '@/lib/project-document-processing/generation-service';
 
+// Force this to be a Node.js serverless function instead of an Edge function
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
   try {
     const { projectId } = await request.json();
@@ -32,6 +35,7 @@ export async function POST(request: Request) {
 async function processAttachmentsInBackground(projectId: string) {
   try {
     console.log(`Starting background attachment generation for project ${projectId}`);
+    const startTime = Date.now();
     const supabase = await createClient();
     
     // Get the project's attachments
@@ -144,8 +148,12 @@ async function processAttachmentsInBackground(projectId: string) {
       }
     }
     
-    console.log(`Completed background attachment generation for project ${projectId}`);
+    // Log processing time
+    const endTime = Date.now();
+    const processingTime = (endTime - startTime) / 1000;
+    console.log(`Completed background attachment generation for project ${projectId} in ${processingTime} seconds`);
   } catch (error) {
-    console.error('Error in background attachment generation:', error);
+    console.error('Error in background attachment generation:', error instanceof Error ? error.message : error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
   }
 } 

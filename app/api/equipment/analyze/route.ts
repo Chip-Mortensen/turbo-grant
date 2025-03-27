@@ -5,6 +5,9 @@ import { getFOAText } from '@/lib/project-document-processing/query';
 import fs from 'fs';
 import path from 'path';
 
+// Add runtime config at the top of the file
+export const runtime = 'nodejs';
+
 /**
  * POST /api/equipment/analyze
  * 
