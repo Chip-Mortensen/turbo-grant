@@ -121,8 +121,8 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
 
       if (error) throw error;
 
-      // 6. Trigger equipment analysis in the background
-      fetch('/api/equipment/analyze', {
+      // Call our unified processing endpoint instead of three separate ones
+      fetch('/api/project/process-all', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,56 +132,14 @@ export function SelectFoaDialog({ projectId, foa }: SelectFoaDialogProps) {
       .then(response => {
         if (!response.ok) {
           return response.text().then(text => {
-            console.error('Equipment analysis response error:', response.status, text);
-            throw new Error(`Equipment analysis failed: ${response.status}`);
+            console.error('Background processing error:', response.status, text);
           });
         }
-        console.log('Equipment analysis triggered successfully');
+        console.log('Background processing started successfully');
       })
       .catch(err => {
-        console.error('Error triggering equipment analysis:', err);
-      });
-
-      // 7. Trigger source generation in the background
-      fetch('/api/sources/background', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ projectId }),
-      })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            console.error('Source generation response error:', response.status, text);
-            throw new Error(`Source generation failed: ${response.status}`);
-          });
-        }
-        console.log('Source generation triggered successfully');
-      })
-      .catch(err => {
-        console.error('Error triggering source generation:', err);
-      });
-
-      // 8. Trigger attachment generation in the background
-      fetch('/api/attachments/generate-all', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ projectId }),
-      })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            console.error('Attachment generation response error:', response.status, text);
-            throw new Error(`Attachment generation failed: ${response.status}`);
-          });
-        }
-        console.log('Attachment generation triggered successfully');
-      })
-      .catch(err => {
-        console.error('Error triggering attachment generation:', err);
+        console.error('Error starting background processing:', err);
+        // Continue with navigation even if processing fails - we don't want to block the user
       });
 
       // Close dialog and redirect to project home page
