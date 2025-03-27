@@ -92,22 +92,22 @@ export default async function AuthButton() {
               Projects
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="hidden">
             <Link href="/organizations" className="cursor-pointer w-full">
               Organizations
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="hidden">
             <Link href="/funding-opportunities" className="cursor-pointer w-full">
               Opportunities
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="hidden">
             <Link href="/vectorize" className="cursor-pointer w-full">
               Vectorize
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="hidden">
             <Link href="/documents" className="cursor-pointer w-full">
               Documents
             </Link>
