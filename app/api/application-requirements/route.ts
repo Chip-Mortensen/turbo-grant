@@ -132,6 +132,9 @@ Analyze each document and determine if it is required, not required, or needs mo
 2. Questions relating to the NOFO / Funding opportunity should be able to be answered with the FOA details, so don't include them in the unsure array and put them in either the required or notRequired array.
 3. Please use the NOFO / Funding opportunity details to help you make the determination of whether the document is required, not required, or needs more information.
 4. If you don't have certainty about the requirement status of a document, put it in the unsure array. All decisions must be based strictly on the context provided.
+5. The default should be unsure. You should only put a document in the required or notRequired array if you are certain. In order to be certain, the context must clearly support the determination.
+
+IMPORTANT: If a document is required, it must be in the required array. If a document is not required, it must be in the notRequired array. If there is any uncertainty, it must be in the unsure array.
 
 RESPONSE FORMAT:
 Return a JSON object with three arrays of document names (which must match exactly to the document names listed below "DOCUMENTS TO FILTER"):
