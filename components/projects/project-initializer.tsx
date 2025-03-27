@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
 interface ProjectInitializerProps {
   projectId: string;
@@ -171,80 +169,6 @@ export function ProjectInitializer({ projectId, hasFoa }: ProjectInitializerProp
     }
   };
 
-  // Don't render anything if there's no FOA or nothing is initializing
-  if (!hasFoa || (!isInitializing && 
-      initStatus.equipment !== 'running' && 
-      initStatus.sources !== 'running' && 
-      initStatus.attachments !== 'running')) {
-    return null;
-  }
-
-  return (
-    <Alert className="mb-4 p-4 bg-blue-50 border-blue-200">
-      <div className="flex items-center">
-        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        <AlertDescription className="font-medium">
-          Setting up your project...
-        </AlertDescription>
-      </div>
-      <div className="text-sm mt-2 space-y-1">
-        {initStatus.equipment === 'running' && (
-          <div className="flex items-center">
-            <Loader2 className="h-3 w-3 animate-spin mr-2" />
-            <span>Analyzing equipment needs...</span>
-          </div>
-        )}
-        {initStatus.equipment === 'complete' && (
-          <div className="flex items-center text-green-600">
-            <CheckCircle2 className="h-3 w-3 mr-2" />
-            <span>Equipment analysis complete</span>
-          </div>
-        )}
-        {initStatus.equipment === 'error' && (
-          <div className="flex items-center text-red-600">
-            <AlertCircle className="h-3 w-3 mr-2" />
-            <span>Equipment analysis failed</span>
-          </div>
-        )}
-        
-        {initStatus.sources === 'running' && (
-          <div className="flex items-center">
-            <Loader2 className="h-3 w-3 animate-spin mr-2" />
-            <span>Finding relevant sources...</span>
-          </div>
-        )}
-        {initStatus.sources === 'complete' && (
-          <div className="flex items-center text-green-600">
-            <CheckCircle2 className="h-3 w-3 mr-2" />
-            <span>Source generation complete</span>
-          </div>
-        )}
-        {initStatus.sources === 'error' && (
-          <div className="flex items-center text-red-600">
-            <AlertCircle className="h-3 w-3 mr-2" />
-            <span>Source generation failed</span>
-          </div>
-        )}
-        
-        {initStatus.attachments === 'running' && (
-          <div className="flex items-center">
-            <Loader2 className="h-3 w-3 animate-spin mr-2" />
-            <span>Preparing documents...</span>
-          </div>
-        )}
-        {initStatus.attachments === 'complete' && (
-          <div className="flex items-center text-green-600">
-            <CheckCircle2 className="h-3 w-3 mr-2" />
-            <span>Documents prepared successfully</span>
-          </div>
-        )}
-        {initStatus.attachments === 'error' && (
-          <div className="flex items-center text-red-600">
-            <AlertCircle className="h-3 w-3 mr-2" />
-            <span>Document preparation failed</span>
-          </div>
-        )}
-      </div>
-    </Alert>
-  );
+  // Always return null to hide UI, but the useEffect will still run
+  return null;
 } 
